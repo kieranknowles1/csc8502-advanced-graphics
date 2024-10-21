@@ -29,14 +29,14 @@ int main() {
 		if (Window::GetKeyboard()->KeyDown(KEYBOARD_RIGHT)) --rotation;
 
 		if (Window::GetKeyboard()->KeyDown(KEYBOARD_K))
-			position.y -= 1.0f;
-		if (Window::GetKeyboard()->KeyDown(KEYBOARD_I))
 			position.y += 1.0f;
+		if (Window::GetKeyboard()->KeyDown(KEYBOARD_I))
+			position.y -= 1.0f;
 
 		if (Window::GetKeyboard()->KeyDown(KEYBOARD_J))
-			position.x -= 1.0f;
-		if (Window::GetKeyboard()->KeyDown(KEYBOARD_L))
 			position.x += 1.0f;
+		if (Window::GetKeyboard()->KeyDown(KEYBOARD_L))
+			position.x -= 1.0f;
 
 		if (Window::GetKeyboard()->KeyDown(KEYBOARD_O))
 			position.z -= 1.0f;
