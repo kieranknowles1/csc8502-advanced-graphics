@@ -40,7 +40,10 @@ enum MeshBuffer {
 };
 
 class Mesh	{
-public:	
+public:
+	// Generate a simple mesh representing a triangle
+	static Mesh* GenerateTriangle();
+
 	struct SubMesh {
 		int start;
 		int count;

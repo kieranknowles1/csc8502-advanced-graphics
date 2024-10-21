@@ -5,11 +5,13 @@ int main()	{
 	Window w("My First OpenGL Triangle!", 1280, 720, false);
 
 	if(!w.HasInitialised()) {
+		std::cout << "Window failed to initialise!" << std::endl;
 		return -1;
 	}
 	
 	Renderer renderer(w);
 	if(!renderer.HasInitialised()) {
+		std::cout << "Renderer failed to initialise!" << std::endl;
 		return -1;
 	}
 
