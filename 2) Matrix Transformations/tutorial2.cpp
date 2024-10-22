@@ -18,9 +18,9 @@ int main() {
 	Vector3 position(0, 0, -1500.0f);
 
 	while (w.UpdateWindow() && !Window::GetKeyboard()->KeyDown(KEYBOARD_ESCAPE)) {
-		if (Window::GetKeyboard()->KeyDown(KEYBOARD_1))
+		if (Window::GetKeyboard()->KeyDown(KEYBOARD_3))
 			renderer.SwitchToOrthographic();
-		if (Window::GetKeyboard()->KeyDown(KEYBOARD_2))
+		if (Window::GetKeyboard()->KeyDown(KEYBOARD_4))
 			renderer.SwitchToPerspective();
 
 		if (Window::GetKeyboard()->KeyDown(KEYBOARD_PLUS))  ++scale;
@@ -53,6 +53,7 @@ int main() {
 		renderer.SetScale(scale);
 		renderer.SetPosition(position);
 		renderer.SetFov(fov);
+		renderer.UpdateScene(w.GetTimer()->GetTimeDeltaSeconds());
 		renderer.RenderScene();
 		renderer.SwapBuffers();
 	}

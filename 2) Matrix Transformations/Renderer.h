@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../nclgl/Camera.h"
 #include "../nclgl/OGLRenderer.h"
 
 enum class ProjectionType {
@@ -12,6 +13,7 @@ public:
 	Renderer(Window &parent);
 	~Renderer() override;
 	void RenderScene() override;
+	void UpdateScene(float dt) override;
 
 	void SetScale(float s) { scale = s; }
 	void SetRotation(float r) { rotation = r; }
@@ -25,15 +27,13 @@ protected:
 	// Update the projection matrix if it is dirty
 	void CheckMatrix();
 
+	Camera* camera;
+
 	Mesh* triangle;
 	Shader* shader;
 	float scale;
 	float rotation;
 	Vector3 position;
-
-	GLuint projLocation;
-	GLuint viewLocation;
-	GLuint modelLocation;
 
 	ProjectionType projType;
 	float fov;

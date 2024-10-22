@@ -15,18 +15,16 @@ Renderer::Renderer(Window& parent)
 	, position(0, 0, 0)
 	, shader(new Shader("MatrixVertex.glsl", "ColorFragment.glsl"))
 	, triangle(Mesh::GenerateTriangle())
+	, camera(new Camera(0, 0, 0, Vector3(0, 0, 0)))
 {
-	SwitchToOrthographic();
-
-	projLocation = getUniform(shader, "projMatrix");
-	viewLocation = getUniform(shader, "viewMatrix");
-	modelLocation = getUniform(shader, "modelMatrix");
+	SwitchToPerspective();
 
 	init = shader->LoadSuccess();
 }
 
 Renderer::~Renderer()
 {
+	delete camera;
 	delete triangle;
 	delete shader;
 }
@@ -39,13 +37,6 @@ void Renderer::RenderScene()
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	BindShader(shader);
-	// Bind our matrix uniform variables
-
-	// Projection - the camera lens
-	glUniformMatrix4fv(projLocation, 1, false, projMatrix.values);
-	// View - Unused here, and set to the identity matrix
-	glUniformMatrix4fv(viewLocation, 1, false, viewMatrix.values);
-
 	// Draw the triangle in 3 different positions
 	// Draw in reverse order to show why the depth buffer is important
 	for (int i = 2; i >= 0; i--) {
@@ -58,10 +49,18 @@ void Renderer::RenderScene()
 			* Matrix4::Rotation(rotation, Vector3(0, 1, 0))
 			* Matrix4::Scale(Vector3(scale, scale, scale));
 
+		// Projection - the camera lens
+		// View - Unused here, and set to the identity matrix
 		// Model - the transformation of the object
-		glUniformMatrix4fv(modelLocation, 1, false, modelMatrix.values);
+		UpdateShaderMatrices();
 		triangle->Draw();
 	}
+}
+
+void Renderer::UpdateScene(float dt)
+{
+	camera->update(dt);
+	viewMatrix = camera->buildViewMatrix();
 }
 
 void Renderer::CheckMatrix()
