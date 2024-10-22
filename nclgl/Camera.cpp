@@ -16,6 +16,8 @@ Camera::~Camera() {
 
 void Camera::update(float dt) {
 	// Update our pitch and yaw from the mouse
+	// TODO: Rotation borks pitch/yaw controls, we need to turn
+	// relative to the rotated angle
 	pitch -= Window::GetMouse()->GetRelativePosition().y;
 	yaw -= Window::GetMouse()->GetRelativePosition().x;
 
@@ -32,9 +34,10 @@ void Camera::update(float dt) {
 	}
 
 	Matrix4 rotation =
-		Matrix4::Rotation(yaw, Vector3(0, 1, 0))
-		* Matrix4::Rotation(pitch, Vector3(1, 0, 0))
-		* Matrix4::Rotation(roll, Vector3(0, 0, 1));
+		// Apply rotation first to roll around our pitch/yaw
+		Matrix4::Rotation(roll, Vector3(0, 0, 1)) *
+		Matrix4::Rotation(pitch, Vector3(1, 0, 0)) *
+		Matrix4::Rotation(yaw, Vector3(0, 1, 0));
 	// Calculate the forward and right vectors relative to the camera
 	Vector3 forward = rotation * Vector3(0, 0, -1);
 	Vector3 right = rotation * Vector3(1, 0, 0);
@@ -91,8 +94,9 @@ void Camera::update(float dt) {
 Matrix4 Camera::buildViewMatrix() {
 	// Everything is negated to move the world opposite to the camera's movement,
 	// creating the illusion of a moving camera
-	return Matrix4::Rotation(-pitch, Vector3(1, 0, 0))
-		* Matrix4::Rotation(-yaw, Vector3(0, 1, 0))
+	return
+		Matrix4::Rotation(-pitch, Vector3(1, 0, 0))
 		* Matrix4::Rotation(-roll, Vector3(0, 0, 1))
+		* Matrix4::Rotation(-yaw, Vector3(0, 1, 0))
 		* Matrix4::Translation(-position);
 }
