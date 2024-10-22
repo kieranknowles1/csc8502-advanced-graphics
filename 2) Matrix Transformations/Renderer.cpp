@@ -33,6 +33,8 @@ Renderer::~Renderer()
 
 void Renderer::RenderScene()
 {
+	CheckMatrix();
+
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
@@ -62,8 +64,19 @@ void Renderer::RenderScene()
 	}
 }
 
+void Renderer::CheckMatrix()
+{
+	if (projType == ProjectionType::Orthographic) {
+		SwitchToOrthographic();
+	}
+	else {
+		SwitchToPerspective();
+	}
+}
+
 void Renderer::SwitchToOrthographic()
 {
+	projType = ProjectionType::Orthographic;
 	projMatrix = Matrix4::Orthographic(
 		-1.0f, 1000.0f,
 		width / 2.0f,
@@ -75,5 +88,6 @@ void Renderer::SwitchToOrthographic()
 
 void Renderer::SwitchToPerspective()
 {
-	projMatrix = Matrix4::Perspective(1.0f, 10000.0f, (float)width / (float)height, 45.0f);
+	projType = ProjectionType::Perspective;
+	projMatrix = Matrix4::Perspective(1.0f, 10000.0f, (float)width / (float)height, fov);
 }

@@ -17,6 +17,7 @@ out Vertex {
 
 void main() {
     // Multiply all matrixes to get the "model view projection" matrix
+    // "viewMatrix" is unused and kept as the identity matrix
     mat4 mvp = projMatrix * viewMatrix * modelMatrix;
     
     // Transform the position by the MVP matrix
