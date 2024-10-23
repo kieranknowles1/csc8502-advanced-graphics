@@ -73,12 +73,12 @@ void Camera::update(float dt) {
 	}
 
 	// What good is freedom if you don't have 6 degrees of it?
-	if (keyboard->KeyDown(KEYBOARD_1)) {
-		roll += rollSpeed * dt;
-	}
-	if (keyboard->KeyDown(KEYBOARD_2)) {
-		roll -= rollSpeed * dt;
-	}
+	//if (keyboard->KeyDown(KEYBOARD_1)) {
+	//	roll += rollSpeed * dt;
+	//}
+	//if (keyboard->KeyDown(KEYBOARD_2)) {
+	//	roll -= rollSpeed * dt;
+	//}
 
 	// If you think these controls are complicated, you should try
 	// Freespace, where you you'll be using the whole keyboard

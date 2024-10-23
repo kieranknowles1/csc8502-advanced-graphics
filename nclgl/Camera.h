@@ -25,6 +25,8 @@ public:
 
 	float getRoll() const { return roll; }
 	void setRoll(float roll) { this->roll = roll; }
+
+	void setSpeed(float value) { speed = value; }
 private:
 	float speed = 300.0f;
 

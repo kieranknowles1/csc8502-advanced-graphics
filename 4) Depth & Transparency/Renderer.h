@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../nclgl/OGLRenderer.h"
+#include "../nclgl/Camera.h"
 
 class Renderer : public OGLRenderer
 {
@@ -9,6 +10,7 @@ public:
 	~Renderer() override;
 
 	void RenderScene() override;
+	void UpdateScene(float dt) override;
 
 	void ToggleObject();
 	void ToggleDepth();
@@ -21,6 +23,7 @@ public:
 protected:
 	GLuint textures[2];
 	Mesh* meshes[2];
+	Camera* camera;
 	Shader* shader;
 	Vector3 positions[2];
 

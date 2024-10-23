@@ -7,7 +7,10 @@ Renderer::Renderer(Window& parent)
 	, useAlpha(false)
 	, blendMode(0)
 	, activeObject(0)
+	, camera(new Camera(0, 0, 0, Vector3(0, 0, 0)))
 {
+	camera->setSpeed(1.0f);
+
 	meshes[0] = Mesh::GenerateQuad();
 	meshes[1] = Mesh::GenerateTriangle();
 
@@ -43,6 +46,9 @@ Renderer::~Renderer() {
 }
 
 void Renderer::RenderScene() {
+	float maxAniso = 0;
+	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
+
 	glClearColor(0.2, 0.2, 0.2, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -56,8 +62,19 @@ void Renderer::RenderScene() {
 			(float*)&Matrix4::Translation(positions[i])
 		);
 		glBindTexture(GL_TEXTURE_2D, textures[i]);
+		// Use anisotropic filtering to keep textures from being
+		// blurry at an oblique angle.
+		// This is a very cheap operation, so put it as high as possible.
+		// Only real impact is on memory bandwidth.
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);
 		meshes[i]->Draw();
 	}
+}
+
+void Renderer::UpdateScene(float dt)
+{
+	camera->update(dt);
+	viewMatrix = camera->buildViewMatrix();
 }
 
 void Renderer::ToggleObject()
