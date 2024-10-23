@@ -13,14 +13,32 @@ Renderer::Renderer(Window& window)
 		SOIL_CREATE_NEW_ID, // Allocate a new texture
 		SOIL_FLAG_MIPMAPS // Generate mipmaps
 	);
+	blendTexture = SOIL_load_OGL_texture(
+		TEXTUREDIR "Barren Reds.JPG",
+		SOIL_LOAD_AUTO,
+		SOIL_CREATE_NEW_ID,
+		SOIL_FLAG_MIPMAPS
+	);
 
-	init = shader->LoadSuccess() && texture;
+	init = shader->LoadSuccess() && texture && blendTexture;
 }
 
 Renderer::~Renderer() {
 	delete shader;
 	delete triangle;
 	glDeleteTextures(1, &texture); // Free our texture
+}
+
+void Renderer::setTexture(GLenum unit, const char* uniformName, GLuint texture)
+{
+	// The GL_TEXTURE enum is contiguous, so we can subtract GL_TEXTURE0
+	// to get the index
+	int unitNum = unit - GL_TEXTURE0;
+	// Set the shader's uniform to the unit number
+	glUniform1i(glGetUniformLocation(shader->GetProgram(), uniformName), unitNum);
+	// Future texture functions will run on this unit
+	glActiveTexture(unit);
+	glBindTexture(GL_TEXTURE_2D, texture);
 }
 
 void Renderer::RenderScene() {
@@ -32,14 +50,12 @@ void Renderer::RenderScene() {
 	UpdateShaderMatrices();
 
 	// Bind our texture, pass a uniform saying that it's in unit 0
-	glUniform1i(glGetUniformLocation(
-		shader->GetProgram(), "diffuseTex"), 0);
-	glActiveTexture(GL_TEXTURE0); // Future texture functions will run on this unit
-	glBindTexture(GL_TEXTURE_2D, texture);
+	setTexture(GL_TEXTURE0, "diffuseTex", texture);
+	setTexture(GL_TEXTURE1, "blendTex", blendTexture);
 	triangle->Draw();
 }
 
-void Renderer::UpdateTextureMatrix(float rotation, float scale)
+void Renderer::UpdateTextureMatrix(float rotation, float scale, Vector2 position)
 {
 	Vector3 pushVec(0.5, 0.5, 0.0);
 
@@ -48,16 +64,18 @@ void Renderer::UpdateTextureMatrix(float rotation, float scale)
 	Matrix4 push = Matrix4::Translation(pushVec);
 	Matrix4 pop = Matrix4::Translation(-pushVec);
 	Matrix4 rotationMat = Matrix4::Rotation(rotation, Vector3(0, 0, 1));
-	// Use 1/scale to make the texture smaller as scale decreases
-	Matrix4 scaleMat = Matrix4::Scale(Vector3(1/scale, 1/scale, 1));
+	Matrix4 scaleMat = Matrix4::Scale(Vector3(scale, scale, 1));
 
-	textureMatrix = push * rotationMat * scaleMat * pop;
+	Matrix4 translation = Matrix4::Translation(Vector3(position.x, position.y, 0));
+
+	textureMatrix = push * rotationMat * scaleMat * pop * translation;
 }
 
 void Renderer::ToggleRepeating()
 {
 	repeatEnabled = !repeatEnabled;
 	setTextureRepeating(texture, repeatEnabled);
+	setTextureRepeating(blendTexture, repeatEnabled);
 }
 
 void Renderer::ToggleFiltering()

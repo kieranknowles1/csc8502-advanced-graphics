@@ -13,16 +13,27 @@ int main() {
 	}
 
 	float rotate = 0.0f;
+	float scale = 1.0f;
+	Vector2 position(0, 0);
 	while(w.UpdateWindow() && !Window::GetKeyboard()->KeyDown(KEYBOARD_ESCAPE)){
 		if(Window::GetKeyboard()->KeyDown(KEYBOARD_LEFT) ) {
 			--rotate;
-			renderer.UpdateTextureMatrix(rotate);
+			scale += 0.01;
 		}
 
 		if(Window::GetKeyboard()->KeyDown(KEYBOARD_RIGHT) ) {
 			++rotate;
-			renderer.UpdateTextureMatrix(rotate);
+			scale -= 0.01;
 		}
+		if (Window::GetKeyboard()->KeyDown(KEYBOARD_W))
+			position.y -= 0.01; // Negative since this is used as a janky camera
+		if (Window::GetKeyboard()->KeyDown(KEYBOARD_S))
+			position.y += 0.01;
+		if (Window::GetKeyboard()->KeyDown(KEYBOARD_A))
+			position.x -= 0.01;
+		if (Window::GetKeyboard()->KeyDown(KEYBOARD_D))
+			position.x += 0.01;
+		renderer.UpdateTextureMatrix(rotate, scale, position);
 
 		if(Window::GetKeyboard()->KeyTriggered(KEYBOARD_1) ) {
 			renderer.ToggleFiltering();
