@@ -12,7 +12,15 @@ int main()	{
 		return -1;
 	}
 
+	float alphaThreshold = 0.5f;
+
 	while(w.UpdateWindow() && !Window::GetKeyboard()->KeyDown(KEYBOARD_ESCAPE)){				//And enter a while loop that renders the scene
+		if (Window::GetKeyboard()->KeyDown(KEYBOARD_PLUS))
+			alphaThreshold += 0.01f;
+		if (Window::GetKeyboard()->KeyDown(KEYBOARD_MINUS))
+			alphaThreshold -= 0.01f;
+		renderer.SetAlphaThreshold(alphaThreshold);
+
 		if(Window::GetKeyboard()->KeyTriggered(KEYBOARD_1)) {
 			renderer.ToggleObject();
 		}

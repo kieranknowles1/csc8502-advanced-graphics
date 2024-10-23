@@ -43,6 +43,10 @@ public:
 	static void	PrintCompileLog(GLuint object);
 	static void	PrintLinkLog(GLuint program);
 
+	int getUniform(const char* name) {
+		return glGetUniformLocation(programID, name);
+	}
+
 protected:
 	void	DeleteIDs();
 

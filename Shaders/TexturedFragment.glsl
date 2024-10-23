@@ -2,7 +2,14 @@
 
 // A sampler2D is a texture that can be sampled in the shader
 uniform sampler2D diffuseTex;
-uniform sampler2D blendTex;
+
+// Discard any fragments with an alpha value below this threshold
+// This emulates alpha testing as seen in older OpenGL versions
+// Alpha testing is faster than translucency, but is a binary test
+// Still, it's useful for certain effects. E.g., dense grass would
+// be expensive to sort, but cheap to discard and small enough for
+// the quality loss to be unnoticeable
+uniform float alphaThreshold;
 
 in Vertex {
     vec2 texCoord;
@@ -14,10 +21,9 @@ void main() {
     // We could swizzle to extract different colors
     // fragColor.brg = texture(diffuseTex, IN.texCoord).rgb;
     // fragColor = texture(diffuseTex, IN.texCoord) * texture(blendTex, IN.texCoord);
+    fragColor = texture(diffuseTex, IN.texCoord);
 
-    fragColor = mix(
-        texture(diffuseTex, IN.texCoord),
-        texture(blendTex, IN.texCoord),
-        clamp(IN.texCoord.y, 0, 1)
-    );
+    if (fragColor.a <= alphaThreshold) {
+        discard;
+    }
 }
