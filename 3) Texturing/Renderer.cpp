@@ -3,7 +3,7 @@
 Renderer::Renderer(Window& window)
 	: OGLRenderer(window)
 	, shader(new Shader("TexturedVertex.glsl", "TexturedFragment.glsl"))
-	, triangle(Mesh::GenerateTriangle())
+	, triangle(Mesh::GenerateQuad())
 	, filterEnabled(true)
 	, repeatEnabled(false)
 {

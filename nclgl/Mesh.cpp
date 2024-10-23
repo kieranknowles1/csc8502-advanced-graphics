@@ -27,6 +27,35 @@ Mesh* Mesh::GenerateTriangle() {
 	return m;
 }
 
+Mesh* Mesh::GenerateQuad() {
+	Mesh* m = new Mesh();
+	m->numVertices = 4;
+	m->type = GL_TRIANGLE_STRIP; // Draw a triangle after each point, using the last two points and the new one
+
+	m->vertices = new Vector3[m->numVertices];
+	m->textureCoords = new Vector2[m->numVertices];
+
+	m->vertices[0] = Vector3(-1.0f, 1.0f, 0.0f); // Top left
+	m->textureCoords[0] = Vector2(0.0f, 1.0f);
+	
+	m->vertices[1] = Vector3(-1.0f, -1.0f, 0.0f); // Bottom left
+	m->textureCoords[1] = Vector2(0.0f, 0.0f);
+	
+	m->vertices[2] = Vector3(1.0f, 1.0f, 0.0f); // Top right
+	m->textureCoords[2] = Vector2(1.0f, 1.0f);
+	
+	m->vertices[3] = Vector3(1.0f, -1.0f, 0.0f); // Bottom right
+	m->textureCoords[3] = Vector2(1.0f, 0.0f);
+
+	m->colours = new Vector4[m->numVertices];
+	for (int i = 0; i < 4; i++) {
+		m->colours[i] = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+	}
+
+	m->BufferData();
+	return m;
+}
+
 Mesh::Mesh(void)	{
 	glGenVertexArrays(1, &arrayObject);
 	

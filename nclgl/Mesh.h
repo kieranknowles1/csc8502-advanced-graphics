@@ -43,6 +43,7 @@ class Mesh	{
 public:
 	// Generate a simple mesh representing a triangle
 	static Mesh* GenerateTriangle();
+	static Mesh* GenerateQuad();
 
 	struct SubMesh {
 		int start;
