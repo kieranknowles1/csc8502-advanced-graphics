@@ -56,6 +56,8 @@ public:
 	void			SwapBuffers();
 
 	bool			HasInitialised() const;	
+
+	void setTextureRepeating(GLuint texture, bool repeating);
 	
 protected:
 	virtual void	Resize(int x, int y);	

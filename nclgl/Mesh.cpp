@@ -5,32 +5,6 @@ using std::string;
 
 Mesh* Mesh::GenerateTriangle() {
 	Mesh* m = new Mesh();
-	//const int COUNT = 4;
-	//m->numVertices = 3 * COUNT;
-
-	//m->vertices = new Vector3[m->numVertices];
-	//m->vertices[0] = Vector3(-1.0f, 1.0f, 0.0f);
-	//m->vertices[1] = Vector3(0.0f, 1.0f, 0.0f);
-	//m->vertices[2] = Vector3(-1.0f, 0.0f, 0.0f);
-
-	//m->vertices[3] = Vector3(1.0f, 1.0f, 0.0f);
-	//m->vertices[4] = Vector3(1.0f, 0.0f, 0.0f);
-	//m->vertices[5] = Vector3(0.0f, 1.0f, 0.0f);
-
-	//m->vertices[6] = Vector3(-1.0f, -1.0f, 0.0f);
-	//m->vertices[7] = Vector3(0.0f, -1.0f, 0.0f);
-	//m->vertices[8] = Vector3(-1.0f, 0.0f, 0.0f);
-
-	//m->vertices[9] = Vector3(1.0f, -1.0f, 0.0f);
-	//m->vertices[10] = Vector3(1.0f, 0.0f, 0.0f);
-	//m->vertices[11] = Vector3(0.0f, -1.0f, 0.0f);
-
-	//m->colours = new Vector4[m->numVertices];
-	//for (int i = 0; i < COUNT; i++) {
-	//	m->colours[i*3] = Vector4(1.0f, 0.0f, 0.0f, 1.0f); // Red
-	//	m->colours[i*3 + 1] = Vector4(0.0f, 1.0f, 0.0f, 1.0f); // Green
-	//	m->colours[i*3 + 2] = Vector4(0.0f, 0.0f, 1.0f, 1.0f); // Blue
-	//}
 
 	m->numVertices = 3;
 	m->vertices = new Vector3[m->numVertices];
@@ -42,6 +16,11 @@ Mesh* Mesh::GenerateTriangle() {
 	m->colours[0] = Vector4(1.0f, 0.0f, 0.0f, 1.0f); // Red
 	m->colours[1] = Vector4(0.0f, 1.0f, 0.0f, 1.0f); // Green
 	m->colours[2] = Vector4(0.0f, 0.0f, 1.0f, 1.0f); // Blue
+
+	m->textureCoords = new Vector2[m->numVertices];
+	m->textureCoords[0] = Vector2(0.5f, 0.0f);
+	m->textureCoords[1] = Vector2(1.0f, 1.0f);
+	m->textureCoords[2] = Vector2(0.0f, 1.0f);
 
 	// Copy data to GPU
 	m->BufferData();
