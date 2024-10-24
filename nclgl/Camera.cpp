@@ -14,6 +14,22 @@ Camera::Camera(float pitch, float yaw, float roll, Vector3 position)
 Camera::~Camera() {
 }
 
+Matrix4 Camera::buildRotationMatrix(bool negate) {
+	// When building a view matrix, we also need to reverse order
+	// of operations, otherwise look directions will be funky
+	// with a rotated camera
+	if (negate) {
+		return Matrix4::Rotation(-pitch, Vector3(1, 0, 0)) *
+			Matrix4::Rotation(-roll, Vector3(0, 0, 1)) *
+			Matrix4::Rotation(-yaw, Vector3(0, 1, 0));
+	}
+	else {
+		return Matrix4::Rotation(yaw, Vector3(0, 1, 0)) *
+			Matrix4::Rotation(roll, Vector3(0, 0, 1)) *
+			Matrix4::Rotation(pitch, Vector3(1, 0, 0));
+	}
+}
+
 void Camera::update(float dt) {
 	// Update our pitch and yaw from the mouse
 	// TODO: Rotation borks pitch/yaw controls, we need to turn
@@ -33,11 +49,7 @@ void Camera::update(float dt) {
 		yaw -= 360;
 	}
 
-	Matrix4 rotation =
-		// Apply rotation first to roll around our pitch/yaw
-		Matrix4::Rotation(roll, Vector3(0, 0, 1)) *
-		Matrix4::Rotation(pitch, Vector3(1, 0, 0)) *
-		Matrix4::Rotation(yaw, Vector3(0, 1, 0));
+	Matrix4 rotation = buildRotationMatrix(false);
 	// Calculate the forward and right vectors relative to the camera
 	Vector3 forward = rotation * Vector3(0, 0, -1);
 	Vector3 right = rotation * Vector3(1, 0, 0);
@@ -73,10 +85,11 @@ void Camera::update(float dt) {
 	}
 
 	// What good is freedom if you don't have 6 degrees of it?
-	//if (keyboard->KeyDown(KEYBOARD_1)) {
+	// TODO: Roll should also affect pitch/yaw controls
+	//if (keyboard->KeyDown(KEYBOARD_Q)) {
 	//	roll += rollSpeed * dt;
 	//}
-	//if (keyboard->KeyDown(KEYBOARD_2)) {
+	//if (keyboard->KeyDown(KEYBOARD_E)) {
 	//	roll -= rollSpeed * dt;
 	//}
 
@@ -95,8 +108,6 @@ Matrix4 Camera::buildViewMatrix() {
 	// Everything is negated to move the world opposite to the camera's movement,
 	// creating the illusion of a moving camera
 	return
-		Matrix4::Rotation(-pitch, Vector3(1, 0, 0))
-		* Matrix4::Rotation(-roll, Vector3(0, 0, 1))
-		* Matrix4::Rotation(-yaw, Vector3(0, 1, 0))
+		buildRotationMatrix(true)
 		* Matrix4::Translation(-position);
 }

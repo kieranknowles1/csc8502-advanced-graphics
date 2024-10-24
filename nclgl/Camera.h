@@ -29,6 +29,8 @@ public:
 
 	void setSpeed(float value) { speed = value; }
 private:
+	Matrix4 buildRotationMatrix(bool negate);
+
 	float speed = 300.0f;
 
 	float rollSpeed = 200.0f;
