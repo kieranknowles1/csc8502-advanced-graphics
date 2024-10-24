@@ -1,5 +1,7 @@
 #include "Matrix4.h"
 
+#include <glad/glad.h>
+
 Matrix4::Matrix4(void)	{
 	ToIdentity();
 }
@@ -18,6 +20,11 @@ void Matrix4::ToIdentity() {
 	values[5]  = 1.0f;
 	values[10] = 1.0f;
 	values[15] = 1.0f;
+}
+
+void Matrix4::bind(int loc) const
+{
+	glUniformMatrix4fv(loc, 1, false, values);
 }
 
 void Matrix4::ToZero()	{

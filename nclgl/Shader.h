@@ -43,7 +43,7 @@ public:
 	static void	PrintCompileLog(GLuint object);
 	static void	PrintLinkLog(GLuint program);
 
-	int getUniform(const char* name) {
+	int getUniform(const char* name) const {
 		return glGetUniformLocation(programID, name);
 	}
 

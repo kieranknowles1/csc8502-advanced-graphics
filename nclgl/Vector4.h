@@ -14,6 +14,8 @@ _-_-_-_-_-_-_-""  ""
 
 #include "Vector3.h"
 
+#include <glad/glad.h>
+
 class Vector4	{
 public:
 	Vector4(void) {
@@ -68,6 +70,11 @@ public:
 
 	inline Vector4  operator*(const float a) const {
 		return Vector4(x * a, y * a, z * a, w * a);
+	}
+
+	// Bind this vector to a shader program at the specified location
+	void bind(int loc) {
+		glUniform4fv(loc, 1, (float*)&x);
 	}
 
 	~Vector4(void){}

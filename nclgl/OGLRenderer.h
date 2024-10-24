@@ -58,6 +58,8 @@ public:
 	bool			HasInitialised() const;	
 
 	void setTextureRepeating(GLuint texture, bool repeating);
+
+	const Shader* getCurrentShader() const { return currentShader; }
 	
 protected:
 	virtual void	Resize(int x, int y);	

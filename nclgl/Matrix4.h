@@ -30,6 +30,9 @@ public:
 
 	float	values[16];
 
+	// Bind the matrix to a uniform in a shader
+	void bind(int loc) const;
+
 	//Set all matrix values to zero
 	void	ToZero();
 	//Sets matrix to identity matrix (1.0 down the diagonal)
