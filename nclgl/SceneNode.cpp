@@ -42,7 +42,7 @@ void SceneNode::addChild(SceneNode* s)
 
 void SceneNode::update(float dt)
 {
-	worldTransform = parent ? parent->worldTransform * transform : transform;
+	worldTransform = parent ? parent->worldTransform * transform * Matrix4::Scale(scale) : transform;
 	onUpdate(dt);
 
 	for (auto& child : children)
@@ -67,10 +67,9 @@ void SceneNode::drawSelf(const OGLRenderer& r)
 		return;
 
 	const Shader* shader = r.getCurrentShader();
-	// TODO: Have scale as part of the world transform, otherwise
 	// it isn't inherited by children
 	// Currently needed as we're using scaled primitives
-	Matrix4 model = getWorldTransform() * Matrix4::Scale(scale);
+	Matrix4 model = getWorldTransform();
 	model.bind(shader->getUniform("modelMatrix"));
 	color.bind(shader->getUniform("nodeColor"));
 	glUniform1i(shader->getUniform("useTexture"), 0);

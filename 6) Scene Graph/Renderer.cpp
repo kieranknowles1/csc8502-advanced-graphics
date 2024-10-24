@@ -26,6 +26,7 @@ Renderer::Renderer(Window& parent)
 	for (int i = 0; i < 10; i++) {
 		bot = bot->deepCopy();
 		bot->setTransform(bot->getTransform() * Matrix4::Translation(Vector3(0, 0, -100)));
+		bot->setScale(bot->getScale() * 1.2f);
 		root->addChild(bot);
 	}
 
