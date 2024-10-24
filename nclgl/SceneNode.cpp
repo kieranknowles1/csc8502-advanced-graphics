@@ -77,3 +77,24 @@ void SceneNode::drawSelf(const OGLRenderer& r)
 
 	mesh->Draw();
 }
+
+SceneNode::SceneNode(const SceneNode& s)
+	: parent(nullptr)
+	, mesh(s.mesh)
+	, color(s.color)
+	, scale(s.scale)
+	, transform(s.transform)
+	, worldTransform(s.worldTransform)
+	{}
+
+SceneNode* SceneNode::deepCopy() const
+{
+	SceneNode* copy = new SceneNode(*this);
+	// Don't do this in the constructor, as derived classes
+	// may need to know which child is which
+	for (auto child : children) {
+		std::cout << "Child: " << child->getName() << std::endl;
+		copy->addChild(child->deepCopy());
+	}
+	return copy;
+}

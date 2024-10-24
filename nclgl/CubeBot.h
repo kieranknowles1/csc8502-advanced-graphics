@@ -6,7 +6,13 @@ public:
 	CubeBot(Mesh* cube);
 	~CubeBot();
 
+	const std::string getName() const override { return "CubeBot"; }
+
 protected:
+	CubeBot(const CubeBot& s);
+
+
+	SceneNode* deepCopy() const override;
 	void onUpdate(float dt) override;
 
 	SceneNode* head;

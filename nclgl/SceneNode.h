@@ -10,6 +10,10 @@
 class SceneNode
 {
 public:
+	// Copy this node and all its children
+	// Overrides should set themselves up as close to the original as possible
+	virtual SceneNode* deepCopy() const;
+
 	SceneNode(Mesh* mesh = nullptr, Vector4 color = Vector4(1, 1, 1, 1));
 	virtual ~SceneNode();
 
@@ -35,13 +39,14 @@ public:
 	bool isChildOf(SceneNode* other);
 	void setParent(SceneNode* parent);
 
+	virtual const std::string getName() const { return "SceneNode"; }
+
 protected:
 	// Called every frame BEFORE children are updated
 	virtual void onUpdate(float dt) {}
 	// Parents are drawn BEFORE their children
 	virtual void drawSelf(const OGLRenderer& r);
 
-	SceneNode* parent;
 	Mesh* mesh;
 	Matrix4 worldTransform;
 	Matrix4 transform;
@@ -49,5 +54,14 @@ protected:
 	Vector4 color;
 
 	std::vector<SceneNode*> children;
+
+	// Don't make this public, if we want to make
+	// a copy from a derived pointer, deepCopy is
+	// needed to make sure the right type is created
+
+	// Copies the parent, but not the children
+	SceneNode(const SceneNode& s);
+
+	SceneNode* parent;
 };
 
