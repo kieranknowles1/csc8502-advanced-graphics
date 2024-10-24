@@ -4,6 +4,7 @@ Renderer::Renderer(Window &parent)
 	: OGLRenderer(parent)
 	, scissorActive(false)
 	, stencilActive(false)
+	, showMask(false)
 	, camera(new Camera())
 	, shader(new Shader("TexturedVertex.glsl", "StencilFragment.glsl"))
 {
@@ -73,8 +74,8 @@ void Renderer::RenderScene()
 
 		// Re-enable writing to the color buffer
 		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-		// Only draw where the stencil buffer is set to STAR_MASK
-		glStencilFunc(GL_EQUAL, STAR_MASK, 0xFF);
+		// Mask out places where STAR_MASK is set
+		glStencilFunc(GL_NOTEQUAL, STAR_MASK, 0xFF);
 		// Disable writing to the stencil buffer
 		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 	}
