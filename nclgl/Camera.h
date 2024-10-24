@@ -6,6 +6,7 @@
 class Camera
 {
 public:
+	Camera() : Camera(0, 0, 0, Vector3(0, 0, 0)) {}
 	Camera(float pitch, float yaw, float roll, Vector3 position);
 
 	~Camera();

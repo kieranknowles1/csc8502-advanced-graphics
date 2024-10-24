@@ -47,6 +47,8 @@ Renderer::~Renderer() {
 
 void Renderer::RenderScene() {
 	float maxAniso = 0;
+	// Get the maximum anisotropic filtering level supported by the GPU.
+	// 16x is a common value.
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
 
 	glClearColor(0.2, 0.2, 0.2, 1.0);

@@ -15,6 +15,7 @@ int main() {
 
 	bool scissor = false;
 	bool stencil = false;
+	bool mask = false;
 
 	while(w.UpdateWindow() && !Window::GetKeyboard()->KeyDown(KEYBOARD_ESCAPE)){
 		if(Window::GetKeyboard()->KeyTriggered(KEYBOARD_1)) {
@@ -24,6 +25,10 @@ int main() {
 		if(Window::GetKeyboard()->KeyTriggered(KEYBOARD_2)) {
 			renderer.ToggleStencil();
 			stencil = !stencil;
+		}
+		if(Window::GetKeyboard()->KeyTriggered(KEYBOARD_3)) {
+			renderer.ToggleMask();
+			mask = !mask;
 		}
 
 		string title;
@@ -41,8 +46,10 @@ int main() {
 		else {
 			title += "Stencil Disabled. ";
 		}
+		title += mask ? "Mask Shown." : "Mask Hidden.";
 		w.SetTitle(title);
 
+		renderer.UpdateScene(w.GetTimer()->GetTimeDeltaSeconds());
 		renderer.RenderScene();
 		renderer.SwapBuffers();
 		if (Window::GetKeyboard()->KeyDown(KEYBOARD_F5)) {
