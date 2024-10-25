@@ -11,8 +11,11 @@ SceneNode::SceneNode(Mesh* mesh, Vector4 color)
 
 SceneNode::~SceneNode()
 {
+	detachFromParent();
 	for (auto& child : children)
 	{
+		// Clear the child's parent so it doesn't try to detach itself
+		child->parent = nullptr;
 		delete child;
 	}
 }
@@ -26,12 +29,26 @@ bool SceneNode::isChildOf(SceneNode* other)
 	return parent->isChildOf(other);
 }
 
-void SceneNode::setParent(SceneNode* parent)
+void SceneNode::detachFromParent()
 {
-	assert(parent != this && "Cannot set parent to self");
-	assert(this->parent == nullptr && "Node already has a parent");
-	assert(!isChildOf(parent) && "Infinite node loop detected");
-	this->parent = parent;
+	if (parent == nullptr)
+		return;
+
+	auto self = std::find(parent->children.begin(), parent->children.end(), this);
+	parent->children.erase(self);
+
+	parent = nullptr;
+}
+
+void SceneNode::setParent(SceneNode* newParent)
+{
+	if (parent != nullptr) {
+		detachFromParent();
+	}
+
+	assert(newParent != this && "Cannot set parent to self");
+	assert((newParent == nullptr || !newParent->isChildOf(this)) && "Infinite node loop detected");
+	parent = newParent;
 }
 
 void SceneNode::addChild(SceneNode* s)
@@ -42,6 +59,8 @@ void SceneNode::addChild(SceneNode* s)
 
 void SceneNode::update(float dt)
 {
+	// Scale needs to be applied after rotation (which may happen in onUpdate)
+	// otherwise we'll get weird results
 	worldTransform = parent ? parent->worldTransform * transform * Matrix4::Scale(scale) : transform;
 	onUpdate(dt);
 

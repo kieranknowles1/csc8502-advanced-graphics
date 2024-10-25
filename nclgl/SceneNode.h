@@ -37,7 +37,12 @@ public:
 	void draw(const OGLRenderer& r);
 
 	bool isChildOf(SceneNode* other);
-	void setParent(SceneNode* parent);
+
+	// Set the parent of this node
+	// If the node already has a parent, it will be moved to the new parent
+	// Setting the parent to nullptr will remove the node from the scene graph,
+	// but not delete it
+	void setParent(SceneNode* newParent);
 
 	virtual const std::string getName() const { return "SceneNode"; }
 
@@ -63,5 +68,11 @@ protected:
 	SceneNode(const SceneNode& s);
 
 	SceneNode* parent;
+
+private:
+	// Detach this node from its parent,
+	// setting parent to nullptr and removing it from the parent's children
+	// Does nothing if the node has no parent
+	void detachFromParent();
 };
 

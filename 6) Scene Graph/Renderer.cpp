@@ -21,6 +21,7 @@ Renderer::Renderer(Window& parent)
 	camera->setPosition(Vector3(0, 30, 175));
 
 	SceneNode* bot = new CubeBot(cube);
+	SceneNode* bot5;
 	root->addChild(bot);
 
 	for (int i = 0; i < 10; i++) {
@@ -28,7 +29,13 @@ Renderer::Renderer(Window& parent)
 		bot->setTransform(bot->getTransform() * Matrix4::Translation(Vector3(0, 0, -100)));
 		bot->setScale(bot->getScale() * 1.2f);
 		root->addChild(bot);
+
+		if (i == 5) {
+			bot5 = bot;
+		}
 	}
+
+	delete bot5;
 
 	init = true;
 
