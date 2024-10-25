@@ -23,6 +23,7 @@ HeightMap::HeightMap(const std::string& file, Vector3 vertexScale, Vector2 textu
 	// -1 as we can't get a position from the last row/column
 	numIndices = (width - 1) * (height - 1) * 6;
 	vertices = new Vector3[numVertices];
+	colours = new Vector4[numVertices];
 	textureCoords = new Vector2[numVertices];
 	indices = new unsigned int[numIndices];
 
@@ -34,6 +35,9 @@ HeightMap::HeightMap(const std::string& file, Vector3 vertexScale, Vector2 textu
 
 			vertices[offset] = Vector3(x, data[offset], z) * vertexScale;
 			textureCoords[offset] = Vector2(x, z) * textureScale;
+
+			float colour = data[offset] / 255.0f;
+			colours[offset] = Vector4(colour, colour, colour, 1.0f);
 		}
 	}
 	SOIL_free_image_data(data);

@@ -23,6 +23,20 @@ int main() {
 		if (Window::GetKeyboard()->KeyDown(KEYBOARD_F5)) {
 			Shader::ReloadAllShaders();
 		}
+
+		if (Window::GetKeyboard()->KeyDown(KEYBOARD_PLUS)) {
+			renderer.setWaterLevel(renderer.getWaterLevel() + 0.01f);
+		}
+
+		if (Window::GetKeyboard()->KeyDown(KEYBOARD_MINUS)) {
+			renderer.setWaterLevel(renderer.getWaterLevel() - 0.01f);
+		}
+		if (Window::GetKeyboard()->KeyDown(KEYBOARD_1)) {
+			renderer.setWaveAmplitude(renderer.getWaveAmplitude() + 0.001f);
+		}
+		if (Window::GetKeyboard()->KeyDown(KEYBOARD_2)) {
+			renderer.setWaveAmplitude(renderer.getWaveAmplitude() - 0.001f);
+		}
 	}
 	return 0;
 }
