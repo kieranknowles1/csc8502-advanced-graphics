@@ -1,5 +1,7 @@
 #include "Renderer.h"
 
+#include <algorithm>
+
 #include "../nclgl/CubeBot.h"
 
 Renderer::Renderer(Window& parent)
@@ -75,10 +77,10 @@ void Renderer::RenderScene()
 
 	glUniform1i(shader->getUniform("diffuseTex"), 1);
 
-	DrawNode(root);
+	drawTree(root);
 }
 
-void Renderer::DrawNode(SceneNode* node)
+void Renderer::drawTree(SceneNode* node)
 {
 	buildNodeLists(node);
 	sortNodeLists();
@@ -110,7 +112,19 @@ void Renderer::buildNodeLists(SceneNode* from)
 
 void Renderer::sortNodeLists()
 {
-	// TODO: Implement
+	// Sort transparent back to front
+	std::sort(
+		transparentNodes.rbegin(),
+		transparentNodes.rend(),
+		SceneNode::compareByCameraDistance
+	);
+
+	// Sort opaque front to back to reduce overdraw
+	std::sort(
+		opaqueNodes.begin(),
+		opaqueNodes.end(),
+		SceneNode::compareByCameraDistance
+	);
 }
 
 void Renderer::clearNodeLists()

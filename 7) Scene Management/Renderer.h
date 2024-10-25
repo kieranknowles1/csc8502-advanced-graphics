@@ -19,7 +19,7 @@ public:
 	void toggleFrustumLock() { lockFrustum = !lockFrustum; }
 
 protected:
-	void DrawNode(SceneNode* n);
+	void drawTree(SceneNode* n);
 
 	bool lockFrustum = false;
 
