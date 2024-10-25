@@ -23,6 +23,9 @@ int main() {
 		if (Window::GetKeyboard()->KeyDown(KEYBOARD_F5)) {
 			Shader::ReloadAllShaders();
 		}
+		if (Window::GetKeyboard()->KeyTriggered(KEYBOARD_1)) {
+			renderer.toggleFrustumLock();
+		}
 	}
 
 	return 0;
