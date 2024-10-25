@@ -10,6 +10,10 @@
 class SceneNode
 {
 public:
+	static bool compareByCameraDistance(SceneNode* a, SceneNode* b) {
+		return a->distanceFromCamera < b->distanceFromCamera;
+	}
+
 	// Copy this node and all its children
 	// Overrides should set themselves up as close to the original as possible
 	virtual SceneNode* deepCopy() const;
@@ -33,8 +37,6 @@ public:
 
 	void addChild(SceneNode* s);
 	void update(float dt);
-	// Draw this node and all its children
-	void draw(OGLRenderer& r);
 
 	bool isChildOf(SceneNode* other);
 
@@ -49,14 +51,28 @@ public:
 	void setParent(SceneNode* newParent);
 
 	void setTexture(GLuint tex) { texture = tex; }
+	GLuint getTexture() const { return texture; }
+
+	float getBoundingRadius() const {
+		float maxScale = std::max(std::abs(scale.x), std::max(std::abs(scale.y), std::abs(scale.z)));
+		return boundingRadius * maxScale;
+	}
+	void setBoundingRadius(float r) { boundingRadius = r; }
+
+	float getCameraDistance() const { return distanceFromCamera; }
+	void setCameraDistance(float d) { distanceFromCamera = d; }
 
 	virtual const std::string getName() const { return "SceneNode"; }
 
+	// Parents are drawn BEFORE their children
+	virtual void drawSelf(OGLRenderer& r);
+
+	using SceneNodeIterator = std::vector<SceneNode*>::iterator;
+	SceneNodeIterator childrenBegin() { return children.begin(); }
+	SceneNodeIterator childrenEnd() { return children.end(); }
 protected:
 	// Called every frame BEFORE children are updated
 	virtual void onUpdate(float dt) {}
-	// Parents are drawn BEFORE their children
-	virtual void drawSelf(OGLRenderer& r);
 
 	Mesh* mesh;
 	Shader* shader;
@@ -65,6 +81,9 @@ protected:
 	Vector3 scale;
 	Vector4 color;
 	GLuint texture = 0;
+
+	float boundingRadius;
+	float distanceFromCamera;
 
 	std::vector<SceneNode*> children;
 

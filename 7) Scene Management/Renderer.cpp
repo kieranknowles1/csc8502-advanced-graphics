@@ -25,10 +25,13 @@ Renderer::Renderer(Window& parent)
 	SceneNode* bot = new CubeBot(cube);
 	root->addChild(bot);
 
-	SceneNode* planeNode = new SceneNode(plane);
-	planeNode->setTransform(Matrix4::Translation(Vector3(0, 0, 50)) * Matrix4::Scale(Vector3(100, 100, 1)));
-	planeNode->setTexture(glass);
-	root->addChild(planeNode);
+	for (int i = 0; i < 4; i++) {
+		SceneNode* planeNode = new SceneNode(plane, Vector4(1, 1, 1, 0.9f));
+		planeNode->setTransform(Matrix4::Translation(Vector3(0, 0, 50 * (i+1))) * Matrix4::Scale(Vector3(100, 100, 1)));
+		planeNode->setTexture(glass);
+		planeNode->setBoundingRadius(100);
+		root->addChild(planeNode);
+	}
 
 	for (int i = 0; i < 10; i++) {
 		bot = bot->deepCopy();
@@ -56,6 +59,8 @@ void Renderer::UpdateScene(float dt)
 {
 	camera->update(dt);
 	viewMatrix = camera->buildViewMatrix();
+	if (!lockFrustum)
+		viewFrustum.fillFromMatrix(projMatrix * viewMatrix);
 	root->update(dt);
 }
 
@@ -75,5 +80,48 @@ void Renderer::RenderScene()
 
 void Renderer::DrawNode(SceneNode* node)
 {
-	node->draw(*this);
+	buildNodeLists(node);
+	sortNodeLists();
+
+	drawNodes(opaqueNodes);
+	drawNodes(transparentNodes);
+
+	clearNodeLists();
+}
+
+void Renderer::buildNodeLists(SceneNode* from)
+{
+	if (viewFrustum.inFrustum(*from)) {
+		Vector3 dir = from->getWorldTransform().GetPositionVector() - camera->getPosition();
+		from->setCameraDistance(Vector3::Dot(dir, dir));
+
+		if (from->getColor().w < 1.0f) {
+			transparentNodes.push_back(from);
+		}
+		else {
+			opaqueNodes.push_back(from);
+		}
+	}
+
+	for (auto& child = from->childrenBegin(); child != from->childrenEnd(); child++) {
+		buildNodeLists(*child);
+	}
+}
+
+void Renderer::sortNodeLists()
+{
+	// TODO: Implement
+}
+
+void Renderer::clearNodeLists()
+{
+	opaqueNodes.clear();
+	transparentNodes.clear();
+}
+
+void Renderer::drawNodes(const std::vector<SceneNode*>& nodes)
+{
+	for (auto& node : nodes) {
+		node->drawSelf(*this);
+	}
 }

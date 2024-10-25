@@ -8,31 +8,37 @@ CubeBot::CubeBot(Mesh* cube) {
 	body = new SceneNode(cube, RED);
 	body->setScale(Vector3(10, 15, 5));
 	body->setTransform(Matrix4::Translation(Vector3(0, 0, 0)));
+	body->setBoundingRadius(15);
 	addChild(body);
 
 	head = new SceneNode(cube, GREEN);
 	head->setScale(Vector3(5, 5, 5));
 	head->setTransform(Matrix4::Translation(Vector3(0, 30, 0)));
+	head->setBoundingRadius(5);
 	addChild(head);
 
 	leftArm = new SceneNode(cube, BLUE);
 	leftArm->setScale(Vector3(3, -18, 3));
 	leftArm->setTransform(Matrix4::Translation(Vector3(-12, 30, -1)));
+	leftArm->setBoundingRadius(18);
 	addChild(leftArm);
 
 	rightArm = new SceneNode(cube, BLUE);
 	rightArm->setScale(Vector3(3, -18, 3));
 	rightArm->setTransform(Matrix4::Translation(Vector3(12, 30, -1)));
+	rightArm->setBoundingRadius(18);
 	addChild(rightArm);
 
 	leftLeg = new SceneNode(cube, BLUE);
 	leftLeg->setScale(Vector3(3, -17.5, 3));
 	leftLeg->setTransform(Matrix4::Translation(Vector3(-8, 0, 0)));
+	leftLeg->setBoundingRadius(17.5);
 	addChild(leftLeg);
 
 	rightLeg = new SceneNode(cube, BLUE);
 	rightLeg->setScale(Vector3(3, -17.5, 3));
 	rightLeg->setTransform(Matrix4::Translation(Vector3(8, 0, 0)));
+	rightLeg->setBoundingRadius(17.5);
 	addChild(rightLeg);
 }
 

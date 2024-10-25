@@ -9,6 +9,8 @@ SceneNode::SceneNode(Mesh* mesh, Vector4 color)
 	, mesh(mesh)
 	, color(color)
 	, scale(Vector3(1, 1, 1))
+	, distanceFromCamera(0)
+	, boundingRadius(1)
 {}
 
 SceneNode::~SceneNode()
@@ -72,28 +74,16 @@ void SceneNode::update(float dt)
 	}
 }
 
-void SceneNode::draw(OGLRenderer& r)
+void SceneNode::drawSelf(OGLRenderer& r)
 {
+	if (!mesh)
+		return;
+
 	Shader* prevShader = r.getCurrentShader();
 	if (shader) {
 		r.BindShader(shader);
 		r.UpdateShaderMatrices();
 	}
-
-	drawSelf(r);
-
-	for (auto& child : children)
-	{
-		child->draw(r);
-	}
-
-	r.BindShader(prevShader);
-}
-
-void SceneNode::drawSelf(OGLRenderer& r)
-{
-	if (!mesh)
-		return;
 
 	const Shader* shader = r.getCurrentShader();
 
@@ -105,6 +95,8 @@ void SceneNode::drawSelf(OGLRenderer& r)
 	glBindTexture(GL_TEXTURE_2D, texture);
 
 	mesh->Draw();
+
+	r.BindShader(prevShader);
 }
 
 SceneNode::SceneNode(const SceneNode& s)
@@ -116,6 +108,8 @@ SceneNode::SceneNode(const SceneNode& s)
 	, transform(s.transform)
 	, worldTransform(s.worldTransform)
 	, texture(s.texture)
+	, boundingRadius(s.boundingRadius)
+	, distanceFromCamera(s.distanceFromCamera)
 	{}
 
 SceneNode* SceneNode::deepCopy() const
