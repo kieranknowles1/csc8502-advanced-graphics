@@ -59,12 +59,12 @@ public:
 
 	void setTextureRepeating(GLuint texture, bool repeating);
 
-	const Shader* getCurrentShader() const { return currentShader; }
+	Shader* getCurrentShader() const { return currentShader; }
 	
+	void			BindShader(Shader*s);
+	void			UpdateShaderMatrices();
 protected:
 	virtual void	Resize(int x, int y);	
-	void			UpdateShaderMatrices();
-	void			BindShader(Shader*s);
 
 	void StartDebugGroup(const std::string& s) {
 		glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, (GLsizei)s.length(), s.c_str());

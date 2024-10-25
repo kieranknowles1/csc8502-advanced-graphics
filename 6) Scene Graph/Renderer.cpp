@@ -35,7 +35,9 @@ Renderer::Renderer(Window& parent)
 		}
 	}
 
-	delete bot5;
+	bot5->setShader(new Shader(
+		"SnazzyVertex.glsl", "SnazzyFragment.glsl"
+	));
 
 	init = true;
 

@@ -4,6 +4,7 @@
 
 SceneNode::SceneNode(Mesh* mesh, Vector4 color)
 	: parent(nullptr)
+	, shader(nullptr)
 	, mesh(mesh)
 	, color(color)
 	, scale(Vector3(1, 1, 1))
@@ -70,17 +71,25 @@ void SceneNode::update(float dt)
 	}
 }
 
-void SceneNode::draw(const OGLRenderer& r)
+void SceneNode::draw(OGLRenderer& r)
 {
+	Shader* prevShader = r.getCurrentShader();
+	if (shader) {
+		r.BindShader(shader);
+		r.UpdateShaderMatrices();
+	}
+
 	drawSelf(r);
 
 	for (auto& child : children)
 	{
 		child->draw(r);
 	}
+
+	r.BindShader(prevShader);
 }
 
-void SceneNode::drawSelf(const OGLRenderer& r)
+void SceneNode::drawSelf(OGLRenderer& r)
 {
 	if (!mesh)
 		return;
@@ -98,6 +107,7 @@ void SceneNode::drawSelf(const OGLRenderer& r)
 
 SceneNode::SceneNode(const SceneNode& s)
 	: parent(nullptr)
+	, shader(s.shader)
 	, mesh(s.mesh)
 	, color(s.color)
 	, scale(s.scale)

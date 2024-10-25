@@ -34,9 +34,13 @@ public:
 	void addChild(SceneNode* s);
 	void update(float dt);
 	// Draw this node and all its children
-	void draw(const OGLRenderer& r);
+	void draw(OGLRenderer& r);
 
 	bool isChildOf(SceneNode* other);
+
+	// Set the shader used to draw this node and its children
+	// Will be inherited, unless a child overrides it
+	void setShader(Shader* s) { shader = s; }
 
 	// Set the parent of this node
 	// If the node already has a parent, it will be moved to the new parent
@@ -50,9 +54,10 @@ protected:
 	// Called every frame BEFORE children are updated
 	virtual void onUpdate(float dt) {}
 	// Parents are drawn BEFORE their children
-	virtual void drawSelf(const OGLRenderer& r);
+	virtual void drawSelf(OGLRenderer& r);
 
 	Mesh* mesh;
+	Shader* shader;
 	Matrix4 worldTransform;
 	Matrix4 transform;
 	Vector3 scale;
