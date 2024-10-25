@@ -8,8 +8,10 @@ Renderer::Renderer(Window& parent)
 	, cube(Mesh::LoadFromMeshFile("OffsetCubeY.msh"))
 	, camera(new Camera())
 	, shader(new Shader("SceneVertex.glsl", "SceneFragment.glsl"))
+	, plane(Mesh::GenerateQuad())
+	, glass(SOIL_load_OGL_texture(TEXTUREDIR "stainedglass.tga", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, 0))
 {
-	if (!shader->LoadSuccess() || !cube)
+	if (!shader->LoadSuccess() || !cube || !glass)
 		return;
 
 	projMatrix = Matrix4::Perspective(
@@ -22,6 +24,11 @@ Renderer::Renderer(Window& parent)
 
 	SceneNode* bot = new CubeBot(cube);
 	root->addChild(bot);
+
+	SceneNode* planeNode = new SceneNode(plane);
+	planeNode->setTransform(Matrix4::Translation(Vector3(0, 0, 50)) * Matrix4::Scale(Vector3(100, 100, 1)));
+	planeNode->setTexture(glass);
+	root->addChild(planeNode);
 
 	for (int i = 0; i < 10; i++) {
 		bot = bot->deepCopy();
@@ -41,6 +48,8 @@ Renderer::~Renderer()
 	delete cube;
 	delete camera;
 	delete shader;
+	delete plane;
+	glDeleteTextures(1, &glass);
 }
 
 void Renderer::UpdateScene(float dt)
@@ -53,6 +62,8 @@ void Renderer::UpdateScene(float dt)
 void Renderer::RenderScene()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	BindShader(shader);
 	UpdateShaderMatrices();

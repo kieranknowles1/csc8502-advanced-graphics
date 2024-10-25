@@ -5,6 +5,7 @@
 SceneNode::SceneNode(Mesh* mesh, Vector4 color)
 	: parent(nullptr)
 	, shader(nullptr)
+	, texture(0)
 	, mesh(mesh)
 	, color(color)
 	, scale(Vector3(1, 1, 1))
@@ -95,12 +96,13 @@ void SceneNode::drawSelf(OGLRenderer& r)
 		return;
 
 	const Shader* shader = r.getCurrentShader();
-	// it isn't inherited by children
-	// Currently needed as we're using scaled primitives
+
 	Matrix4 model = getWorldTransform();
 	model.bind(shader->getUniform("modelMatrix"));
 	color.bind(shader->getUniform("nodeColor"));
-	glUniform1i(shader->getUniform("useTexture"), 0);
+	glUniform1i(shader->getUniform("useTexture"), texture != 0);
+	glUniform1i(shader->getUniform("diffuseTex"), 0);
+	glBindTexture(GL_TEXTURE_2D, texture);
 
 	mesh->Draw();
 }
@@ -113,6 +115,7 @@ SceneNode::SceneNode(const SceneNode& s)
 	, scale(s.scale)
 	, transform(s.transform)
 	, worldTransform(s.worldTransform)
+	, texture(s.texture)
 	{}
 
 SceneNode* SceneNode::deepCopy() const

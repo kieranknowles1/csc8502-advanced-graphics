@@ -48,6 +48,8 @@ public:
 	// but not delete it
 	void setParent(SceneNode* newParent);
 
+	void setTexture(GLuint tex) { texture = tex; }
+
 	virtual const std::string getName() const { return "SceneNode"; }
 
 protected:
@@ -62,6 +64,7 @@ protected:
 	Matrix4 transform;
 	Vector3 scale;
 	Vector4 color;
+	GLuint texture = 0;
 
 	std::vector<SceneNode*> children;
 

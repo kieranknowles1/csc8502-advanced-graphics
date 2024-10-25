@@ -3,6 +3,8 @@
 #include "../nclgl/OGLRenderer.h"
 #include "../nclgl/Camera.h"
 #include "../nclgl/SceneNode.h"
+#include "../nclgl/Mesh.h"
+#include "../nclgl/Shader.h"
 
 class Renderer : public OGLRenderer
 {
@@ -20,5 +22,8 @@ protected:
 	Camera* camera;
 	Mesh* cube;
 	Shader* shader;
+
+	Mesh* plane;
+	GLuint glass;
 };
 
