@@ -13,7 +13,6 @@ uniform float alphaThreshold;
 
 in Vertex {
     vec2 texCoord;
-    vec4 color;
 } IN;
 
 out vec4 fragColor;
@@ -21,9 +20,6 @@ void main() {
     // We could swizzle to extract different colors
     // fragColor.brg = texture(diffuseTex, IN.texCoord).rgb;
     // fragColor = texture(diffuseTex, IN.texCoord) * texture(blendTex, IN.texCoord);
+    // fragColor = texture(diffuseTex, vec2(0.5, 0.5));
     fragColor = texture(diffuseTex, IN.texCoord);
-
-    if (fragColor.a <= alphaThreshold) {
-        discard;
-    }
 }
