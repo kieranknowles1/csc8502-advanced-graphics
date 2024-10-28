@@ -1,15 +1,15 @@
 /*
 Class:OGLRenderer
 Author:Rich Davison	 <richard-gordon.davison@newcastle.ac.uk>
-Description:Abstract base class for the graphics tutorials. Creates an OpenGL 
-3.2 CORE PROFILE rendering context. Each lesson will create a renderer that 
+Description:Abstract base class for the graphics tutorials. Creates an OpenGL
+3.2 CORE PROFILE rendering context. Each lesson will create a renderer that
 inherits from this class - so all context creation is handled automatically,
 but students still get to see HOW such a context is created.
 
--_-_-_-_-_-_-_,------,   
+-_-_-_-_-_-_-_,------,
 _-_-_-_-_-_-_-|   /\_/\   NYANYANYAN
 -_-_-_-_-_-_-~|__( ^ .^) /
-_-_-_-_-_-_-_-""  ""   
+_-_-_-_-_-_-_-""  ""
 
 */
 #include "OGLRenderer.h"
@@ -35,20 +35,23 @@ way to do it - but it kept the Tutorial code down to a minimum!
 */
 OGLRenderer::OGLRenderer(Window &window)	{
 	init					= false;
+	// Let's not worry about this for now
+	// TODO: This is quite important
+#ifdef THE_ELDER_GODS_ARE_ANGRY
 	HWND windowHandle = window.GetHandle();
 
 	// Did We Get A Device Context?
-	if (!(deviceContext=GetDC(windowHandle)))		{					
+	if (!(deviceContext=GetDC(windowHandle)))		{
 		std::cout << "OGLRenderer::OGLRenderer(): Failed to create window!\n";
 		return;
 	}
-	
+
 	//A pixel format descriptor is a struct that tells the Windows OS what type of front / back buffers we want to create etc
 	PIXELFORMATDESCRIPTOR pfd;
 	memset(&pfd, 0, sizeof(PIXELFORMATDESCRIPTOR));
 
 	pfd.nSize			= sizeof(PIXELFORMATDESCRIPTOR);
-	pfd.nVersion		= 1; 
+	pfd.nVersion		= 1;
    	pfd.dwFlags			= PFD_DOUBLEBUFFER | PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;   //It must be double buffered, it must support OGL(!), and it must allow us to draw to it...
    	pfd.iPixelType		= PFD_TYPE_RGBA;	//We want our front / back buffer to have 4 channels!
    	pfd.cColorBits		= 32;				//4 channels of 8 bits each!
@@ -107,9 +110,9 @@ OGLRenderer::OGLRenderer(Window &window)	{
 
 	int attribs[] = {
         WGL_CONTEXT_MAJOR_VERSION_ARB, major,	//TODO: Maybe lock this to 3? We might actually get an OpenGL 4.x context...
-        WGL_CONTEXT_MINOR_VERSION_ARB, minor, 
-		WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB 
-#ifdef OPENGL_DEBUGGING 
+        WGL_CONTEXT_MINOR_VERSION_ARB, minor,
+		WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB
+#ifdef OPENGL_DEBUGGING
 		| WGL_CONTEXT_DEBUG_BIT_ARB
 #endif		//No deprecated stuff!! DIE DIE DIE glBegin!!!!
 		,WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,		//We want everything OpenGL 3.2 provides...
@@ -122,7 +125,7 @@ OGLRenderer::OGLRenderer(Window &window)	{
 	renderContext = wglCreateContextAttribsARB(deviceContext,0, attribs);
 
 	// Check for the context, and try to make it the current rendering context
-	if(!renderContext || !wglMakeCurrent(deviceContext,renderContext))		{			
+	if(!renderContext || !wglMakeCurrent(deviceContext,renderContext))		{
 		std::cout << "OGLRenderer::OGLRenderer(): Cannot set OpenGL 3 context!\n";	//It's all gone wrong!
 		wglDeleteContext(renderContext);
 		wglDeleteContext(tempContext);
@@ -145,13 +148,16 @@ OGLRenderer::OGLRenderer(Window &window)	{
 	window.SetRenderer(this);					//Tell our window about the new renderer! (Which will in turn resize the renderer window to fit...)
 
 	debugCube = Mesh::LoadDebugCube(); // Generic cube for debug drawing
+
+#endif
 }
 
 /*
 Destructor. Deletes the default shader, and the OpenGL rendering context.
 */
 OGLRenderer::~OGLRenderer(void)	{
-	wglDeleteContext(renderContext);
+	// TODO: Do whatever SDL2 does
+	// wglDeleteContext(renderContext);
 }
 
 /*
@@ -168,7 +174,7 @@ Does lower bounds checking on input values, so should be reasonably safe
 to call.
 */
 void OGLRenderer::Resize(int x, int y)	{
-	width	= std::max(x,1);	
+	width	= std::max(x,1);
 	height	= std::max(y,1);
 	glViewport(0,0,width,height);
 }
@@ -179,9 +185,10 @@ every frame, at the end of RenderScene(), or whereever appropriate for
 your application.
 */
 void OGLRenderer::SwapBuffers() {
-	//We call the windows OS SwapBuffers on win32. Wrapping it in this 
+	//We call the windows OS SwapBuffers on win32. Wrapping it in this
 	//function keeps all the tutorial code 100% cross-platform (kinda).
-	::SwapBuffers(deviceContext);
+	// Nope, it's heavily dependent on Windows
+	// ::SwapBuffers(deviceContext);
 }
 /*
 Used by some later tutorials when we want to have framerate-independent

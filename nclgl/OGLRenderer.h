@@ -47,7 +47,9 @@ using std::vector;
 #define HGLRC int
 #endif
 
-extern const Matrix4 biasMatrix;
+#ifndef CALLBACK
+#define CALLBACK
+#endif
 
 class Shader;
 class Light;
@@ -117,7 +119,6 @@ private:
 	Shader* currentShader;
 	HDC		deviceContext;	//...Device context?
 	HGLRC	renderContext;	//Permanent Rendering Context
-#ifdef _DEBUG
+
 	static void CALLBACK DebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam);
-#endif
 };

@@ -13,7 +13,8 @@ set(SOURCES
     Mesh.cpp
     MeshAnimation.cpp
     MeshMaterial.cpp
-    Mouse.cpp
+    # Head in the sand approach to removing this file
+    # Mouse.cpp
     OGLRenderer.cpp
     Quaternion.cpp
     ResourceManager.cpp
@@ -21,7 +22,8 @@ set(SOURCES
     Shader.cpp
     SkeletonAnim.cpp
     Stage.cpp
-    Window.cpp
+    # Oh look, something else to ignore
+    # Window.cpp
 )
 
 find_package(OpenGL REQUIRED)

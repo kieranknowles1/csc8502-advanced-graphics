@@ -19,7 +19,7 @@ public:
 	void drawSelf(OGLRenderer& r) override;
 protected:
 	void onUpdate(float dt) override;
-	SceneNode* deepCopy() const override { throw std::exception("Not implemented"); }
+	SceneNode* deepCopy() const override { throw std::runtime_error("Not implemented"); }
 
 	MeshAnimation* anim;
 	MeshMaterial* material;
