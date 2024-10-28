@@ -2,28 +2,28 @@
 /*
 Class:OGLRenderer
 Author:Rich Davison	 <richard-gordon.davison@newcastle.ac.uk>
-Description:Abstract base class for the graphics tutorials. Creates an OpenGL 
-3.2+ CORE PROFILE rendering context. Each lesson will create a renderer that 
+Description:Abstract base class for the graphics tutorials. Creates an OpenGL
+3.2+ CORE PROFILE rendering context. Each lesson will create a renderer that
 inherits from this class - so all context creation is handled automatically,
 but students still get to see HOW such a context is created.
 
--_-_-_-_-_-_-_,------,   
+-_-_-_-_-_-_-_,------,
 _-_-_-_-_-_-_-|   /\_/\   NYANYANYAN
 -_-_-_-_-_-_-~|__( ^ .^) /
-_-_-_-_-_-_-_-""  ""   
+_-_-_-_-_-_-_-""  ""
 
 */
-#include "Common.h"
+#include "common.h"
 
 #include <string>
 #include <fstream>
 #include <vector>
 
-#include "KHR\khrplatform.h"
-#include "glad\glad.h"
+#include "KHR/khrplatform.h"
+#include "glad/glad.h"
 
-#include "GL/GL.h"
-#include "KHR/WGLext.h"
+#include <GL/gl.h>
+#include <KHR/wglext.h>
 
 #include "SOIL/SOIL.h"
 
@@ -61,12 +61,12 @@ public:
 	virtual void	UpdateScene(float msec);
 	void			SwapBuffers();
 
-	bool			HasInitialised() const;	
+	bool			HasInitialised() const;
 
 	void setTextureRepeating(GLuint texture, bool repeating);
 
 	Shader* getCurrentShader() const { return currentShader; }
-	
+
 	void			BindShader(Shader*s);
 	void			UpdateShaderMatrices();
 
@@ -82,7 +82,7 @@ public:
 		return debugCube;
 	}
 protected:
-	virtual void	Resize(int x, int y);	
+	virtual void	Resize(int x, int y);
 
 	void StartDebugGroup(const std::string& s) {
 		glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, (GLsizei)s.length(), s.c_str());
@@ -106,7 +106,7 @@ protected:
 	Mesh* debugCube;
 
 private:
-	Shader* currentShader;	
+	Shader* currentShader;
 	HDC		deviceContext;	//...Device context?
 	HGLRC	renderContext;	//Permanent Rendering Context
 #ifdef _DEBUG

@@ -11,16 +11,15 @@ Input devices may also keep track of 'holds' - i.e keys or buttons pressed for
 more than one frame. This allows you to have both things that trigger once,
 and are continuously active as long as a key / button is pressed.
 
--_-_-_-_-_-_-_,------,   
+-_-_-_-_-_-_-_,------,
 _-_-_-_-_-_-_-|   /\_/\   NYANYANYAN
 -_-_-_-_-_-_-~|__( ^ .^) /
-_-_-_-_-_-_-_-""  ""      
- 
+_-_-_-_-_-_-_-""  ""
+
 *//////////////////////////////////////////////////////////////////////////////
 
 #pragma once
 #include "common.h"
-#include <Windows.h>
 /*
 Microsoft helpfully don't seem to have this in any of their header files,
 despite it being how RAW input works....GG guys.
@@ -51,5 +50,5 @@ protected:
 	virtual void Wake() { isAwake = true;}
 
 	bool			isAwake;		//Is the device awake...
-	RAWINPUTDEVICE	rid;			//Windows OS hook 
+	RAWINPUTDEVICE	rid;			//Windows OS hook
 };
