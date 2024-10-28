@@ -10,12 +10,10 @@ in vec4 color;
 
 out Vertex {
     vec2 texCoord;
-    vec4 color;
 } OUT;
 
 void main() {
     mat4 mvp = projMatrix * viewMatrix * modelMatrix;
     gl_Position = mvp * vec4(position, 1.0);
     OUT.texCoord = texCoord;
-    OUT.color = color;
 }
