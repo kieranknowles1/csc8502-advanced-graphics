@@ -24,7 +24,7 @@ Renderer::Renderer(Window& parent)
 		(float)width / (float)height, 45.0f);
 
 	sceneShader = new Shader("TexturedVertex.glsl", "TexturedFragment.glsl");
-	processShader = new Shader("TexturedVertex.glsl", "processfrag.glsl");
+	processShader = new Shader("TexturedVertex.glsl", "post/blur.glsl");
 
 	if (!sceneShader->LoadSuccess() || !processShader->LoadSuccess())
 		return;
