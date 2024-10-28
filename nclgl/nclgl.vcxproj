@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Third Party\glad\glad.c" />
+    <ClCompile Include="Blur.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ComputeShader.cpp" />
     <ClCompile Include="CubeBot.cpp" />
@@ -36,6 +37,7 @@
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="OGLRenderer.cpp" />
     <ClCompile Include="Plane.cpp" />
+    <ClCompile Include="Stage.cpp" />
     <ClCompile Include="Quaternion.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="SceneNode.cpp" />
@@ -44,6 +46,7 @@
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Blur.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="common.h" />
     <ClInclude Include="ComputeShader.h" />
@@ -62,6 +65,7 @@
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="OGLRenderer.h" />
     <ClInclude Include="Plane.h" />
+    <ClInclude Include="Stage.h" />
     <ClInclude Include="Quaternion.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="SceneNode.h" />

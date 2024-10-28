@@ -14,6 +14,7 @@ Renderer::Renderer(Window& parent)
 	, camera(new Camera(-25, 225, 0, Vector3(-150, 250, -150)))
 	, heightMap(new HeightMap(TEXTUREDIR "noise.png"))
 	, quad(Mesh::GenerateQuad())
+	, postProcess(new PostProcess::Blur(10))
 {
 	resourceManager = std::make_unique<ResourceManager>();
 	heightMapTexture = resourceManager->getTexture(
@@ -24,9 +25,8 @@ Renderer::Renderer(Window& parent)
 		(float)width / (float)height, 45.0f);
 
 	sceneShader = new Shader("TexturedVertex.glsl", "TexturedFragment.glsl");
-	processShader = new Shader("TexturedVertex.glsl", "post/blur.glsl");
 
-	if (!sceneShader->LoadSuccess() || !processShader->LoadSuccess())
+	if (!sceneShader->LoadSuccess())
 		return;
 
 	setTextureRepeating(heightMapTexture->getId(), true);
@@ -43,15 +43,22 @@ Renderer::Renderer(Window& parent)
 	);
 
 	// Generate our scene's colour textures
-	glGenTextures(2, bufferColourTex);
+	glGenTextures(2, postProcessScratch);
 	for (int i = 0; i < 2; i++) {
-		glBindTexture(GL_TEXTURE_2D, bufferColourTex[i]);
+		glBindTexture(GL_TEXTURE_2D, postProcessScratch[i]);
 		setUnfilteredClamp();
 		glTexImage2D(
 			GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0,
 			GL_RGBA, GL_UNSIGNED_BYTE, nullptr
 		);
 	}
+	glGenTextures(1, &sceneBuffer);
+	glBindTexture(GL_TEXTURE_2D, sceneBuffer);
+	setUnfilteredClamp();
+	glTexImage2D(
+		GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0,
+		GL_RGBA, GL_UNSIGNED_BYTE, nullptr
+	);
 
 	// Generate frame buffer objects and attach textures to them
 	glGenFramebuffers(1, &bufferFBO);
@@ -63,11 +70,11 @@ Renderer::Renderer(Window& parent)
 	glFramebufferTexture2D(
 		GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, bufferDepthTex, 0);
 	glFramebufferTexture2D(
-		GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bufferColourTex[0], 0);
+		GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, sceneBuffer, 0);
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		return;
-	if (!bufferDepthTex || !bufferColourTex[0])
+	if (!bufferDepthTex || !postProcessScratch[0])
 		return;
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -79,13 +86,13 @@ Renderer::Renderer(Window& parent)
 Renderer::~Renderer()
 {
 	delete sceneShader;
-	delete processShader;
 	delete camera;
 	delete heightMap;
 	delete quad;
 
-	glDeleteTextures(2, bufferColourTex);
+	glDeleteTextures(2, postProcessScratch);
 	glDeleteTextures(1, &bufferDepthTex);
+	glDeleteTextures(1, &sceneBuffer);
 	glDeleteFramebuffers(1, &bufferFBO);
 	glDeleteFramebuffers(1, &processFBO);
 }
@@ -93,8 +100,10 @@ Renderer::~Renderer()
 void Renderer::RenderScene()
 {
 	drawScene();
-	drawPostProcess();
-	presentScene();
+	auto postResult = postProcess->apply(
+		*this, sceneBuffer, processFBO, postProcessScratch
+	);
+	presentScene(postResult);
 }
 
 void Renderer::UpdateScene(float dt)
@@ -103,7 +112,7 @@ void Renderer::UpdateScene(float dt)
 	viewMatrix = camera->buildViewMatrix();
 }
 
-void Renderer::presentScene()
+void Renderer::presentScene(GLuint texture)
 {
 	// Render the final image to the screen
 	// This time we do need to clear, as we are rendering the whole screen
@@ -121,55 +130,9 @@ void Renderer::presentScene()
 	UpdateShaderMatrices();
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, bufferColourTex[0]);
+	glBindTexture(GL_TEXTURE_2D, texture);
 	glUniform1i(sceneShader->getUniform("diffuseTex"), 0);
 	quad->Draw();
-}
-
-void Renderer::drawPostProcess()
-{
-	// Bind the post-processing buffer and attach its own colour texture
-	glBindFramebuffer(GL_FRAMEBUFFER, processFBO);
-	glFramebufferTexture2D(
-		GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bufferColourTex[1], 0);
-	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-
-	// Clear the matricies so we don't have any unwanted transformations
-	// We don't need to clear the colour buffers, as they will be overwritten
-	// in each pass of the post-processing
-	BindShader(processShader);
-	modelMatrix.ToIdentity();
-	viewMatrix.ToIdentity();
-	projMatrix.ToIdentity();
-	UpdateShaderMatrices();
-
-	glDisable(GL_DEPTH_TEST);
-
-	// Apply a gaussian blur to the scene. Both passes are controlled
-	// by the same shader, but with different uniforms
-	glActiveTexture(GL_TEXTURE0);
-	glUniform1i(processShader->getUniform("sceneTex"), 0);
-	for (int i = 0; i < postPasses; i++) {
-		// Read from tex[0], write to tex[1]
-		glFramebufferTexture2D(
-			GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bufferColourTex[1], 0);
-		glUniform1i(processShader->getUniform("isVertical"), 0);
-		glBindTexture(GL_TEXTURE_2D, bufferColourTex[0]);
-		quad->Draw();
-
-		// Do it again with the colour buffer swapped
-		// Read from tex[1], write to tex[0]
-		glUniform1i(processShader->getUniform("isVertical"), 1);
-		glFramebufferTexture2D(
-			GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bufferColourTex[0], 0);
-		glBindTexture(GL_TEXTURE_2D, bufferColourTex[1]);
-		quad->Draw();
-	}
-
-	// Restore the default framebuffer
-	// The final image is in tex[0]
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glEnable(GL_DEPTH_TEST);
 }
 
 void Renderer::drawScene()

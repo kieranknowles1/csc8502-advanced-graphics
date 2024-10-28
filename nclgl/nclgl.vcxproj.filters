@@ -40,6 +40,12 @@
     <ClCompile Include="HeightMap.cpp" />
     <ClCompile Include="SkeletonAnim.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
+    <ClCompile Include="Blur.cpp">
+      <Filter>PostProcess</Filter>
+    </ClCompile>
+    <ClCompile Include="Stage.cpp">
+      <Filter>PostProcess</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h" />
@@ -91,6 +97,12 @@
     <ClInclude Include="HeightMap.h" />
     <ClInclude Include="SkeletonAnim.h" />
     <ClInclude Include="ResourceManager.h" />
+    <ClInclude Include="Blur.h">
+      <Filter>PostProcess</Filter>
+    </ClInclude>
+    <ClInclude Include="Stage.h">
+      <Filter>PostProcess</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="GLAD">
@@ -101,6 +113,9 @@
     </Filter>
     <Filter Include="Windows and Input">
       <UniqueIdentifier>{4a13117a-c481-4385-bd9e-1acd65146a21}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="PostProcess">
+      <UniqueIdentifier>{36dbecb8-b42b-4521-a084-cc8a0f0b7781}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

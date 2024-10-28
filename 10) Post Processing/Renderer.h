@@ -4,6 +4,8 @@
 #include "../nclgl/Camera.h"
 #include "../nclgl/HeightMap.h"
 #include "../nclgl/ResourceManager.h"
+#include "../nclgl/Blur.h"
+
 
 class Renderer : public OGLRenderer
 {
@@ -14,16 +16,14 @@ public:
 	void RenderScene() override;
 	void UpdateScene(float dt) override;
 protected:
-	void presentScene();
-	void drawPostProcess();
+	void presentScene(GLuint texture);
 	void drawScene();
-
-	int postPasses = 10;
 
 	std::unique_ptr<ResourceManager> resourceManager;
 
+	PostProcess::Stage* postProcess;
+
 	Shader* sceneShader;
-	Shader* processShader;
 
 	Camera* camera;
 
@@ -33,10 +33,11 @@ protected:
 	std::shared_ptr<ManagedTexture> heightMapTexture;
 	// Render the scene to this FBO
 	GLuint bufferFBO;
+	GLuint sceneBuffer;
 	// Render post-processing to this FBO
 	GLuint processFBO;
 	// We need two colour buffers, one for each FBO
-	GLuint bufferColourTex[2];
+	GLuint postProcessScratch[2];
 	// Only the initial pass needs a depth buffer
 	GLuint bufferDepthTex;
 };
