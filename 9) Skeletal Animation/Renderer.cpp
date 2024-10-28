@@ -9,6 +9,7 @@ Renderer::Renderer(Window& parent)
 	, material(new MeshMaterial("Role_T.mat"))
 	, currentFrame(0)
 	, frameTime(0.0f)
+	, resourceManager(new ResourceManager())
 {
 	if (!shader->LoadSuccess() || !mesh) return;
 	camera->setSpeed(10.0f);
@@ -27,12 +28,8 @@ Renderer::Renderer(Window& parent)
 		entry->GetEntry("Diffuse", &filename);
 
 		auto path = TEXTUREDIR + *filename;
-		GLuint id = SOIL_load_OGL_texture(
-			path.c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID,
-			SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y
-		);
-		badTexture |= id == 0;
-		matTextures.emplace_back(id);
+		auto texture = resourceManager->getTexture(*filename, SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y);
+		matTextures.emplace_back(texture);
 	}
 	if (badTexture) return;
 
@@ -48,8 +45,7 @@ Renderer::~Renderer()
 	delete shader;
 	delete anim;
 	delete material;
-
-	glDeleteTextures(matTextures.size(), matTextures.data());
+	delete resourceManager;
 }
 
 void Renderer::UpdateScene(float dt)
@@ -98,7 +94,7 @@ void Renderer::RenderScene() {
 	// Draw each sub-mesh
 	for (int i = 0; i < mesh->GetSubMeshCount(); i++) {
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, matTextures[i]);
+		matTextures[i]->bind();
 		mesh->DrawSubMesh(i);
 	}
 }

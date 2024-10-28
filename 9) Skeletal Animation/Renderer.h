@@ -1,10 +1,13 @@
 #pragma once
 
+#include <memory>
+
 #include "../nclgl/OGLRenderer.h"
 #include "../nclgl/Camera.h"
 #include "../nclgl/Mesh.h"
 #include "../nclgl/MeshAnimation.h"
 #include "../nclgl/MeshMaterial.h"
+#include "../nclgl/ResourceManager.h"
 
 class Renderer : public OGLRenderer
 {
@@ -21,7 +24,8 @@ protected:
 	Shader* shader;
 	MeshAnimation* anim;
 	MeshMaterial* material;
-	std::vector<GLuint> matTextures;
+	ResourceManager* resourceManager;
+	std::vector<std::shared_ptr<ManagedTexture>> matTextures;
 
 	int currentFrame;
 	// Time until next frame
