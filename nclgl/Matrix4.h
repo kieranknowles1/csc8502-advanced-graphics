@@ -79,6 +79,9 @@ public:
 	void    Invert();
 	Matrix4 Inverse() const;
 
+	// Linearly interpolates between matrices a and b, based on the value of r
+	static Matrix4 lerp(const Matrix4& a, const Matrix4& b, float r);
+
 	//Multiplies 'this' matrix by matrix 'a'. Performs the multiplication in 'OpenGL' order (ie, backwards)
 	inline Matrix4 operator*(const Matrix4 &a) const{	
 		Matrix4 out;

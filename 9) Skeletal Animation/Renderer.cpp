@@ -12,6 +12,7 @@ Renderer::Renderer(Window& parent)
 {
 	if (!shader->LoadSuccess() || !mesh) return;
 	camera->setSpeed(10.0f);
+	camera->setPosition(Vector3(0, 2, 5));
 
 	projMatrix = Matrix4::Perspective(
 		1.0f, 10000.0f,
@@ -77,10 +78,16 @@ void Renderer::RenderScene() {
 	frameMatrices.reserve(mesh->GetJointCount());
 
 	const Matrix4* currentFrameData = anim->GetJointData(currentFrame);
+	const Matrix4* nextFrameData = anim->GetJointData((currentFrame + 1) % anim->GetFrameCount());
 	const Matrix4* inverseBindPose = mesh->GetInverseBindPose();
+	float interpolation = frameTime * anim->GetFrameRate();
 
 	for (int i = 0; i < mesh->GetJointCount(); i++) {
-		frameMatrices.emplace_back(currentFrameData[i] * inverseBindPose[i]);
+		Matrix4 currentJoint = currentFrameData[i];
+		Matrix4 nextJoint = nextFrameData[i];
+		Matrix4 interpolated = Matrix4::lerp(currentJoint, nextJoint, 1.0 - interpolation);
+
+		frameMatrices.emplace_back(interpolated * inverseBindPose[i]);
 	}
 
 	glUniformMatrix4fv(

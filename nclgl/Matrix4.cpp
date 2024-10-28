@@ -27,6 +27,14 @@ void Matrix4::bind(int loc) const
 	glUniformMatrix4fv(loc, 1, false, values);
 }
 
+Matrix4 Matrix4::lerp(const Matrix4 &a, const Matrix4 &b, float t) {
+	Matrix4 result;
+	for (int i = 0; i < 16; i++) {
+		result.values[i] = a.values[i] * (1 - t) + b.values[i] * t;
+	}
+	return result;
+}
+
 void Matrix4::ToZero()	{
 	for(int i = 0; i < 16; i++)	{
 		values[i] = 0.0f;
