@@ -1,4 +1,4 @@
-#include "../NCLGL/window.h"
+#include <nclgl/Window.h>
 #include "Renderer.h"
 
 int main()	{
@@ -8,7 +8,7 @@ int main()	{
 		std::cout << "Window failed to initialise!" << std::endl;
 		return -1;
 	}
-	
+
 	Renderer renderer(w);
 	if(!renderer.HasInitialised()) {
 		std::cout << "Renderer failed to initialise!" << std::endl;

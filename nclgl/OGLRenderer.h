@@ -20,7 +20,7 @@ _-_-_-_-_-_-_-""  ""
 #include <vector>
 
 #include "KHR/khrplatform.h"
-#include "glad/glad.h"
+#include <glad/glad.h>
 
 #include <GL/gl.h>
 

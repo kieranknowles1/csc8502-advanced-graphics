@@ -5,3 +5,5 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 project(AdvancedGraphics)
 
 add_subdirectory(nclgl)
+
+add_subdirectory("1) Your First Triangle")
