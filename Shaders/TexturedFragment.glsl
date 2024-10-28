@@ -4,9 +4,10 @@
 uniform sampler2D diffuseTex;
 in Vertex {
     vec2 texCoord;
+    vec4 color;
 } IN;
 
 out vec4 fragColor;
 void main() {
-    fragColor = texture(diffuseTex, IN.texCoord);
+    fragColor = texture(diffuseTex, IN.texCoord) * IN.color;
 }
