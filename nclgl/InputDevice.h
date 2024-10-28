@@ -24,6 +24,12 @@ _-_-_-_-_-_-_-""  ""
 Microsoft helpfully don't seem to have this in any of their header files,
 despite it being how RAW input works....GG guys.
 */
+// TODO: Use SDL2 for input handling
+#ifndef USHORT
+// Windows naming conventions:
+// Scream, because you're developing for Windows
+#define USHORT unsigned short
+#endif
 #ifndef HID_USAGE_PAGE_GENERIC
 #define HID_USAGE_PAGE_GENERIC			((USHORT) 0x01)
 #endif
@@ -34,6 +40,16 @@ despite it being how RAW input works....GG guys.
 
 #ifndef HID_USAGE_GENERIC_KEYBOARD
 #define HID_USAGE_GENERIC_KEYBOARD		((USHORT) 0x06)
+#endif
+
+// TODO: Use SDL2 for input handling
+#ifndef RAWINPUT
+#define RAWINPUT void
+#endif
+
+#ifndef RAWINPUTDEVICE
+// Nowhere near accurate, but at least clang screams less
+#define RAWINPUTDEVICE int
 #endif
 
 class InputDevice	{

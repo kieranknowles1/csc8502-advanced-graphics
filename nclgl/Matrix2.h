@@ -10,6 +10,8 @@ https://research.ncl.ac.uk/game/
 #include "Vector2.h"
 #include "Vector3.h"
 #include <assert.h>
+#include <memory.h>
+
 class Matrix2 {
 public:
 	Matrix2(void);
@@ -73,7 +75,7 @@ public:
 		return vec;
 	};
 
-	void Invert();	
+	void Invert();
 	Matrix2 Inverse() const;
 
 	static Matrix2 Rotation(float degrees);

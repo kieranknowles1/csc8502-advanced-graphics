@@ -1,15 +1,19 @@
 #include "Keyboard.h"
+
+#include <cstring>
+
 Keyboard::Keyboard(HWND &hwnd)	{
 	//Initialise the arrays to false!
-	ZeroMemory(keyStates,  KEYBOARD_MAX * sizeof(bool));
-	ZeroMemory(holdStates, KEYBOARD_MAX * sizeof(bool));
+	memset(keyStates,  KEYBOARD_MAX * sizeof(bool), 0);
+	memset(holdStates, KEYBOARD_MAX * sizeof(bool), 0);
 
 	//Tedious windows RAW input stuff
-	rid.usUsagePage		= HID_USAGE_PAGE_GENERIC;		//The keyboard isn't anything fancy
-    rid.usUsage			= HID_USAGE_GENERIC_KEYBOARD;	//but it's definitely a keyboard!
-    rid.dwFlags			= RIDEV_INPUTSINK;				//Yes, we want to always receive RAW input...
-    rid.hwndTarget		= hwnd;							//Windows OS window handle
-    RegisterRawInputDevices(&rid, 1, sizeof(rid));		//We just want one keyboard, please!
+	// WTF? Where did rid come from?
+	// rid.usUsagePage		= HID_USAGE_PAGE_GENERIC;		//The keyboard isn't anything fancy
+    // rid.usUsage			= HID_USAGE_GENERIC_KEYBOARD;	//but it's definitely a keyboard!
+    // rid.dwFlags			= RIDEV_INPUTSINK;				//Yes, we want to always receive RAW input...
+    // rid.hwndTarget		= hwnd;							//Windows OS window handle
+    // RegisterRawInputDevices(&rid, 1, sizeof(rid));		//We just want one keyboard, please!
 }
 
 /*
@@ -27,12 +31,12 @@ keypresses until it receives a Wake()
 void Keyboard::Sleep()	{
 	isAwake = false;	//Night night!
 	//Prevents incorrectly thinking keys have been held / pressed when waking back up
-	ZeroMemory(keyStates,  KEYBOARD_MAX * sizeof(bool));
-	ZeroMemory(holdStates, KEYBOARD_MAX * sizeof(bool));
+	memset(keyStates,  KEYBOARD_MAX * sizeof(bool), 0);
+	memset(holdStates, KEYBOARD_MAX * sizeof(bool), 0);
 }
 
 /*
-Returns if the key is down. Doesn't need bounds checking - 
+Returns if the key is down. Doesn't need bounds checking -
 a KeyboardKeys enum is always in range
 */
 bool Keyboard::KeyDown(KeyboardKeys key)	{
@@ -40,7 +44,7 @@ bool Keyboard::KeyDown(KeyboardKeys key)	{
 }
 
 /*
-Returns if the key is down, and has been held down for multiple updates. 
+Returns if the key is down, and has been held down for multiple updates.
 Doesn't need bounds checking - a KeyboardKeys enum is always in range
 */
 bool Keyboard::KeyHeld(KeyboardKeys key)	{
@@ -63,7 +67,8 @@ Updates the keyboard state with data received from the OS.
 */
 void Keyboard::Update(RAWINPUT* raw)	{
 	if(isAwake)	{
-		DWORD key = (DWORD)raw->data.keyboard.VKey;
+		// DWORD key = (DWORD)raw->data.keyboard.VKey;
+		int key = 4;
 
 		//We should do bounds checking!
 		if(key < 0 || key > KEYBOARD_MAX)	{
@@ -71,6 +76,6 @@ void Keyboard::Update(RAWINPUT* raw)	{
 		}
 
 		//First bit of the flags tag determines whether the key is down or up
-		keyStates[key] = !(raw->data.keyboard.Flags & RI_KEY_BREAK);
+		// keyStates[key] = !(raw->data.keyboard.Flags & RI_KEY_BREAK);
 	}
 }

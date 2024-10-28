@@ -23,7 +23,6 @@ _-_-_-_-_-_-_-""  ""
 #include "glad/glad.h"
 
 #include <GL/gl.h>
-#include <KHR/wglext.h>
 
 #include "SOIL/SOIL.h"
 
@@ -40,11 +39,20 @@ using std::vector;
 
 #define OPENGL_DEBUGGING
 
+// TODO: SDL2
+#ifndef HDC
+// Even if Linux isn't the best documented, at least it doesn't
+// have acronyms like HDLRC, which is anyone's guess.
+#define HDC int
+#define HGLRC int
+#endif
+
 extern const Matrix4 biasMatrix;
 
 class Shader;
 class Light;
 class Mesh;
+class Window;
 
 struct DebugSettings {
 	// Whether to draw the bounding boxes of nodes
@@ -54,8 +62,8 @@ struct DebugSettings {
 class OGLRenderer	{
 public:
 	friend class Window;
-	OGLRenderer(Window &parent);
-	virtual ~OGLRenderer(void);
+	OGLRenderer(Window& parent);
+	virtual ~OGLRenderer();
 
 	virtual void	RenderScene()		= 0;
 	virtual void	UpdateScene(float msec);

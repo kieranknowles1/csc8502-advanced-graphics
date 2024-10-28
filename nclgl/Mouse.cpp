@@ -1,19 +1,22 @@
 #include "Mouse.h"
-Mouse::Mouse(HWND &hwnd)	{
-	ZeroMemory( buttons,	 sizeof(bool) * MOUSE_MAX );
-	ZeroMemory( holdButtons, sizeof(bool) * MOUSE_MAX );
 
-	ZeroMemory( doubleClicks,  sizeof(bool)  * MOUSE_MAX );
-	ZeroMemory( lastClickTime, sizeof(float) * MOUSE_MAX );
+#include <cstring>
+
+Mouse::Mouse(HWND &hwnd)	{
+	memset( buttons,	 sizeof(bool) * MOUSE_MAX, 0 );
+	memset( holdButtons, sizeof(bool) * MOUSE_MAX, 0 );
+
+	memset( doubleClicks,  sizeof(bool)  * MOUSE_MAX, 0 );
+	memset( lastClickTime, sizeof(float) * MOUSE_MAX, 0 );
 
 	lastWheel   = 0;
 	frameWheel  = 0;
 	sensitivity = 0.07f;	//Chosen for no other reason than it's a nice value for my Deathadder ;)
 	clickLimit  = 0.2f;
 
-	rid.usUsagePage = HID_USAGE_PAGE_GENERIC; 
-    rid.usUsage		= HID_USAGE_GENERIC_MOUSE; 
-    rid.dwFlags		= RIDEV_INPUTSINK;   
+	rid.usUsagePage = HID_USAGE_PAGE_GENERIC;
+    rid.usUsage		= HID_USAGE_GENERIC_MOUSE;
+    rid.dwFlags		= RIDEV_INPUTSINK;
     rid.hwndTarget	= hwnd;
     RegisterRawInputDevices(&rid, 1, sizeof(rid));
 
@@ -59,11 +62,11 @@ void Mouse::Update(RAWINPUT* raw)	{
 			absolutePosition.y = std::max(absolutePosition.y, 0.0f);
 			absolutePosition.y = std::min(absolutePosition.y, absolutePositionBounds.y);
 		}
-	
+
 		/*
 		TODO: How framerate independent is this?
 		*/
-		if(raw->data.mouse.usButtonFlags & RI_MOUSE_WHEEL)	{		
+		if(raw->data.mouse.usButtonFlags & RI_MOUSE_WHEEL)	{
 			if(raw->data.mouse.usButtonData == 120) {
 				frameWheel = 1;
 			}
@@ -86,7 +89,7 @@ void Mouse::Update(RAWINPUT* raw)	{
 										RI_MOUSE_BUTTON_3_UP,
 										RI_MOUSE_BUTTON_4_UP,
 										RI_MOUSE_BUTTON_5_UP};
-		
+
 		for(int i = 0; i < 5; ++i) {
 			if(raw->data.mouse.usButtonFlags & buttondowns[i])	{
 				//The button was pressed!
@@ -121,7 +124,7 @@ void	Mouse::SetMouseSensitivity(float amount)	{
 	if(amount == 0.0f) {
 		amount = 1.0f;
 	}
-	sensitivity = amount;	
+	sensitivity = amount;
 }
 
 /*
@@ -144,8 +147,8 @@ movement or buttons until it receives a Wake()
 void Mouse::Sleep()	{
 	isAwake		= false;	//Bye bye for now
 	clickLimit	= 0.2f;
-	ZeroMemory(holdButtons,  MOUSE_MAX * sizeof(bool) );
-	ZeroMemory(buttons,		MOUSE_MAX * sizeof(bool) );
+	memset(holdButtons,  MOUSE_MAX * sizeof(bool), 0 );
+	memset(buttons,		MOUSE_MAX * sizeof(bool), 0 );
 }
 
 /*
@@ -157,7 +160,7 @@ void	Mouse::SetAbsolutePosition(unsigned int x, unsigned int y)	{
 }
 
 /*
-Returns if the button is down. Doesn't need bounds checking - 
+Returns if the button is down. Doesn't need bounds checking -
 an INPUT_KEYS enum is always in range
 */
 bool Mouse::ButtonDown(MouseButtons b)	{
@@ -165,7 +168,7 @@ bool Mouse::ButtonDown(MouseButtons b)	{
 }
 
 /*
-Returns if the button is down, and has been held down for multiple updates. 
+Returns if the button is down, and has been held down for multiple updates.
 Doesn't need bounds checking - an INPUT_KEYS enum is always in range
 */
 bool Mouse::ButtonHeld(MouseButtons b)	{
@@ -191,7 +194,7 @@ Returns how much the mouse has moved by since the last frame.
 */
 void Mouse::SetAbsolutePositionBounds(unsigned int maxX, unsigned int maxY)	{
 	absolutePositionBounds.x = (float)maxX;
-	absolutePositionBounds.y = (float)maxY;	
+	absolutePositionBounds.y = (float)maxY;
 }
 
 /*
@@ -230,5 +233,5 @@ void Mouse::UpdateDoubleClick(float dt)	{
 				lastClickTime[i] = 0.0f;
 			}
 		}
-	}	
+	}
 }

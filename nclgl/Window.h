@@ -8,8 +8,6 @@ Description:Creates and handles the Window, including the initialisation of the 
 #include "common.h"
 #include <string>
 
-#include <windows.h>
-#include <io.h>
 #include <stdio.h>
 #include <fcntl.h>
 
@@ -23,6 +21,20 @@ Description:Creates and handles the Window, including the initialisation of the 
 #define VC_EXTRALEAN
 #define WINDOWCLASS "WindowClass"
 
+// TODO: Use SDL2 for input handling
+#ifndef MSG
+// WinAPI types are horrible, WinAPI is horrible, Windows is horrible.
+// Embrace the penguin, join Linus, and be free of this madness.
+#define MSG int
+#define LRESULT int
+#define WPARAM int
+#define LPARAM int
+#define HDC int
+#define HGLRC int
+#define CALLBACK
+#define UINT int
+#endif
+
 class OGLRenderer;
 
 class Window	{
@@ -30,7 +42,7 @@ public:
 	Window(std::string title = "OpenGL Framework", int sizeX = 800, int sizeY = 600, bool fullScreen = false);
 	~Window(void);
 
-	bool	UpdateWindow();	
+	bool	UpdateWindow();
 
 	void	SetRenderer(OGLRenderer* r);
 
@@ -44,7 +56,10 @@ public:
 	const std::string& GetTitle()   const { return windowTitle; }
 	void				SetTitle(const std::string& title) {
 		windowTitle = title;
-		SetWindowText(windowHandle, windowTitle.c_str());
+		// We're a normal company, we compile C++
+		// Don't follow any of its rules, standards, or guidelines
+		// or any of its libraries
+		//SetWindowText(windowHandle, windowTitle.c_str());
 	};
 
 	Vector2	GetScreenSize() {return size;};
