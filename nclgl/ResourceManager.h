@@ -15,6 +15,8 @@ public:
 	ManagedTexture(const std::string& name, unsigned int flags);
 	~ManagedTexture();
 
+	GLuint getId() const { return texture; }
+
 	// Bind the texture to the active texture unit
 	void bind();
 private:
