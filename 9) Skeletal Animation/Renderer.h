@@ -8,6 +8,7 @@
 #include "../nclgl/MeshAnimation.h"
 #include "../nclgl/MeshMaterial.h"
 #include "../nclgl/ResourceManager.h"
+#include "../nclgl/SkeletonAnim.h"
 
 class Renderer : public OGLRenderer
 {
@@ -19,15 +20,10 @@ public:
 	void UpdateScene(float dt) override;
 
 protected:
-	Camera* camera;
-	Mesh* mesh;
-	Shader* shader;
-	MeshAnimation* anim;
-	MeshMaterial* material;
-	ResourceManager* resourceManager;
-	std::vector<std::shared_ptr<ManagedTexture>> matTextures;
+	void drawNode(SceneNode& n);
 
-	int currentFrame;
-	// Time until next frame
-	float frameTime;
+	SceneNode* root;
+
+	Camera* camera;
+	ResourceManager* resourceManager;
 };

@@ -7,6 +7,7 @@
 #include "glad/glad.h"
 
 class Shader;
+class Mesh;
 
 class ManagedTexture
 {

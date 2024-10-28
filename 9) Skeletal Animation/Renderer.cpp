@@ -3,15 +3,8 @@
 Renderer::Renderer(Window& parent)
 	: OGLRenderer(parent)
 	, camera(new Camera())
-	, shader(new Shader("SkinningVertex.glsl", "TexturedFragment.glsl"))
-	, mesh(Mesh::LoadFromMeshFile("Role_T.msh"))
-	, anim(new MeshAnimation("Role_T.anm"))
-	, material(new MeshMaterial("Role_T.mat"))
-	, currentFrame(0)
-	, frameTime(0.0f)
 	, resourceManager(new ResourceManager())
 {
-	if (!shader->LoadSuccess() || !mesh) return;
 	camera->setSpeed(10.0f);
 	camera->setPosition(Vector3(0, 2, 5));
 
@@ -21,17 +14,13 @@ Renderer::Renderer(Window& parent)
 		45.0f
 	);
 
-	bool badTexture = false;
-	for (int i = 0; i < mesh->GetSubMeshCount(); i++) {
-		auto entry = material->GetMaterialForLayer(i);
-		const std::string* filename = nullptr;
-		entry->GetEntry("Diffuse", &filename);
+	root = new SceneNode();
 
-		auto path = TEXTUREDIR + *filename;
-		auto texture = resourceManager->getTexture(*filename, SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y);
-		matTextures.emplace_back(texture);
+	for (int i = 0; i < 10; i++) {
+		SkeletonAnim* node = new SkeletonAnim(resourceManager, "Role_T.msh", "Role_T.anm", "Role_T.mat");
+		node->setTransform(Matrix4::Translation(Vector3(0, 2 * i, i * -2)));
+		root->addChild(node);
 	}
-	if (badTexture) return;
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
@@ -41,10 +30,6 @@ Renderer::Renderer(Window& parent)
 Renderer::~Renderer()
 {
 	delete camera;
-	delete mesh;
-	delete shader;
-	delete anim;
-	delete material;
 	delete resourceManager;
 }
 
@@ -53,48 +38,18 @@ void Renderer::UpdateScene(float dt)
 	camera->update(dt);
 	viewMatrix = camera->buildViewMatrix();
 
-	frameTime -= dt;
-	while (frameTime < 0) {
-		currentFrame = (currentFrame + 1) % anim->GetFrameCount();
-		frameTime += 1.0 / anim->GetFrameRate();
-	}
+	root->update(dt);
 }
 
 void Renderer::RenderScene() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	BindShader(shader);
-	glUniform1i(shader->getUniform("diffuseTex"), 0);
-	UpdateShaderMatrices();
+	drawNode(*root);
+}
 
-	// Remove the transformation of the bind pose from vertexes
-	// by multiplying the current position of each joint by the
-	// inverse of the bind pose
-	std::vector<Matrix4> frameMatrices;
-	frameMatrices.reserve(mesh->GetJointCount());
-
-	const Matrix4* currentFrameData = anim->GetJointData(currentFrame);
-	const Matrix4* nextFrameData = anim->GetJointData((currentFrame + 1) % anim->GetFrameCount());
-	const Matrix4* inverseBindPose = mesh->GetInverseBindPose();
-	float interpolation = frameTime * anim->GetFrameRate();
-
-	for (int i = 0; i < mesh->GetJointCount(); i++) {
-		Matrix4 currentJoint = currentFrameData[i];
-		Matrix4 nextJoint = nextFrameData[i];
-		Matrix4 interpolated = Matrix4::lerp(currentJoint, nextJoint, 1.0 - interpolation);
-
-		frameMatrices.emplace_back(interpolated * inverseBindPose[i]);
-	}
-
-	glUniformMatrix4fv(
-		shader->getUniform("joints"), frameMatrices.size(),
-		false, (float*)frameMatrices.data()
-	);
-
-	// Draw each sub-mesh
-	for (int i = 0; i < mesh->GetSubMeshCount(); i++) {
-		glActiveTexture(GL_TEXTURE0);
-		matTextures[i]->bind();
-		mesh->DrawSubMesh(i);
+void Renderer::drawNode(SceneNode& node) {
+	node.drawSelf(*this);
+	for (auto child = node.childrenBegin(); child < node.childrenEnd(); child++) {
+		drawNode(**child);
 	}
 }
