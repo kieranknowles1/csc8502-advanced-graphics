@@ -44,6 +44,12 @@ extern const Matrix4 biasMatrix;
 
 class Shader;
 class Light;
+class Mesh;
+
+struct DebugSettings {
+	// Whether to draw the bounding boxes of nodes
+	bool drawBoundingBoxes = false;
+};
 
 class OGLRenderer	{
 public:
@@ -63,6 +69,18 @@ public:
 	
 	void			BindShader(Shader*s);
 	void			UpdateShaderMatrices();
+
+	void setDebugSettings(const DebugSettings& settings) {
+		debugSettings = settings;
+	}
+
+	const DebugSettings& getDebugSettings() const {
+		return debugSettings;
+	}
+
+	const Mesh* getDebugCube() const {
+		return debugCube;
+	}
 protected:
 	virtual void	Resize(int x, int y);	
 
@@ -83,6 +101,9 @@ protected:
 	int		width;			//Render area width (not quite the same as window width)
 	int		height;			//Render area height (not quite the same as window height)
 	bool	init;			//Did the renderer initialise properly?
+
+	DebugSettings debugSettings;
+	Mesh* debugCube;
 
 private:
 	Shader* currentShader;	

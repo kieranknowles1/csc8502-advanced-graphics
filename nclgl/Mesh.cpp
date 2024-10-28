@@ -56,6 +56,16 @@ Mesh* Mesh::GenerateQuad() {
 	return m;
 }
 
+Mesh* Mesh::LoadDebugCube()
+{
+	Mesh* m = LoadFromMeshFile("Cube.msh");
+	if (!m) throw std::runtime_error("Failed to load cube mesh!");
+	// This mesh isn't designed for lines, but works well enough for debugging
+	m->type = GL_LINES;
+
+	return m;
+}
+
 Mesh::Mesh(void)	{
 	glGenVertexArrays(1, &arrayObject);
 	
@@ -91,7 +101,7 @@ Mesh::~Mesh(void)	{
 	delete[]	weightIndices;
 }
 
-void Mesh::Draw()	{
+void Mesh::Draw() const {
 	glBindVertexArray(arrayObject);
 	if(bufferObject[INDEX_BUFFER]) {
 		glDrawElements(type, numIndices, GL_UNSIGNED_INT, 0);

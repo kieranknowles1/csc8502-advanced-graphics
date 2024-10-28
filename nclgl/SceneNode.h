@@ -54,6 +54,7 @@ public:
 	GLuint getTexture() const { return texture; }
 
 	float getBoundingRadius() const {
+		// FIXME: This is not adjusted by parent scale. A bounding box would be better
 		float maxScale = std::max(std::abs(scale.x), std::max(std::abs(scale.y), std::abs(scale.z)));
 		return boundingRadius * maxScale;
 	}
@@ -66,6 +67,7 @@ public:
 
 	// Parents are drawn BEFORE their children
 	virtual void drawSelf(OGLRenderer& r);
+	void drawDebug(OGLRenderer& r);
 
 	using SceneNodeIterator = std::vector<SceneNode*>::iterator;
 	SceneNodeIterator childrenBegin() { return children.begin(); }

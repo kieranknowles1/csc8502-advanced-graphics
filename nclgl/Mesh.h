@@ -44,6 +44,8 @@ public:
 	// Generate a simple mesh representing a triangle
 	static Mesh* GenerateTriangle();
 	static Mesh* GenerateQuad();
+	// Generate a simple mesh representing a cube using lines, for debugging
+	static Mesh* LoadDebugCube();
 
 	struct SubMesh {
 		int start;
@@ -53,7 +55,7 @@ public:
 	Mesh(void);
 	~Mesh(void);
 
-	void Draw();
+	void Draw() const;
 	void DrawSubMesh(int i);
 
 	static Mesh* LoadFromMeshFile(const std::string& name);

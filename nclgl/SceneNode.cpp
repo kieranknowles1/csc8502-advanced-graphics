@@ -95,8 +95,24 @@ void SceneNode::drawSelf(OGLRenderer& r)
 	glBindTexture(GL_TEXTURE_2D, texture);
 
 	mesh->Draw();
+	drawDebug(r);
 
 	r.BindShader(prevShader);
+}
+
+void SceneNode::drawDebug(OGLRenderer& r) {
+	const Shader* shader = r.getCurrentShader();
+	if (r.getDebugSettings().drawBoundingBoxes) {
+		// TODO: Use axis-aligned bounding box
+		// This is currently not very accurate, but good enough for now
+		float sqrt2 = sqrt(2);
+		float radius = getBoundingRadius();
+		Matrix4 transform = getWorldTransform()
+			* Matrix4::Scale(Vector3(1.0 / scale.x, 1.0 / scale.y, 1.0 / scale.z)) // Undo scale to the node to get pre-scale bounding box
+			* Matrix4::Scale(Vector3(radius * sqrt2, radius * sqrt2, radius * sqrt2)); // sqrt(2) gives an approximate fit, but it's not perfect
+		transform.bind(shader->getUniform("modelMatrix"));
+		r.getDebugCube()->Draw();
+	}
 }
 
 SceneNode::SceneNode(const SceneNode& s)
