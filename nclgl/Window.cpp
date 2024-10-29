@@ -45,26 +45,12 @@ Window::Window(std::string title, int sizeX, int sizeY, bool fullScreen)	{
 	fullScreen ? position.x = 0.0f : position.x = 100.0f;
 	fullScreen ? position.y = 0.0f : position.y = 100.0f;
 
-	HINSTANCE hInstance = GetModuleHandle( NULL );
-
-	windowHandle = sysInfo.info.win.window;
-
- 	if(!windowHandle) {
-		// Should be caught by SDL_CreateWindow
-		throw std::runtime_error("Failed to create window handle");
-	}
-
 	keyboard	= new Keyboard();
 	mouse		= new Mouse();
 
 	timer		= new GameTimer();
 
 	Window::GetMouse()->SetAbsolutePositionBounds((unsigned int)size.x,(unsigned int)size.y);
-
-	POINT pt;
-	GetCursorPos(&pt);
-	ScreenToClient(windowHandle, &pt);
-	Window::GetMouse()->SetAbsolutePosition(pt.x,pt.y);
 
 	LockMouseToWindow(lockMouse);
 	ShowOSPointer(showMouse);

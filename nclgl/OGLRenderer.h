@@ -19,11 +19,9 @@ _-_-_-_-_-_-_-""  ""
 #include <fstream>
 #include <vector>
 
-#include "KHR\khrplatform.h"
 #include "glad\glad.h"
 
 #include "GL/GL.h"
-#include "KHR/WGLext.h"
 
 #include "SOIL/SOIL.h"
 

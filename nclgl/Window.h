@@ -8,7 +8,6 @@ Description:Creates and handles the Window, including the initialisation of the 
 #include "common.h"
 #include <string>
 
-#include <windows.h>
 #include <io.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -17,9 +16,6 @@ Description:Creates and handles the Window, including the initialisation of the 
 #include "Keyboard.h"
 #include "Mouse.h"
 #include "GameTimer.h"
-
-#define VC_EXTRALEAN
-#define WINDOWCLASS "WindowClass"
 
 class OGLRenderer;
 
@@ -57,9 +53,6 @@ public:
 
 protected:
 	void handleEvent(SDL_Event& e);
-	//void	CheckMessages(MSG &msg);
-
-	HWND			windowHandle;
 
 	Keyboard*	keyboard;
 	Mouse*		mouse;
