@@ -57,20 +57,32 @@
         # Shared across all systems
       };
 
-      perSystem = {pkgs, ...}: {
+      perSystem = {pkgs, ...}: let
+        deps = with pkgs; [
+          cmake
+          libGL
+          SDL2
+        ];
+      in {
         # Per system type
         devShells = {
           # Wrapper that sets the magic DEVSHELL variable, and preserves the user's default shell
           # Usage: `nix develop [.#name=default]`
           default = cfgLib.shell.mkShellEx pkgs.mkShellNoCC {
             name = "dev";
-            packages = with pkgs; [
-              cmake
-              clang
-              libGL
-              SDL2
+            packages = deps ++ [
+              # I find clang error messages to be better quality
+              # Anything is an improvement over MSVC
+              pkgs.clang
             ];
           };
+        };
+
+        packages.default = pkgs.stdenv.mkDerivation {
+          src = ./.;
+          name = "advanced-graphics";
+
+          buildInputs = deps;
         };
       };
     };

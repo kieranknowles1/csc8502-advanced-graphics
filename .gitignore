@@ -6,6 +6,9 @@
 # CMake
 /build/
 
+# Nix
+/result/
+
 # User-specific files
 *.rsuser
 *.suo
