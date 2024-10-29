@@ -49,8 +49,8 @@ public:
 
 	Vector2	GetScreenSize() {return size;};
 
-	static Keyboard*	GetKeyboard()	{return keyboard;}
-	static Mouse*		GetMouse()		{return mouse;}
+	Keyboard*	GetKeyboard()	{return keyboard;}
+	Mouse*		GetMouse()		{return mouse;}
 
 	GameTimer*   GetTimer()		{return timer;}
 
@@ -59,9 +59,8 @@ protected:
 
 	HWND			windowHandle;
 
-	static Window*		window;
-	static Keyboard*	keyboard;
-	static Mouse*		mouse;
+	Keyboard*	keyboard;
+	Mouse*		mouse;
 
 	SDL_Window* sdlWindow;
 

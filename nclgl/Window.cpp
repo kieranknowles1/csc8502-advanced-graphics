@@ -5,10 +5,6 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_syswm.h"
 
-Window* Window::window		= nullptr;
-Keyboard*Window::keyboard	= nullptr;
-Mouse*Window::mouse			= nullptr;
-
 Window::Window(std::string title, int sizeX, int sizeY, bool fullScreen)	{
 	SDL_version version;
 	SDL_GetVersion(&version);
@@ -36,7 +32,6 @@ Window::Window(std::string title, int sizeX, int sizeY, bool fullScreen)	{
 	}
 
 	renderer		= NULL;
-	window			= this;
 	forceQuit		= false;
 	mouseLeftWindow	= false;
 	lockMouse		= false;
@@ -59,12 +54,8 @@ Window::Window(std::string title, int sizeX, int sizeY, bool fullScreen)	{
 		throw std::runtime_error("Failed to create window handle");
 	}
 
-	if(!keyboard) {
-		keyboard	= new Keyboard(windowHandle);
-	}
-	if(!mouse) {
-		mouse		= new Mouse(windowHandle);
-	}
+	keyboard	= new Keyboard(windowHandle);
+	mouse		= new Mouse(windowHandle);
 
 	timer		= new GameTimer();
 
@@ -72,7 +63,7 @@ Window::Window(std::string title, int sizeX, int sizeY, bool fullScreen)	{
 
 	POINT pt;
 	GetCursorPos(&pt);
-	ScreenToClient(window->windowHandle, &pt);
+	ScreenToClient(windowHandle, &pt);
 	Window::GetMouse()->SetAbsolutePosition(pt.x,pt.y);
 
 	LockMouseToWindow(lockMouse);
@@ -83,8 +74,8 @@ Window::Window(std::string title, int sizeX, int sizeY, bool fullScreen)	{
 
 Window::~Window(void)
 {
-	delete keyboard;keyboard = nullptr;
-	delete mouse;	mouse	 = nullptr;
+	delete keyboard;
+	delete mouse;
 }
 
 void Window::swapBuffers() {
@@ -120,8 +111,8 @@ void Window::CheckMessages(MSG &msg)	{
 	switch (msg.message)	{				// Is There A Message Waiting?
 		case (WM_QUIT):
 		case (WM_CLOSE): {					// Have We Received A Quit Message?
-			window->ShowOSPointer(true);
-			window->LockMouseToWindow(false);
+			ShowOSPointer(true);
+			LockMouseToWindow(false);
 			forceQuit = true;
 		}break;
 		case (WM_INPUT): {
@@ -133,11 +124,11 @@ void Window::CheckMessages(MSG &msg)	{
 			GetRawInputData((HRAWINPUT)msg.lParam, RID_INPUT, lpb, &dwSize,sizeof(RAWINPUTHEADER));
 			RAWINPUT* raw = (RAWINPUT*)lpb;
 
-			if (keyboard && window->isActive && raw->header.dwType == RIM_TYPEKEYBOARD) {
+			if (keyboard && isActive && raw->header.dwType == RIM_TYPEKEYBOARD) {
 				Window::GetKeyboard()->Update(raw);
 			}
 
-			if (mouse && window->isActive && raw->header.dwType == RIM_TYPEMOUSE) {
+			if (mouse && isActive && raw->header.dwType == RIM_TYPEMOUSE) {
 				Window::GetMouse()->Update(raw);
 			}
 			delete lpb;
@@ -157,14 +148,14 @@ void	Window::LockMouseToWindow(bool lock)	{
 #ifdef _WIN32
 	if(lock) {
 		RECT		windowRect;
-		GetWindowRect (window->windowHandle, &windowRect);
+		GetWindowRect (windowHandle, &windowRect);
 
-		SetCapture(window->windowHandle);
+		SetCapture(windowHandle);
 		ClipCursor(&windowRect);
 
 		POINT pt;
 		GetCursorPos(&pt);
-		ScreenToClient(window->windowHandle, &pt);
+		ScreenToClient(windowHandle, &pt);
 		Window::GetMouse()->SetAbsolutePosition(pt.x,pt.y);
 	}
 	else{
