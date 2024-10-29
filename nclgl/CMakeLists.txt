@@ -30,11 +30,12 @@ set(SOURCES
 
 find_package(OpenGL REQUIRED)
 find_package(SDL2 REQUIRED)
-find_package(SOIL REQUIRED)
 
 add_library(nclgl ${SOURCES})
 target_include_directories(nclgl PUBLIC "${PROJECT_SOURCE_DIR}/Third Party")
 
 target_link_libraries(nclgl INTERFACE
+    OpenGL::OpenGL
     SDL2::SDL2
+    SOIL
 )

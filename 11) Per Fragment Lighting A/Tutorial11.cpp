@@ -3,6 +3,7 @@
 
 int main() {
 	Window w("Per Pixel Lighting!", 1280, 720,false);
+	w.SetTitle("Linux Edition!");
 
 	Renderer renderer(w);//This handles all the boring OGL 3.2 initialisation stuff, and sets up our tutorial!
 
