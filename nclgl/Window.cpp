@@ -101,9 +101,6 @@ bool	Window::UpdateWindow() {
 	Window::GetKeyboard()->UpdateHolds();
 	Window::GetMouse()->UpdateHolds();
 
-	/*while(PeekMessage(&msg,windowHandle,0,0,PM_REMOVE)) {
-		CheckMessages(msg); 
-	}*/
 	SDL_Event e;
 	while (SDL_PollEvent(&e)) {
 		handleEvent(e);
@@ -119,65 +116,23 @@ void Window::handleEvent(SDL_Event& e) {
 	case SDL_KEYDOWN:
 	case SDL_KEYUP:
 		keyboard->update(e.key);
+		break;
+	case SDL_MOUSEMOTION:
+		mouse->update(e.motion);
+		break;
+	case SDL_MOUSEBUTTONDOWN:
+	case SDL_MOUSEBUTTONUP:
+	case SDL_MOUSEWHEEL:
+		// TODO: Handle this
+		break;
+	default:
+		break;
 	}
 }
 
-//void Window::CheckMessages(MSG &msg)	{
-//	switch (msg.message)	{				// Is There A Message Waiting?
-//		case (WM_QUIT):
-//		case (WM_CLOSE): {					// Have We Received A Quit Message?
-//			ShowOSPointer(true);
-//			LockMouseToWindow(false);
-//			forceQuit = true;
-//		}break;
-//		case (WM_INPUT): {
-//			UINT dwSize;
-//			GetRawInputData((HRAWINPUT)msg.lParam, RID_INPUT, NULL, &dwSize,sizeof(RAWINPUTHEADER));
-//
-//			BYTE* lpb = new BYTE[dwSize];
-//	
-//			GetRawInputData((HRAWINPUT)msg.lParam, RID_INPUT, lpb, &dwSize,sizeof(RAWINPUTHEADER));
-//			RAWINPUT* raw = (RAWINPUT*)lpb;
-//
-//			if (keyboard && isActive && raw->header.dwType == RIM_TYPEKEYBOARD) {
-//				Window::GetKeyboard()->Update(raw);
-//			}
-//
-//			if (mouse && isActive && raw->header.dwType == RIM_TYPEMOUSE) {
-//				Window::GetMouse()->Update(raw);
-//			}
-//			delete lpb;
-//		}break;
-//
-//		default: {								// If Not, Deal With Window Messages
-//			TranslateMessage(&msg);				// Translate The Message
-//			DispatchMessage(&msg);				// Dispatch The Message
-//		}
-//	}
-//}
-
 void	Window::LockMouseToWindow(bool lock)	{
 	lockMouse = lock;
-
-	// FIXME: SDL2's way isn't working
-#ifdef _WIN32
-	if(lock) {
-		RECT		windowRect;
-		GetWindowRect (windowHandle, &windowRect);
-
-		SetCapture(windowHandle);
-		ClipCursor(&windowRect);
-
-		POINT pt;
-		GetCursorPos(&pt);
-		ScreenToClient(windowHandle, &pt);
-		Window::GetMouse()->SetAbsolutePosition(pt.x,pt.y);
-	}
-	else{
-		ReleaseCapture();
-		ClipCursor(NULL);
-	}
-#endif // _WIN32
+	SDL_SetRelativeMouseMode(lock ? SDL_TRUE : SDL_FALSE);
 }
 
 void Window::ShowOSPointer(bool show) {
