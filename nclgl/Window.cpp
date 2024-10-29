@@ -2,11 +2,15 @@
 #include "Mouse.h"
 #include "Keyboard.h"
 
+#include "SDL2/SDL.h"
+
 Window* Window::window		= nullptr;
 Keyboard*Window::keyboard	= nullptr;
 Mouse*Window::mouse			= nullptr;
 
 Window::Window(std::string title, int sizeX, int sizeY, bool fullScreen)	{
+	SDL_Window* sdlWindow = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, sizeX, sizeY, SDL_WINDOW_OPENGL);
+
 	renderer		= NULL;
 	window			= this;
 	forceQuit		= false;
