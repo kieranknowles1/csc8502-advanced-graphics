@@ -60,8 +60,6 @@ public:
 	virtual void	RenderScene()		= 0;
 	virtual void	UpdateScene(float msec);
 
-	bool			HasInitialised() const;	
-
 	void setTextureRepeating(GLuint texture, bool repeating);
 
 	Shader* getCurrentShader() const { return currentShader; }
@@ -99,7 +97,6 @@ protected:
 
 	int		width;			//Render area width (not quite the same as window width)
 	int		height;			//Render area height (not quite the same as window height)
-	bool	init;			//Did the renderer initialise properly?
 
 	DebugSettings debugSettings;
 	Mesh* debugCube;

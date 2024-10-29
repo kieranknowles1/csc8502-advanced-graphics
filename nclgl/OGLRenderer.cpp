@@ -35,9 +35,12 @@ Creates an OpenGL 3.2 CORE PROFILE rendering context. Sets itself
 as the current renderer of the passed 'parent' Window. Not the best
 way to do it - but it kept the Tutorial code down to a minimum!
 */
-OGLRenderer::OGLRenderer(Window &window)	{
-	init					= false;
-
+OGLRenderer::OGLRenderer(Window &window)
+	: debugCube(Mesh::LoadDebugCube())
+	, currentShader(nullptr)
+	, width(window.GetScreenSize().x)
+	, height(window.GetScreenSize().y)
+{
 	glContext = SDL_GL_CreateContext(window.getSdlWindow());
 	if (!glContext) {
 		auto error = SDL_GetError();
@@ -45,13 +48,10 @@ OGLRenderer::OGLRenderer(Window &window)	{
 	}
 
 	if (!gladLoadGL()) {
-		std::cout << "OGLRenderer::OGLRenderer(): Cannot initialise GLAD!\n";	//It's all gone wrong!
-		return;
+		throw std::runtime_error("OGLRenderer::OGLRenderer(): Cannot initialise GLAD!");
 	}
 
-	//Now we have a temporary context, we can find out if we support OGL 3.x
 	char* ver = (char*)glGetString(GL_VERSION); // ver must equal "3.2.0" (or greater!)
-
 	std::cout << "OGLRenderer::OGLRenderer(): Using OpenGL: " << ver << "\n";
 
 	//If we get this far, everything's going well!
@@ -63,11 +63,7 @@ OGLRenderer::OGLRenderer(Window &window)	{
 
 	glClearColor(0.2f,0.2f,0.2f,1.0f);			//When we clear the screen, we want it to be dark grey
 
-	currentShader = 0;							//0 is the 'null' object name for shader programs...
-
 	window.SetRenderer(this);					//Tell our window about the new renderer! (Which will in turn resize the renderer window to fit...)
-
-	debugCube = Mesh::LoadDebugCube(); // Generic cube for debug drawing
 }
 
 /*
@@ -75,14 +71,7 @@ Destructor. Deletes the default shader, and the OpenGL rendering context.
 */
 OGLRenderer::~OGLRenderer(void)	{
 	SDL_GL_DeleteContext(glContext);
-}
-
-/*
-Returns TRUE if everything in the constructor has gone to plan.
-Check this to end the application if necessary...
-*/
-bool OGLRenderer::HasInitialised() const{
-	return init;
+	delete debugCube;
 }
 
 /*
