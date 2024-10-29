@@ -39,6 +39,8 @@ public:
 		return sdlWindow;
 	}
 
+	void swapBuffers();
+
 	// TODO: Remove this
 	HWND	GetHandle();
 

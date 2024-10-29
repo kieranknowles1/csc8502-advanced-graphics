@@ -92,6 +92,10 @@ bool Window::HasInitialised() {
 	return init;
 }
 
+void Window::swapBuffers() {
+	SDL_GL_SwapWindow(sdlWindow);
+}
+
 void	Window::SetRenderer(OGLRenderer* r)	{
 	renderer = r;
 	if(r) {

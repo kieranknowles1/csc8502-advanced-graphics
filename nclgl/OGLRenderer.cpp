@@ -104,16 +104,6 @@ void OGLRenderer::Resize(int x, int y)	{
 }
 
 /*
-Swaps the buffers, ready for the next frame's rendering. Should be called
-every frame, at the end of RenderScene(), or whereever appropriate for
-your application.
-*/
-void OGLRenderer::SwapBuffers() {
-	//We call the windows OS SwapBuffers on win32. Wrapping it in this 
-	//function keeps all the tutorial code 100% cross-platform (kinda).
-	::SwapBuffers(deviceContext);
-}
-/*
 Used by some later tutorials when we want to have framerate-independent
 updates on certain datatypes. Really, OGLRenderer should have its own
 timer, so it can just sit and look after itself (potentially even in

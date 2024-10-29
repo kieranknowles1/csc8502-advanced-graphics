@@ -61,7 +61,6 @@ public:
 
 	virtual void	RenderScene()		= 0;
 	virtual void	UpdateScene(float msec);
-	void			SwapBuffers();
 
 	bool			HasInitialised() const;	
 
