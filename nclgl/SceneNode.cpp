@@ -1,6 +1,7 @@
 #include "SceneNode.h"
 
 #include <cassert>
+#include <algorithm>
 
 SceneNode::SceneNode(Mesh* mesh, Vector4 color)
 	: parent(nullptr)

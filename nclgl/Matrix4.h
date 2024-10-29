@@ -2,20 +2,22 @@
 Class:Matrix4
 Implements:
 Author:Rich Davison
-Description:VERY simple 4 by 4 matrix class. Students are encouraged to modify 
+Description:VERY simple 4 by 4 matrix class. Students are encouraged to modify
 this as necessary! Overloading the [] operator to allow acces to the values
-array in a neater way might be a good start, as the floats that make the matrix 
+array in a neater way might be a good start, as the floats that make the matrix
 up are currently public.
 
--_-_-_-_-_-_-_,------,   
+-_-_-_-_-_-_-_,------,
 _-_-_-_-_-_-_-|   /\_/\   NYANYANYAN
 -_-_-_-_-_-_-~|__( ^ .^) /
-_-_-_-_-_-_-_-""  ""   
+_-_-_-_-_-_-_-""  ""
 
 *//////////////////////////////////////////////////////////////////////////////
 #pragma once
 
 #include <iostream>
+#include <memory.h>
+
 #include "common.h"
 #include "Vector3.h"
 #include "Vector4.h"
@@ -60,12 +62,12 @@ public:
 	//floats 12, 13, and 14. Analogous to glTranslatef
 	static Matrix4 Translation(const Vector3 &translation);
 
-	//Creates a perspective matrix, with 'znear' and 'zfar' as the near and 
+	//Creates a perspective matrix, with 'znear' and 'zfar' as the near and
 	//far planes, using 'aspect' and 'fov' as the aspect ratio and vertical
 	//field of vision, respectively.
 	static Matrix4 Perspective(float znear, float zfar, float aspect, float fov);
 
-	//Creates an orthographic matrix with 'znear' and 'zfar' as the near and 
+	//Creates an orthographic matrix with 'znear' and 'zfar' as the near and
 	//far planes, and so on. Descriptive variable names are a good thing!
 	static Matrix4 Orthographic(float znear, float zfar,float right, float left, float top, float bottom);
 
@@ -83,7 +85,7 @@ public:
 	static Matrix4 lerp(const Matrix4& a, const Matrix4& b, float r);
 
 	//Multiplies 'this' matrix by matrix 'a'. Performs the multiplication in 'OpenGL' order (ie, backwards)
-	inline Matrix4 operator*(const Matrix4 &a) const{	
+	inline Matrix4 operator*(const Matrix4 &a) const{
 		Matrix4 out;
 		//Students! You should be able to think up a really easy way of speeding this up...
 		for(unsigned int r = 0; r < 4; ++r) {

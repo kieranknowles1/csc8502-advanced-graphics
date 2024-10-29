@@ -1,15 +1,15 @@
 /*
 Class:OGLRenderer
 Author:Rich Davison	 <richard-gordon.davison@newcastle.ac.uk>
-Description:Abstract base class for the graphics tutorials. Creates an OpenGL 
-3.2 CORE PROFILE rendering context. Each lesson will create a renderer that 
+Description:Abstract base class for the graphics tutorials. Creates an OpenGL
+3.2 CORE PROFILE rendering context. Each lesson will create a renderer that
 inherits from this class - so all context creation is handled automatically,
 but students still get to see HOW such a context is created.
 
--_-_-_-_-_-_-_,------,   
+-_-_-_-_-_-_-_,------,
 _-_-_-_-_-_-_-|   /\_/\   NYANYANYAN
 -_-_-_-_-_-_-~|__( ^ .^) /
-_-_-_-_-_-_-_-""  ""   
+_-_-_-_-_-_-_-""  ""
 
 */
 #include "OGLRenderer.h"
@@ -28,7 +28,6 @@ static const float biasValues[16] = {
 	0.0, 0.0, 0.5, 0.0,
 	0.5, 0.5, 0.5, 1.0
 };
-static const Matrix4 biasMatrix(biasValues);
 
 /*
 Creates an OpenGL 3.2 CORE PROFILE rendering context. Sets itself
@@ -55,10 +54,8 @@ OGLRenderer::OGLRenderer(Window &window)
 
 	//If we get this far, everything's going well!
 
-#ifdef OPENGL_DEBUGGING
 	glDebugMessageCallbackARB(&OGLRenderer::DebugCallback, NULL);
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
-#endif
 
 	glClearColor(0.2f,0.2f,0.2f,1.0f);			//When we clear the screen, we want it to be dark grey
 
@@ -82,7 +79,7 @@ Does lower bounds checking on input values, so should be reasonably safe
 to call.
 */
 void OGLRenderer::Resize(int x, int y)	{
-	width	= std::max(x,1);	
+	width	= std::max(x,1);
 	height	= std::max(y,1);
 	glViewport(0,0,width,height);
 }
@@ -131,7 +128,6 @@ void OGLRenderer::setTextureRepeating(GLuint texture, bool repeating) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-#ifdef OPENGL_DEBUGGING
 void OGLRenderer::DebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)	{
 		string sourceName;
 		string typeName;
@@ -170,8 +166,3 @@ void OGLRenderer::DebugCallback(GLenum source, GLenum type, GLuint id, GLenum se
 
 		std::cout << "OpenGL Debug Output: " + sourceName + ", " + typeName + ", " + severityName + ", " + string(message) << "\n";
 }
-#endif
-
-
-
-

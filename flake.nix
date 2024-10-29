@@ -65,18 +65,11 @@
           default = cfgLib.shell.mkShellEx pkgs.mkShellNoCC {
             name = "dev";
             packages = with pkgs; [
-              hello
+              cmake
+              clang
+              libGL
             ];
-
-            shellHook = ''
-              echo "Hello, world!"
-            '';
           };
-        };
-
-        packages = {
-          # Usage: `nix run [.#name=default]`
-          default = pkgs.hello;
         };
       };
     };

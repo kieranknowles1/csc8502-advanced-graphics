@@ -14,7 +14,7 @@ SkeletonAnim::SkeletonAnim(ResourceManager* rm, std::string mesh, std::string an
 
 	// TODO: We should throw on failure in LoadMeshFile and shader::shader
 	if (!shader->LoadSuccess() || !this->mesh)
-		throw std::exception("Failed to load shader or mesh");
+		throw std::runtime_error("Failed to load shader or mesh");
 
 	textures.reserve(this->mesh->GetSubMeshCount());
 	for (int i = 0; i < this->mesh->GetSubMeshCount(); i++) {
