@@ -19,7 +19,7 @@ Window::Window(std::string title, int sizeX, int sizeY, bool fullScreen)	{
 	std::cout << "SDL version: " << (int)version.major << "." << (int)version.minor << "." << (int)version.patch << std::endl;
 	std::cout << "Compiled against: " << (int)compiled.major << "." << (int)compiled.minor << "." << (int)compiled.patch << std::endl;
 
-	SDL_Window* sdlWindow = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, sizeX, sizeY, SDL_WINDOW_OPENGL);
+	sdlWindow = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, sizeX, sizeY, SDL_WINDOW_OPENGL);
 
 	// TODO: This is platform specific, we should use SDL to abstract windows stuff away
 	SDL_SysWMinfo sysInfo;

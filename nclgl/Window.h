@@ -18,12 +18,13 @@ Description:Creates and handles the Window, including the initialisation of the 
 #include "Mouse.h"
 #include "GameTimer.h"
 
-
-
 #define VC_EXTRALEAN
 #define WINDOWCLASS "WindowClass"
 
 class OGLRenderer;
+
+// SDL likes to use its own main function, we don't want it
+struct SDL_Window;
 
 class Window	{
 public:
@@ -34,6 +35,11 @@ public:
 
 	void	SetRenderer(OGLRenderer* r);
 
+	SDL_Window* getSdlWindow() {
+		return sdlWindow;
+	}
+
+	// TODO: Remove this
 	HWND	GetHandle();
 
 	bool	HasInitialised();
@@ -63,6 +69,8 @@ protected:
 	static Window*		window;
 	static Keyboard*	keyboard;
 	static Mouse*		mouse;
+
+	SDL_Window* sdlWindow;
 
 	GameTimer*	timer;
 
