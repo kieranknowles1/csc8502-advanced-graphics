@@ -37,13 +37,6 @@ way to do it - but it kept the Tutorial code down to a minimum!
 */
 OGLRenderer::OGLRenderer(Window &window)	{
 	init					= false;
-	HWND windowHandle = window.GetHandle();
-
-	// Did We Get A Device Context?
-	if (!(deviceContext=GetDC(windowHandle)))		{					
-		std::cout << "OGLRenderer::OGLRenderer(): Failed to create window!\n";
-		return;
-	}
 
 	glContext = SDL_GL_CreateContext(window.getSdlWindow());
 	if (!glContext) {

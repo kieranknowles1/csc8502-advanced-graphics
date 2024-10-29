@@ -41,19 +41,11 @@ public:
 
 	void swapBuffers();
 
-	// TODO: Remove this
-	HWND	GetHandle();
-
-	bool	HasInitialised();
-
 	void	LockMouseToWindow(bool lock);
 	void	ShowOSPointer(bool show);
 
 	const std::string& GetTitle()   const { return windowTitle; }
-	void				SetTitle(const std::string& title) {
-		windowTitle = title;
-		SetWindowText(windowHandle, windowTitle.c_str());
-	};
+	void				SetTitle(const std::string& title);
 
 	Vector2	GetScreenSize() {return size;};
 
@@ -64,7 +56,6 @@ public:
 
 protected:
 	void	CheckMessages(MSG &msg);
-	static LRESULT CALLBACK WindowProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam);
 
 	HWND			windowHandle;
 
@@ -79,7 +70,6 @@ protected:
 	OGLRenderer*		renderer;
 
 	bool				forceQuit;
-	bool				init;
 	bool				fullScreen;
 	bool				lockMouse;
 	bool				showMouse;

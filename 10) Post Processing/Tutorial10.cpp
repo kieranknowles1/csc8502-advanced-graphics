@@ -3,9 +3,7 @@
 
 int main() {	
 	Window w("Post Processing!", 1280, 720,false);
-	if(!w.HasInitialised()) {
-		return -1;
-	}
+	w.SetTitle("Adios, WinAPI");
 	
 	Renderer renderer(w);
 	if(!renderer.HasInitialised()) {
