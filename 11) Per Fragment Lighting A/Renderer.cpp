@@ -43,9 +43,11 @@ void Renderer::RenderScene() {
 	heightMapTexture->bind();
 
 	light->bind(*this);
-	glUniform3fv(
+	glUniform3f(
 		shader->getUniform("cameraPos"),
-		1, (float*)&camera->getPosition()
+		camera->getPosition().x,
+		camera->getPosition().y,
+		camera->getPosition().z
 	);
 
 	heightMap->Draw();

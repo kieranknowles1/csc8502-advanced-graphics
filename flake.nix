@@ -68,6 +68,7 @@
               cmake
               clang
               libGL
+              SDL2
             ];
           };
         };
