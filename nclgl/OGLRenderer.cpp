@@ -45,8 +45,8 @@ OGLRenderer::OGLRenderer(Window &window)
 		throw std::runtime_error("Failed to create OpenGL context: " + std::string(error));
 	}
 
-	if (!gladLoadGL()) {
-		throw std::runtime_error("OGLRenderer::OGLRenderer(): Cannot initialise GLAD!");
+	if (glewInit() != GLEW_OK) {
+		throw std::runtime_error("Failed to init GLEW");
 	}
 
 	char* ver = (char*)glGetString(GL_VERSION); // ver must equal "3.2.0" (or greater!)

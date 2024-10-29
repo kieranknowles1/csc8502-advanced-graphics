@@ -1,6 +1,6 @@
 #include "Matrix4.h"
 
-#include <glad/glad.h>
+#include <GL/glew.h>
 
 Matrix4::Matrix4(void)	{
 	ToIdentity();
@@ -48,7 +48,7 @@ Vector3 Matrix4::GetPositionVector() const{
 void	Matrix4::SetPositionVector(const Vector3 in) {
 	values[12] = in.x;
 	values[13] = in.y;
-	values[14] = in.z;		
+	values[14] = in.z;
 }
 
 Vector3 Matrix4::GetScalingVector() const{
@@ -58,7 +58,7 @@ Vector3 Matrix4::GetScalingVector() const{
 void	Matrix4::SetScalingVector(const Vector3 &in) {
 	values[0]  = in.x;
 	values[5]  = in.y;
-	values[10] = in.z;		
+	values[10] = in.z;
 }
 
 Matrix4 Matrix4::Perspective(float znear, float zfar, float aspect, float fov) {
@@ -153,7 +153,7 @@ Matrix4 Matrix4::Scale( const Vector3 &scale )	{
 
 	m.values[0]  = scale.x;
 	m.values[5]  = scale.y;
-	m.values[10] = scale.z;	
+	m.values[10] = scale.z;
 
 	return m;
 }
@@ -163,7 +163,7 @@ Matrix4 Matrix4::Translation( const Vector3 &translation )	{
 
 	m.values[12] = translation.x;
 	m.values[13] = translation.y;
-	m.values[14] = translation.z;	
+	m.values[14] = translation.z;
 
 	return m;
 }

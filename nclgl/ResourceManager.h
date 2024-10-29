@@ -4,7 +4,7 @@
 #include <string>
 #include <memory>
 
-#include "glad/glad.h"
+#include <GL/glew.h>
 
 class Shader;
 class Mesh;

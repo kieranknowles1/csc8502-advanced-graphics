@@ -62,6 +62,7 @@
           cmake
           libGL
           SDL2
+          glew
         ];
       in {
         # Per system type

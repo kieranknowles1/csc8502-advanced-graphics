@@ -19,7 +19,7 @@ _-_-_-_-_-_-_-""  ""
 #include <fstream>
 #include <vector>
 
-#include "glad/glad.h"
+#include <GL/glew.h>
 
 #include "GL/gl.h"
 
