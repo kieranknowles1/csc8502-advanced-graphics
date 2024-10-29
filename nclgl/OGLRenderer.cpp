@@ -36,8 +36,7 @@ as the current renderer of the passed 'parent' Window. Not the best
 way to do it - but it kept the Tutorial code down to a minimum!
 */
 OGLRenderer::OGLRenderer(Window &window)
-	: debugCube(Mesh::LoadDebugCube())
-	, currentShader(nullptr)
+	: currentShader(nullptr)
 	, width(window.GetScreenSize().x)
 	, height(window.GetScreenSize().y)
 {
@@ -64,6 +63,9 @@ OGLRenderer::OGLRenderer(Window &window)
 	glClearColor(0.2f,0.2f,0.2f,1.0f);			//When we clear the screen, we want it to be dark grey
 
 	window.SetRenderer(this);					//Tell our window about the new renderer! (Which will in turn resize the renderer window to fit...)
+
+	// We need to init OpenGL before sending anythings to the GPU
+	debugCube = Mesh::LoadDebugCube();
 }
 
 /*
