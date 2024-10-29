@@ -3,7 +3,6 @@
 #include "Keyboard.h"
 
 #include "SDL2/SDL.h"
-#include "SDL2/SDL_syswm.h"
 
 Window::Window(std::string title, int sizeX, int sizeY, bool fullScreen)	{
 	SDL_version version;
@@ -21,15 +20,6 @@ Window::Window(std::string title, int sizeX, int sizeY, bool fullScreen)	{
 		sizeX, sizeY,
 		SDL_WINDOW_OPENGL
 	);
-
-	// TODO: This is platform specific, we should use SDL to abstract windows stuff away
-	SDL_SysWMinfo sysInfo;
-	SDL_VERSION(&sysInfo.version);
-	bool ok = SDL_GetWindowWMInfo(sdlWindow, &sysInfo);
-	if (!ok) {
-		auto message = SDL_GetError();
-		throw std::runtime_error("Failed to get SDL window info: " + std::string(message));
-	}
 
 	renderer		= NULL;
 	forceQuit		= false;
@@ -71,7 +61,7 @@ void Window::swapBuffers() {
 void	Window::SetRenderer(OGLRenderer* r)	{
 	renderer = r;
 	if(r) {
-		renderer->Resize((int)size.x,(int)size.y);				
+		renderer->Resize((int)size.x,(int)size.y);
 	}
 }
 
