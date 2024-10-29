@@ -1,5 +1,7 @@
 #include "Mouse.h"
 
+#include <string.h>
+
 #include "SDL2/SDL_events.h"
 
 Mouse::Mouse()	{
@@ -34,7 +36,7 @@ void Mouse::update(SDL_MouseMotionEvent& e) {
 //		/*
 //		TODO: How framerate independent is this?
 //		*/
-//		if(raw->data.mouse.usButtonFlags & RI_MOUSE_WHEEL)	{		
+//		if(raw->data.mouse.usButtonFlags & RI_MOUSE_WHEEL)	{
 //			if(raw->data.mouse.usButtonData == 120) {
 //				frameWheel = 1;
 //			}
@@ -57,7 +59,7 @@ void Mouse::update(SDL_MouseMotionEvent& e) {
 //										RI_MOUSE_BUTTON_3_UP,
 //										RI_MOUSE_BUTTON_4_UP,
 //										RI_MOUSE_BUTTON_5_UP};
-//		
+//
 //		for(int i = 0; i < 5; ++i) {
 //			if(raw->data.mouse.usButtonFlags & buttondowns[i])	{
 //				//The button was pressed!
@@ -92,7 +94,7 @@ void	Mouse::SetMouseSensitivity(float amount)	{
 	if(amount == 0.0f) {
 		amount = 1.0f;
 	}
-	sensitivity = amount;	
+	sensitivity = amount;
 }
 
 /*
@@ -128,7 +130,7 @@ void	Mouse::SetAbsolutePosition(unsigned int x, unsigned int y)	{
 }
 
 /*
-Returns if the button is down. Doesn't need bounds checking - 
+Returns if the button is down. Doesn't need bounds checking -
 an INPUT_KEYS enum is always in range
 */
 bool Mouse::ButtonDown(MouseButtons b)	{
@@ -136,7 +138,7 @@ bool Mouse::ButtonDown(MouseButtons b)	{
 }
 
 /*
-Returns if the button is down, and has been held down for multiple updates. 
+Returns if the button is down, and has been held down for multiple updates.
 Doesn't need bounds checking - an INPUT_KEYS enum is always in range
 */
 bool Mouse::ButtonHeld(MouseButtons b)	{
@@ -162,7 +164,7 @@ Returns how much the mouse has moved by since the last frame.
 */
 void Mouse::SetAbsolutePositionBounds(unsigned int maxX, unsigned int maxY)	{
 	absolutePositionBounds.x = (float)maxX;
-	absolutePositionBounds.y = (float)maxY;	
+	absolutePositionBounds.y = (float)maxY;
 }
 
 /*
@@ -201,5 +203,5 @@ void Mouse::UpdateDoubleClick(float dt)	{
 				lastClickTime[i] = 0.0f;
 			}
 		}
-	}	
+	}
 }

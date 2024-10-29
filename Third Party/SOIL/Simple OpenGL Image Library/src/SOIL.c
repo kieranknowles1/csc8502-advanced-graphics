@@ -265,7 +265,7 @@ unsigned int
 	SOIL_free_image_data( img );
 	/*	and return the handle, such as it is	*/
 	return tex_id;
-} 
+}
 
 unsigned int
 	SOIL_load_OGL_cubemap
@@ -1980,11 +1980,12 @@ int query_DXT_capability( void )
 				CFRelease( extensionName );
 				CFRelease( bundle );
 			#else
-				ext_addr = (P_SOIL_GLCOMPRESSEDTEXIMAGE2DPROC)
-						glXGetProcAddressARB
-						(
-							(const GLubyte *)"glCompressedTexImage2DARB"
-						);
+			ext_addr = NULL; // Hack to get this building
+				// ext_addr = (P_SOIL_GLCOMPRESSEDTEXIMAGE2DPROC)
+				// 		glXGetProcAddressARB
+				// 		(
+				// 			(const GLubyte *)"glCompressedTexImage2DARB"
+				// 		);
 			#endif
 			/*	Flag it so no checks needed later	*/
 			if( NULL == ext_addr )

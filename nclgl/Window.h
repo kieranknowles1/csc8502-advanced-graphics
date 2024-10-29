@@ -8,7 +8,6 @@ Description:Creates and handles the Window, including the initialisation of the 
 #include "common.h"
 #include <string>
 
-#include <io.h>
 #include <stdio.h>
 #include <fcntl.h>
 
@@ -28,7 +27,7 @@ public:
 	Window(std::string title = "OpenGL Framework", int sizeX = 800, int sizeY = 600, bool fullScreen = false);
 	~Window(void);
 
-	bool	UpdateWindow();	
+	bool	UpdateWindow();
 
 	void	SetRenderer(OGLRenderer* r);
 

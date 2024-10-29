@@ -19,7 +19,7 @@ Renderer::Renderer(Window& parent)
 	light = std::make_unique<Light>(
 		heightMapSize * Vector3(0.5f, 1.5f, 0.5f),
 		Vector3(1.0f, 1.0f, 1.0f),
-		heightMapSize.x * 0.5f, 2.0f
+		heightMapSize.x * 0.5f, 5.0f
 	);
 
 	projMatrix = Matrix4::Perspective(
@@ -43,9 +43,11 @@ void Renderer::RenderScene() {
 	heightMapTexture->bind();
 
 	light->bind(*this);
-	glUniform3fv(
+	glUniform3f(
 		shader->getUniform("cameraPos"),
-		1, (float*)&camera->getPosition()
+		camera->getPosition().x,
+		camera->getPosition().y,
+		camera->getPosition().z
 	);
 
 	heightMap->Draw();

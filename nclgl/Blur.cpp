@@ -9,9 +9,9 @@ namespace PostProcess {
 			"post/passthroughVertex.glsl",
 			"post/blur.glsl"
 		);
-		if (!shader->LoadSuccess()) throw std::exception("Failed to load blur shader");
+		if (!shader->LoadSuccess()) throw std::runtime_error("Failed to load blur shader");
 	}
-	
+
 	Blur::~Blur()
 	{
 		delete shader;
@@ -22,7 +22,7 @@ namespace PostProcess {
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, scratchFbo);
 		r.BindShader(shader);
-		
+
 		glActiveTexture(GL_TEXTURE0);
 		glUniform1i(shader->getUniform("sceneTex"), 0);
 

@@ -7,9 +7,13 @@ Comments and queries to: richard-gordon.davison AT ncl.ac.uk
 https://research.ncl.ac.uk/game/
 */
 #pragma once
+
+#include <assert.h>
+#include <memory.h>
+
 #include "Vector2.h"
 #include "Vector3.h"
-#include <assert.h>
+
 class Matrix2 {
 public:
 	Matrix2(void);
@@ -73,7 +77,7 @@ public:
 		return vec;
 	};
 
-	void Invert();	
+	void Invert();
 	Matrix2 Inverse() const;
 
 	static Matrix2 Rotation(float degrees);

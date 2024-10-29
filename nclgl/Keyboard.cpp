@@ -1,7 +1,9 @@
 #include "Keyboard.h"
 
-#include <SDL2/SDL.h>
 #include <iostream>
+#include <string.h>
+
+#include <SDL2/SDL.h>
 
 Keyboard::Keyboard()	{
 	//Initialise the arrays to false!
@@ -38,7 +40,7 @@ void Keyboard::update(SDL_KeyboardEvent& e)
 }
 
 /*
-Returns if the key is down. Doesn't need bounds checking - 
+Returns if the key is down. Doesn't need bounds checking -
 a KeyboardKeys enum is always in range
 */
 bool Keyboard::KeyDown(SDL_Scancode key)	{
@@ -46,7 +48,7 @@ bool Keyboard::KeyDown(SDL_Scancode key)	{
 }
 
 /*
-Returns if the key is down, and has been held down for multiple updates. 
+Returns if the key is down, and has been held down for multiple updates.
 Doesn't need bounds checking - a KeyboardKeys enum is always in range
 */
 bool Keyboard::KeyHeld(SDL_Scancode key)	{
