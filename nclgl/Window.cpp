@@ -3,13 +3,32 @@
 #include "Keyboard.h"
 
 #include "SDL2/SDL.h"
+#include "SDL2/SDL_syswm.h"
 
 Window* Window::window		= nullptr;
 Keyboard*Window::keyboard	= nullptr;
 Mouse*Window::mouse			= nullptr;
 
 Window::Window(std::string title, int sizeX, int sizeY, bool fullScreen)	{
+	SDL_version version;
+	SDL_GetVersion(&version);
+
+	SDL_version compiled;
+	SDL_VERSION(&compiled);
+
+	std::cout << "SDL version: " << (int)version.major << "." << (int)version.minor << "." << (int)version.patch << std::endl;
+	std::cout << "Compiled against: " << (int)compiled.major << "." << (int)compiled.minor << "." << (int)compiled.patch << std::endl;
+
 	SDL_Window* sdlWindow = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, sizeX, sizeY, SDL_WINDOW_OPENGL);
+
+	// TODO: This is platform specific, we should use SDL to abstract windows stuff away
+	SDL_SysWMinfo sysInfo;
+	SDL_VERSION(&sysInfo.version);
+	bool ok = SDL_GetWindowWMInfo(sdlWindow, &sysInfo);
+	if (!ok) {
+		auto message = SDL_GetError();
+		throw std::runtime_error("Failed to get SDL window info: " + std::string(message));
+	}
 
 	renderer		= NULL;
 	window			= this;
@@ -29,57 +48,11 @@ Window::Window(std::string title, int sizeX, int sizeY, bool fullScreen)	{
 
 	HINSTANCE hInstance = GetModuleHandle( NULL );
 
-	WNDCLASSEX windowClass;
-	ZeroMemory(&windowClass, sizeof(WNDCLASSEX));
-
-	if(!GetClassInfoEx(hInstance,WINDOWCLASS,&windowClass))	{
-		windowClass.cbSize		= sizeof(WNDCLASSEX);
-	    windowClass.style		= CS_HREDRAW | CS_VREDRAW;
-		windowClass.lpfnWndProc	= (WNDPROC)WindowProc;
-		windowClass.hInstance	= hInstance;
-		windowClass.hCursor		= LoadCursor(NULL, IDC_ARROW);
-		windowClass.hbrBackground = (HBRUSH)COLOR_WINDOW;
-		windowClass.lpszClassName = WINDOWCLASS;
-
-		if(!RegisterClassEx(&windowClass)) {
-			std::cout << "Window::Window(): Failed to register class!" << std::endl;
-			return;
-		}
-	}
-
-	if(fullScreen) {
-		DEVMODE dmScreenSettings;								// Device Mode
-		memset(&dmScreenSettings,0,sizeof(dmScreenSettings));	// Makes Sure Memory's Cleared
-
-		dmScreenSettings.dmSize=sizeof(dmScreenSettings);		// Size Of The Devmode Structure
-		dmScreenSettings.dmPelsWidth	= sizeX;				// Selected Screen Width
-		dmScreenSettings.dmPelsHeight	= sizeY;				// Selected Screen Height
-		dmScreenSettings.dmBitsPerPel	= 32;					// Selected Bits Per Pixel
-		dmScreenSettings.dmDisplayFrequency = 60;
-		dmScreenSettings.dmFields=DM_BITSPERPEL|DM_PELSWIDTH|DM_PELSHEIGHT|DM_DISPLAYFREQUENCY;
-
-		if(ChangeDisplaySettings(&dmScreenSettings,CDS_FULLSCREEN)!=DISP_CHANGE_SUCCESSFUL)	{
-			std::cout << "Window::Window(): Failed to switch to fullscreen!" << std::endl;
-			return;
-		}
-	}
-
-	windowHandle = CreateWindowEx(fullScreen ? WS_EX_TOPMOST : NULL,
-	WINDOWCLASS,    // name of the window class
-	windowTitle.c_str(),   // title of the window
-	fullScreen ? WS_POPUP|WS_VISIBLE : WS_OVERLAPPEDWINDOW|WS_POPUP|WS_VISIBLE|WS_SYSMENU|WS_MAXIMIZEBOX|WS_MINIMIZEBOX,    // window style
-						(int)position.x,	// x-position of the window
-                        (int)position.y,	// y-position of the window
-                        (int)size.x,		// width of the window
-                        (int)size.y,		// height of the window
-                        NULL,				// No parent window!
-                        NULL,				// No Menus!
-                        hInstance,			// application handle
-                        NULL);				// No multiple windows!
+	windowHandle = sysInfo.info.win.window;
 
  	if(!windowHandle) {
-		std::cout << "Window::Window(): Failed to create window!" << std::endl;
-		return;
+		// Should be caught by SDL_CreateWindow
+		throw std::runtime_error("Failed to create window handle");
 	}
 
 	if(!keyboard) {

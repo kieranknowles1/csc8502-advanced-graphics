@@ -56,16 +56,17 @@ OGLRenderer::OGLRenderer(Window &window)	{
 	pfd.cStencilBits	= 8;				//plus an 8 bit stencil buffer
    	pfd.iLayerType		= PFD_MAIN_PLANE;
 
-	GLuint		PixelFormat;
-	if (!(PixelFormat=ChoosePixelFormat(deviceContext,&pfd)))		{	// Did Windows Find A Matching Pixel Format for our PFD?
-		std::cout << "OGLRenderer::OGLRenderer(): Failed to choose a pixel format!\n";
-		return;
-	}
+	//GLuint		PixelFormat;
+	//if (!(PixelFormat=ChoosePixelFormat(deviceContext,&pfd)))		{	// Did Windows Find A Matching Pixel Format for our PFD?
+	//	std::cout << "OGLRenderer::OGLRenderer(): Failed to choose a pixel format!\n";
+	//	return;
+	//}
 
-	if(!SetPixelFormat(deviceContext,PixelFormat,&pfd))			{		// Are We Able To Set The Pixel Format?
-		std::cout << "OGLRenderer::OGLRenderer(): Failed to set a pixel format!\n";
-		return;
-	}
+	
+	//if(!SetPixelFormat(deviceContext,PixelFormat,&pfd))			{		// Are We Able To Set The Pixel Format?
+	//	std::cout << "OGLRenderer::OGLRenderer(): Failed to set a pixel format!\n";
+	//	return;
+	//}
 
 	HGLRC		tempContext;		//We need a temporary OpenGL context to check for OpenGL 3.2 compatibility...stupid!!!
 	if (!(tempContext=wglCreateContext(deviceContext)))				{	// Are We Able To get the temporary context?
