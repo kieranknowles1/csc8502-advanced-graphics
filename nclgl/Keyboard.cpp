@@ -3,17 +3,10 @@
 #include <SDL2/SDL.h>
 #include <iostream>
 
-Keyboard::Keyboard(HWND &hwnd)	{
+Keyboard::Keyboard()	{
 	//Initialise the arrays to false!
 	memset(keyStates, 0, sizeof(keyStates));
 	memset(holdStates, 0, sizeof(holdStates));
-
-	//Tedious windows RAW input stuff
-	rid.usUsagePage		= HID_USAGE_PAGE_GENERIC;		//The keyboard isn't anything fancy
-    rid.usUsage			= HID_USAGE_GENERIC_KEYBOARD;	//but it's definitely a keyboard!
-    rid.dwFlags			= RIDEV_INPUTSINK;				//Yes, we want to always receive RAW input...
-    rid.hwndTarget		= hwnd;							//Windows OS window handle
-    RegisterRawInputDevices(&rid, 1, sizeof(rid));		//We just want one keyboard, please!
 }
 
 /*

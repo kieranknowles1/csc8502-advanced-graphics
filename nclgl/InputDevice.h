@@ -20,22 +20,6 @@ _-_-_-_-_-_-_-""  ""
 
 #pragma once
 #include "common.h"
-#include <Windows.h>
-/*
-Microsoft helpfully don't seem to have this in any of their header files,
-despite it being how RAW input works....GG guys.
-*/
-#ifndef HID_USAGE_PAGE_GENERIC
-#define HID_USAGE_PAGE_GENERIC			((USHORT) 0x01)
-#endif
-
-#ifndef HID_USAGE_GENERIC_MOUSE
-#define HID_USAGE_GENERIC_MOUSE			((USHORT) 0x02)
-#endif
-
-#ifndef HID_USAGE_GENERIC_KEYBOARD
-#define HID_USAGE_GENERIC_KEYBOARD		((USHORT) 0x06)
-#endif
 
 class InputDevice	{
 protected:
@@ -49,5 +33,4 @@ protected:
 	virtual void Wake() { isAwake = true;}
 
 	bool			isAwake;		//Is the device awake...
-	RAWINPUTDEVICE	rid;			//Windows OS hook 
 };

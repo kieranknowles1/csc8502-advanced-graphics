@@ -37,7 +37,7 @@ public:
 	bool KeyTriggered(SDL_Scancode key);
 
 protected:
-	Keyboard(HWND &hwnd);
+	Keyboard();
 	~Keyboard(void){}
 	//Update the holdStates array...call this each frame!
 	virtual void UpdateHolds();

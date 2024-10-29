@@ -63,14 +63,14 @@ public:
 	void	SetMouseSensitivity(float amount);
 
 protected:
-	Mouse(HWND &hwnd);
+	Mouse();
 	~Mouse(void){}
 
 	void update(SDL_MouseMotionEvent& e);
 
 	//Internal function that updates the mouse variables from a 
 	//raw input 'packet'
-	virtual void	Update(RAWINPUT* raw);
+	//virtual void	Update(RAWINPUT* raw);
 	//Updates the holdButtons array. Call once per frame!
 	virtual void	UpdateHolds();
 	//Sends the mouse to sleep (i.e window has been alt-tabbed away etc)

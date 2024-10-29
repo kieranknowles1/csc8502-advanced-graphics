@@ -54,8 +54,8 @@ Window::Window(std::string title, int sizeX, int sizeY, bool fullScreen)	{
 		throw std::runtime_error("Failed to create window handle");
 	}
 
-	keyboard	= new Keyboard(windowHandle);
-	mouse		= new Mouse(windowHandle);
+	keyboard	= new Keyboard();
+	mouse		= new Mouse();
 
 	timer		= new GameTimer();
 
@@ -90,8 +90,6 @@ void	Window::SetRenderer(OGLRenderer* r)	{
 }
 
 bool	Window::UpdateWindow() {
-	MSG		msg;
-
 	timer->Tick();
 
 	float diff = timer->GetTimeDeltaSeconds();
