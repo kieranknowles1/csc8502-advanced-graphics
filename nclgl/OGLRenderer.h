@@ -19,11 +19,9 @@ _-_-_-_-_-_-_-""  ""
 #include <fstream>
 #include <vector>
 
-#include "KHR\khrplatform.h"
 #include "glad\glad.h"
 
 #include "GL/GL.h"
-#include "KHR/WGLext.h"
 
 #include "SOIL/SOIL.h"
 
@@ -42,6 +40,8 @@ using std::vector;
 
 extern const Matrix4 biasMatrix;
 
+using SDL_GLContext = void*;
+
 class Shader;
 class Light;
 class Mesh;
@@ -59,7 +59,6 @@ public:
 
 	virtual void	RenderScene()		= 0;
 	virtual void	UpdateScene(float msec);
-	void			SwapBuffers();
 
 	bool			HasInitialised() const;	
 
@@ -107,8 +106,7 @@ protected:
 
 private:
 	Shader* currentShader;	
-	HDC		deviceContext;	//...Device context?
-	HGLRC	renderContext;	//Permanent Rendering Context
+	SDL_GLContext glContext;
 #ifdef _DEBUG
 	static void CALLBACK DebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam);
 #endif

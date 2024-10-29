@@ -3,11 +3,13 @@
 #include "Matrix4.h"
 #include "Vector3.h"
 
+class Keyboard;
+class Mouse;
+
 class Camera
 {
 public:
-	Camera() : Camera(0, 0, 0, Vector3(0, 0, 0)) {}
-	Camera(float pitch, float yaw, float roll, Vector3 position);
+	Camera(Keyboard* keyboard, Mouse* mouse, float pitch = 0, float yaw = 0, float roll = 0, Vector3 position = Vector3(0, 0, 0));
 
 	~Camera();
 
@@ -30,6 +32,9 @@ public:
 	void setSpeed(float value) { speed = value; }
 private:
 	Matrix4 buildRotationMatrix(bool negate);
+
+	Keyboard* keyboard;
+	Mouse* mouse;
 
 	float speed = 300.0f;
 

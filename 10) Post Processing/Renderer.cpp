@@ -11,7 +11,7 @@ void setUnfilteredClamp() {
 
 Renderer::Renderer(Window& parent)
 	: OGLRenderer(parent)
-	, camera(new Camera(-25, 225, 0, Vector3(-150, 250, -150)))
+	, camera(new Camera(parent.GetKeyboard(), parent.GetMouse(), - 25, 225, 0, Vector3(-150, 250, -150)))
 	, heightMap(new HeightMap(TEXTUREDIR "noise.png"))
 	, quad(Mesh::GenerateQuad())
 	, postProcess(new PostProcess::Blur(10))

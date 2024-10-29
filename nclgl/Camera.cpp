@@ -2,10 +2,13 @@
 
 #include <algorithm>
 
-#include "Window.h"
+#include "Keyboard.h"
+#include "Mouse.h"
 
-Camera::Camera(float pitch, float yaw, float roll, Vector3 position)
+Camera::Camera(Keyboard* keyboard, Mouse* mouse, float pitch, float yaw, float roll, Vector3 position)
 	: pitch(pitch)
+	, keyboard(keyboard)
+	, mouse(mouse)
 	, yaw(yaw)
 	, roll(roll)
 	, position(position) {
@@ -34,8 +37,8 @@ void Camera::update(float dt) {
 	// Update our pitch and yaw from the mouse
 	// TODO: Rotation borks pitch/yaw controls, we need to turn
 	// relative to the rotated angle
-	pitch -= Window::GetMouse()->GetRelativePosition().y;
-	yaw -= Window::GetMouse()->GetRelativePosition().x;
+	pitch -= mouse->GetRelativePosition().y;
+	yaw -= mouse->GetRelativePosition().x;
 
 	// Clamp pitch to stop us going upside down
 	pitch = std::min(pitch, 90.0f);
@@ -57,30 +60,29 @@ void Camera::update(float dt) {
 
 	float distance = speed * dt;
 	// You've got to have afterburners on your spaceship
-	if (Window::GetKeyboard()->KeyDown(KEYBOARD_TAB)) {
+	if (keyboard->KeyDown(SDL_SCANCODE_TAB)) {
 		distance *= 2;
 	}
 
 	// Move the camera with FPS-style controls
-	auto keyboard = Window::GetKeyboard();
-	if (keyboard->KeyDown(KEYBOARD_W)) {
+	if (keyboard->KeyDown(SDL_SCANCODE_W)) {
 		position += forward * distance;
 	}
-	if (keyboard->KeyDown(KEYBOARD_S)) {
+	if (keyboard->KeyDown(SDL_SCANCODE_S)) {
 		position -= forward * distance;
 	}
-	if (keyboard->KeyDown(KEYBOARD_A)) {
+	if (keyboard->KeyDown(SDL_SCANCODE_A)) {
 		position -= right * distance;
 	}
-	if (keyboard->KeyDown(KEYBOARD_D)) {
+	if (keyboard->KeyDown(SDL_SCANCODE_D)) {
 		position += right * distance;
 	}
 	// Up/down with proper space sim controls
 	// (Freespace best sim, great gameplay and banging soundtrack)
-	if (keyboard->KeyDown(KEYBOARD_SPACE)) {
+	if (keyboard->KeyDown(SDL_SCANCODE_SPACE)) {
 		position += up * distance;
 	}
-	if (keyboard->KeyDown(KEYBOARD_C)) {
+	if (keyboard->KeyDown(SDL_SCANCODE_C)) {
 		position -= up * distance;
 	}
 

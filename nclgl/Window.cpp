@@ -2,15 +2,37 @@
 #include "Mouse.h"
 #include "Keyboard.h"
 
-Window* Window::window		= nullptr;
-Keyboard*Window::keyboard	= nullptr;
-Mouse*Window::mouse			= nullptr;
+#include "SDL2/SDL.h"
+#include "SDL2/SDL_syswm.h"
 
 Window::Window(std::string title, int sizeX, int sizeY, bool fullScreen)	{
+	SDL_version version;
+	SDL_GetVersion(&version);
+
+	SDL_version compiled;
+	SDL_VERSION(&compiled);
+
+	std::cout << "SDL version: " << (int)version.major << "." << (int)version.minor << "." << (int)version.patch << std::endl;
+	std::cout << "Compiled against: " << (int)compiled.major << "." << (int)compiled.minor << "." << (int)compiled.patch << std::endl;
+
+	sdlWindow = SDL_CreateWindow(
+		title.c_str(),
+		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+		sizeX, sizeY,
+		SDL_WINDOW_OPENGL
+	);
+
+	// TODO: This is platform specific, we should use SDL to abstract windows stuff away
+	SDL_SysWMinfo sysInfo;
+	SDL_VERSION(&sysInfo.version);
+	bool ok = SDL_GetWindowWMInfo(sdlWindow, &sysInfo);
+	if (!ok) {
+		auto message = SDL_GetError();
+		throw std::runtime_error("Failed to get SDL window info: " + std::string(message));
+	}
+
 	renderer		= NULL;
-	window			= this;
 	forceQuit		= false;
-	init			= false;
 	mouseLeftWindow	= false;
 	lockMouse		= false;
 	showMouse		= true;
@@ -23,96 +45,27 @@ Window::Window(std::string title, int sizeX, int sizeY, bool fullScreen)	{
 	fullScreen ? position.x = 0.0f : position.x = 100.0f;
 	fullScreen ? position.y = 0.0f : position.y = 100.0f;
 
-	HINSTANCE hInstance = GetModuleHandle( NULL );
-
-	WNDCLASSEX windowClass;
-	ZeroMemory(&windowClass, sizeof(WNDCLASSEX));
-
-	if(!GetClassInfoEx(hInstance,WINDOWCLASS,&windowClass))	{
-		windowClass.cbSize		= sizeof(WNDCLASSEX);
-	    windowClass.style		= CS_HREDRAW | CS_VREDRAW;
-		windowClass.lpfnWndProc	= (WNDPROC)WindowProc;
-		windowClass.hInstance	= hInstance;
-		windowClass.hCursor		= LoadCursor(NULL, IDC_ARROW);
-		windowClass.hbrBackground = (HBRUSH)COLOR_WINDOW;
-		windowClass.lpszClassName = WINDOWCLASS;
-
-		if(!RegisterClassEx(&windowClass)) {
-			std::cout << "Window::Window(): Failed to register class!" << std::endl;
-			return;
-		}
-	}
-
-	if(fullScreen) {
-		DEVMODE dmScreenSettings;								// Device Mode
-		memset(&dmScreenSettings,0,sizeof(dmScreenSettings));	// Makes Sure Memory's Cleared
-
-		dmScreenSettings.dmSize=sizeof(dmScreenSettings);		// Size Of The Devmode Structure
-		dmScreenSettings.dmPelsWidth	= sizeX;				// Selected Screen Width
-		dmScreenSettings.dmPelsHeight	= sizeY;				// Selected Screen Height
-		dmScreenSettings.dmBitsPerPel	= 32;					// Selected Bits Per Pixel
-		dmScreenSettings.dmDisplayFrequency = 60;
-		dmScreenSettings.dmFields=DM_BITSPERPEL|DM_PELSWIDTH|DM_PELSHEIGHT|DM_DISPLAYFREQUENCY;
-
-		if(ChangeDisplaySettings(&dmScreenSettings,CDS_FULLSCREEN)!=DISP_CHANGE_SUCCESSFUL)	{
-			std::cout << "Window::Window(): Failed to switch to fullscreen!" << std::endl;
-			return;
-		}
-	}
-
-	windowHandle = CreateWindowEx(fullScreen ? WS_EX_TOPMOST : NULL,
-	WINDOWCLASS,    // name of the window class
-	windowTitle.c_str(),   // title of the window
-	fullScreen ? WS_POPUP|WS_VISIBLE : WS_OVERLAPPEDWINDOW|WS_POPUP|WS_VISIBLE|WS_SYSMENU|WS_MAXIMIZEBOX|WS_MINIMIZEBOX,    // window style
-						(int)position.x,	// x-position of the window
-                        (int)position.y,	// y-position of the window
-                        (int)size.x,		// width of the window
-                        (int)size.y,		// height of the window
-                        NULL,				// No parent window!
-                        NULL,				// No Menus!
-                        hInstance,			// application handle
-                        NULL);				// No multiple windows!
-
- 	if(!windowHandle) {
-		std::cout << "Window::Window(): Failed to create window!" << std::endl;
-		return;
-	}
-
-	if(!keyboard) {
-		keyboard	= new Keyboard(windowHandle);
-	}
-	if(!mouse) {
-		mouse		= new Mouse(windowHandle);
-	}
+	keyboard	= new Keyboard();
+	mouse		= new Mouse();
 
 	timer		= new GameTimer();
 
 	Window::GetMouse()->SetAbsolutePositionBounds((unsigned int)size.x,(unsigned int)size.y);
 
-	POINT pt;
-	GetCursorPos(&pt);
-	ScreenToClient(window->windowHandle, &pt);
-	Window::GetMouse()->SetAbsolutePosition(pt.x,pt.y);
-
 	LockMouseToWindow(lockMouse);
 	ShowOSPointer(showMouse);
 	isActive = true;
-	init = true;
 }
 
 
 Window::~Window(void)
 {
-	delete keyboard;keyboard = nullptr;
-	delete mouse;	mouse	 = nullptr;
+	delete keyboard;
+	delete mouse;
 }
 
-HWND Window::GetHandle() {
-	return windowHandle;
-}
-
-bool Window::HasInitialised() {
-	return init;
+void Window::swapBuffers() {
+	SDL_GL_SwapWindow(sdlWindow);
 }
 
 void	Window::SetRenderer(OGLRenderer* r)	{
@@ -123,8 +76,6 @@ void	Window::SetRenderer(OGLRenderer* r)	{
 }
 
 bool	Window::UpdateWindow() {
-	MSG		msg;
-
 	timer->Tick();
 
 	float diff = timer->GetTimeDeltaSeconds();
@@ -134,165 +85,46 @@ bool	Window::UpdateWindow() {
 	Window::GetKeyboard()->UpdateHolds();
 	Window::GetMouse()->UpdateHolds();
 
-	while(PeekMessage(&msg,windowHandle,0,0,PM_REMOVE)) {
-		CheckMessages(msg); 
+	SDL_Event e;
+	while (SDL_PollEvent(&e)) {
+		handleEvent(e);
 	}
 	return !forceQuit;
 }
 
-void Window::CheckMessages(MSG &msg)	{
-	switch (msg.message)	{				// Is There A Message Waiting?
-		case (WM_QUIT):
-		case (WM_CLOSE): {					// Have We Received A Quit Message?
-			window->ShowOSPointer(true);
-			window->LockMouseToWindow(false);
-			forceQuit = true;
-		}break;
-		case (WM_INPUT): {
-			UINT dwSize;
-			GetRawInputData((HRAWINPUT)msg.lParam, RID_INPUT, NULL, &dwSize,sizeof(RAWINPUTHEADER));
-
-			BYTE* lpb = new BYTE[dwSize];
-	
-			GetRawInputData((HRAWINPUT)msg.lParam, RID_INPUT, lpb, &dwSize,sizeof(RAWINPUTHEADER));
-			RAWINPUT* raw = (RAWINPUT*)lpb;
-
-			if (keyboard && window->isActive && raw->header.dwType == RIM_TYPEKEYBOARD) {
-				Window::GetKeyboard()->Update(raw);
-			}
-
-			if (mouse && window->isActive && raw->header.dwType == RIM_TYPEMOUSE) {
-				Window::GetMouse()->Update(raw);
-			}
-			delete lpb;
-		}break;
-
-		default: {								// If Not, Deal With Window Messages
-			TranslateMessage(&msg);				// Translate The Message
-			DispatchMessage(&msg);				// Dispatch The Message
-		}
+void Window::handleEvent(SDL_Event& e) {
+	switch (e.type) {
+	case SDL_QUIT:
+		forceQuit = true;
+		break;
+	case SDL_KEYDOWN:
+	case SDL_KEYUP:
+		keyboard->update(e.key);
+		break;
+	case SDL_MOUSEMOTION:
+		mouse->update(e.motion);
+		break;
+	case SDL_MOUSEBUTTONDOWN:
+	case SDL_MOUSEBUTTONUP:
+	case SDL_MOUSEWHEEL:
+		// TODO: Handle this
+		break;
+	default:
+		break;
 	}
-}
-
-LRESULT CALLBACK Window::WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)	{
-    switch(message)	 {
-        case(WM_DESTROY):	{
-			window->ShowOSPointer(true);
-			window->LockMouseToWindow(false);
-
-			PostQuitMessage(0);
-			window->forceQuit = true;
-		} break;
-		case (WM_ACTIVATE): {
-			//int fMinimized	= (BOOL) HIWORD(wParam);
-			if(LOWORD(wParam) == WA_INACTIVE)	{
-				window->isActive = false;
-				ReleaseCapture();
-				ClipCursor(NULL);
-				mouse->Sleep();
-				keyboard->Sleep();			
-			}
-			else{
-				if(window->init) {
-					window->isActive = true;
-					mouse->Wake();	
-					keyboard->Wake();
-
-					POINT pt;
-					GetCursorPos(&pt);
-					ScreenToClient(window->windowHandle, &pt);
-					mouse->SetAbsolutePosition(pt.x,pt.y);
-
-					if(window->lockMouse) {
-						window->LockMouseToWindow(true);
-					}
-				}
-			}
-			return 0;
-		}break;
-		case (WM_LBUTTONDOWN): {
-			if(window->lockMouse) {
-				window->LockMouseToWindow(true);
-			}
-
-		}break;
-
-		case (WM_MOUSEMOVE): {
-			TRACKMOUSEEVENT tme;
-			tme.cbSize = sizeof(TRACKMOUSEEVENT);
-			tme.dwFlags = TME_LEAVE;
-			tme.hwndTrack = window->windowHandle;
-			TrackMouseEvent(&tme);
-
-			if(window->mouseLeftWindow) {
-				window->mouseLeftWindow = false;
-				mouse->Wake();
-				keyboard->Wake();
-
-				POINT pt;
-				GetCursorPos(&pt);
-				ScreenToClient(window->windowHandle, &pt);
-				mouse->SetAbsolutePosition(pt.x,pt.y);
-			}
-
-		}break;
-		case(WM_MOUSELEAVE):{
-			window->mouseLeftWindow = true;
-			mouse->Sleep();
-			keyboard->Sleep();
-		}break;
-		case(WM_SIZE): {
-			window->size.x = (float)LOWORD(lParam);
-			window->size.y = (float)HIWORD(lParam);
-			if(window->renderer) {
-				window->renderer->Resize(LOWORD(lParam),HIWORD(lParam));				
-			}
-
-			if(window->init) {
-				mouse->SetAbsolutePositionBounds(LOWORD(lParam),HIWORD(lParam));
-
-				POINT pt;
-				GetCursorPos(&pt);
-				ScreenToClient(window->windowHandle, &pt);
-				mouse->SetAbsolutePosition(pt.x,pt.y);
-
-				window->LockMouseToWindow(window->lockMouse);
-			}
-		}break;
-    }
-    return DefWindowProc (hWnd, message, wParam, lParam);
 }
 
 void	Window::LockMouseToWindow(bool lock)	{
 	lockMouse = lock;
-	if(lock) {
-		RECT		windowRect;
-		GetWindowRect (window->windowHandle, &windowRect);
-
-		SetCapture(window->windowHandle);
-		ClipCursor(&windowRect);
-
-		POINT pt;
-		GetCursorPos(&pt);
-		ScreenToClient(window->windowHandle, &pt);
-		Window::GetMouse()->SetAbsolutePosition(pt.x,pt.y);
-	}
-	else{
-		ReleaseCapture();
-		ClipCursor(NULL);
-	}
+	SDL_SetRelativeMouseMode(lock ? SDL_TRUE : SDL_FALSE);
 }
 
-void	Window::ShowOSPointer(bool show)	{
-	if(show == showMouse) {
-		return;	//ShowCursor does weird things, due to being a counter internally...
-	}
-
+void Window::ShowOSPointer(bool show) {
 	showMouse = show;
-	if(show) {
-		ShowCursor(1);
-	}
-	else{
-		ShowCursor(0);
-	}
+	SDL_ShowCursor(show ? SDL_ENABLE : SDL_DISABLE);
+}
+
+void Window::SetTitle(const std::string& title) {
+	windowTitle = title;
+	SDL_SetWindowTitle(sdlWindow, title.c_str());
 }
