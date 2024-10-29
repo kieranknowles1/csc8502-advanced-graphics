@@ -44,8 +44,6 @@ protected:
 	~InputDevice(void){};
 
 protected:
-	virtual void Update(RAWINPUT* raw) = 0;
-
 	virtual void UpdateHolds() {}
 	virtual void Sleep(){ isAwake = false;}
 	virtual void Wake() { isAwake = true;}

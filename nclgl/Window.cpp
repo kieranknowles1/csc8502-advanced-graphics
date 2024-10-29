@@ -101,45 +101,60 @@ bool	Window::UpdateWindow() {
 	Window::GetKeyboard()->UpdateHolds();
 	Window::GetMouse()->UpdateHolds();
 
-	while(PeekMessage(&msg,windowHandle,0,0,PM_REMOVE)) {
+	/*while(PeekMessage(&msg,windowHandle,0,0,PM_REMOVE)) {
 		CheckMessages(msg); 
+	}*/
+	SDL_Event e;
+	while (SDL_PollEvent(&e)) {
+		handleEvent(e);
 	}
 	return !forceQuit;
 }
 
-void Window::CheckMessages(MSG &msg)	{
-	switch (msg.message)	{				// Is There A Message Waiting?
-		case (WM_QUIT):
-		case (WM_CLOSE): {					// Have We Received A Quit Message?
-			ShowOSPointer(true);
-			LockMouseToWindow(false);
-			forceQuit = true;
-		}break;
-		case (WM_INPUT): {
-			UINT dwSize;
-			GetRawInputData((HRAWINPUT)msg.lParam, RID_INPUT, NULL, &dwSize,sizeof(RAWINPUTHEADER));
-
-			BYTE* lpb = new BYTE[dwSize];
-	
-			GetRawInputData((HRAWINPUT)msg.lParam, RID_INPUT, lpb, &dwSize,sizeof(RAWINPUTHEADER));
-			RAWINPUT* raw = (RAWINPUT*)lpb;
-
-			if (keyboard && isActive && raw->header.dwType == RIM_TYPEKEYBOARD) {
-				Window::GetKeyboard()->Update(raw);
-			}
-
-			if (mouse && isActive && raw->header.dwType == RIM_TYPEMOUSE) {
-				Window::GetMouse()->Update(raw);
-			}
-			delete lpb;
-		}break;
-
-		default: {								// If Not, Deal With Window Messages
-			TranslateMessage(&msg);				// Translate The Message
-			DispatchMessage(&msg);				// Dispatch The Message
-		}
+void Window::handleEvent(SDL_Event& e) {
+	switch (e.type) {
+	case SDL_QUIT:
+		forceQuit = true;
+		break;
+	case SDL_KEYDOWN:
+	case SDL_KEYUP:
+		keyboard->update(e.key);
 	}
 }
+
+//void Window::CheckMessages(MSG &msg)	{
+//	switch (msg.message)	{				// Is There A Message Waiting?
+//		case (WM_QUIT):
+//		case (WM_CLOSE): {					// Have We Received A Quit Message?
+//			ShowOSPointer(true);
+//			LockMouseToWindow(false);
+//			forceQuit = true;
+//		}break;
+//		case (WM_INPUT): {
+//			UINT dwSize;
+//			GetRawInputData((HRAWINPUT)msg.lParam, RID_INPUT, NULL, &dwSize,sizeof(RAWINPUTHEADER));
+//
+//			BYTE* lpb = new BYTE[dwSize];
+//	
+//			GetRawInputData((HRAWINPUT)msg.lParam, RID_INPUT, lpb, &dwSize,sizeof(RAWINPUTHEADER));
+//			RAWINPUT* raw = (RAWINPUT*)lpb;
+//
+//			if (keyboard && isActive && raw->header.dwType == RIM_TYPEKEYBOARD) {
+//				Window::GetKeyboard()->Update(raw);
+//			}
+//
+//			if (mouse && isActive && raw->header.dwType == RIM_TYPEMOUSE) {
+//				Window::GetMouse()->Update(raw);
+//			}
+//			delete lpb;
+//		}break;
+//
+//		default: {								// If Not, Deal With Window Messages
+//			TranslateMessage(&msg);				// Translate The Message
+//			DispatchMessage(&msg);				// Dispatch The Message
+//		}
+//	}
+//}
 
 void	Window::LockMouseToWindow(bool lock)	{
 	lockMouse = lock;

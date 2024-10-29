@@ -60,29 +60,29 @@ void Camera::update(float dt) {
 
 	float distance = speed * dt;
 	// You've got to have afterburners on your spaceship
-	if (keyboard->KeyDown(KEYBOARD_TAB)) {
+	if (keyboard->KeyDown(SDL_SCANCODE_TAB)) {
 		distance *= 2;
 	}
 
 	// Move the camera with FPS-style controls
-	if (keyboard->KeyDown(KEYBOARD_W)) {
+	if (keyboard->KeyDown(SDL_SCANCODE_W)) {
 		position += forward * distance;
 	}
-	if (keyboard->KeyDown(KEYBOARD_S)) {
+	if (keyboard->KeyDown(SDL_SCANCODE_S)) {
 		position -= forward * distance;
 	}
-	if (keyboard->KeyDown(KEYBOARD_A)) {
+	if (keyboard->KeyDown(SDL_SCANCODE_A)) {
 		position -= right * distance;
 	}
-	if (keyboard->KeyDown(KEYBOARD_D)) {
+	if (keyboard->KeyDown(SDL_SCANCODE_D)) {
 		position += right * distance;
 	}
 	// Up/down with proper space sim controls
 	// (Freespace best sim, great gameplay and banging soundtrack)
-	if (keyboard->KeyDown(KEYBOARD_SPACE)) {
+	if (keyboard->KeyDown(SDL_SCANCODE_SPACE)) {
 		position += up * distance;
 	}
-	if (keyboard->KeyDown(KEYBOARD_C)) {
+	if (keyboard->KeyDown(SDL_SCANCODE_C)) {
 		position -= up * distance;
 	}
 

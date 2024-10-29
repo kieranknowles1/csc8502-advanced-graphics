@@ -25,6 +25,7 @@ class OGLRenderer;
 
 // SDL likes to use its own main function, we don't want it
 struct SDL_Window;
+union SDL_Event;
 
 class Window	{
 public:
@@ -55,7 +56,8 @@ public:
 	GameTimer*   GetTimer()		{return timer;}
 
 protected:
-	void	CheckMessages(MSG &msg);
+	void handleEvent(SDL_Event& e);
+	//void	CheckMessages(MSG &msg);
 
 	HWND			windowHandle;
 

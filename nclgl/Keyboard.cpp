@@ -1,8 +1,12 @@
 #include "Keyboard.h"
+
+#include <SDL2/SDL.h>
+#include <iostream>
+
 Keyboard::Keyboard(HWND &hwnd)	{
 	//Initialise the arrays to false!
-	ZeroMemory(keyStates,  KEYBOARD_MAX * sizeof(bool));
-	ZeroMemory(holdStates, KEYBOARD_MAX * sizeof(bool));
+	memset(keyStates, 0, sizeof(keyStates));
+	memset(holdStates, 0, sizeof(holdStates));
 
 	//Tedious windows RAW input stuff
 	rid.usUsagePage		= HID_USAGE_PAGE_GENERIC;		//The keyboard isn't anything fancy
@@ -17,7 +21,7 @@ Updates variables controlling whether a keyboard key has been
 held for multiple frames.
 */
 void Keyboard::UpdateHolds()	{
-	memcpy(holdStates,keyStates,KEYBOARD_MAX * sizeof(bool));
+	memcpy(holdStates,keyStates, sizeof(keyStates));
 }
 
 /*
@@ -27,15 +31,24 @@ keypresses until it receives a Wake()
 void Keyboard::Sleep()	{
 	isAwake = false;	//Night night!
 	//Prevents incorrectly thinking keys have been held / pressed when waking back up
-	ZeroMemory(keyStates,  KEYBOARD_MAX * sizeof(bool));
-	ZeroMemory(holdStates, KEYBOARD_MAX * sizeof(bool));
+	memset(keyStates, 0, sizeof(keyStates));
+	memset(holdStates, 0, sizeof(holdStates));
+}
+
+void Keyboard::update(SDL_KeyboardEvent& e)
+{
+	if (!isAwake) {
+		return;
+	}
+
+	keyStates[e.keysym.scancode] = e.state == SDL_PRESSED;
 }
 
 /*
 Returns if the key is down. Doesn't need bounds checking - 
 a KeyboardKeys enum is always in range
 */
-bool Keyboard::KeyDown(KeyboardKeys key)	{
+bool Keyboard::KeyDown(SDL_Scancode key)	{
 	return keyStates[key];
 }
 
@@ -43,34 +56,14 @@ bool Keyboard::KeyDown(KeyboardKeys key)	{
 Returns if the key is down, and has been held down for multiple updates. 
 Doesn't need bounds checking - a KeyboardKeys enum is always in range
 */
-bool Keyboard::KeyHeld(KeyboardKeys key)	{
-	if(KeyDown(key) && holdStates[key]) {
-		return true;
-	}
-	return false;
+bool Keyboard::KeyHeld(SDL_Scancode key)	{
+	return KeyDown(key) && holdStates[key];
 }
 
 /*
 Returns true only if the key is down, but WASN't down last update.
 Doesn't need bounds checking - a KeyboardKeys enum is always in range
 */
-bool Keyboard::KeyTriggered(KeyboardKeys key)	 {
+bool Keyboard::KeyTriggered(SDL_Scancode key)	 {
 	return (KeyDown(key) && !KeyHeld(key));
-}
-
-/*
-Updates the keyboard state with data received from the OS.
-*/
-void Keyboard::Update(RAWINPUT* raw)	{
-	if(isAwake)	{
-		DWORD key = (DWORD)raw->data.keyboard.VKey;
-
-		//We should do bounds checking!
-		if(key < 0 || key > KEYBOARD_MAX)	{
-			return;
-		}
-
-		//First bit of the flags tag determines whether the key is down or up
-		keyStates[key] = !(raw->data.keyboard.Flags & RI_KEY_BREAK);
-	}
 }
