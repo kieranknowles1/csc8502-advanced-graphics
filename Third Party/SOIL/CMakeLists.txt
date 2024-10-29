@@ -6,4 +6,4 @@ set(SOURCES
 )
 
 add_library(SOIL ${SOURCES})
-target_include_directories(SOIL PRIVATE include)
+target_include_directories(SOIL PRIVATE "${PROJECT_SOURCE_DIR}/Third Party")
