@@ -61,6 +61,7 @@ HeightMap::HeightMap(const std::string& file, Vector3 vertexScale, Vector2 textu
 		}
 	}
 
+	generateNormals();
 	BufferData();
 	size.x = width * vertexScale.x;
 	size.y = 256 * vertexScale.y; // Height is 8-bit

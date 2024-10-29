@@ -89,7 +89,14 @@ public:
 	bool GetSubMesh(int i, const SubMesh* s) const;
 	bool GetSubMesh(const std::string& name, const SubMesh* s) const;
 
+	// Fill vertex normals based on triangles
+	void generateNormals();
+
 protected:
+	// Fill a, b, and c with the vertex indices for the i-th triangle
+	// Returns false if i is out of bounds
+	bool getVertexIndeciesForTri(unsigned int i, unsigned int* a, unsigned int* b, unsigned int* c) const;
+
 	void	BufferData();
 
 	GLuint	arrayObject;

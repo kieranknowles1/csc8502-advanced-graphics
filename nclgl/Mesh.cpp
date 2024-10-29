@@ -140,6 +140,25 @@ void UploadAttribute(GLuint* id, int numElements, int dataSize, int attribSize, 
 	glObjectLabel(GL_BUFFER, *id, -1, debugName.c_str());
 }
 
+bool Mesh::getVertexIndeciesForTri(unsigned int i, unsigned int* a, unsigned int* b, unsigned int* c) const
+{
+	auto triCount = GetTriCount();
+	if (i >= triCount) return false;
+
+	unsigned int index = i * 3;
+	if (indices != nullptr) {
+		*a = indices[index];
+		*b = indices[index + 1];
+		*c = indices[index + 2];
+	}
+	else {
+		*a = index;
+		*b = index + 1;
+		*c = index + 2;
+	}
+	return true;
+}
+
 void	Mesh::BufferData()	{
 	glBindVertexArray(arrayObject);
 
@@ -480,4 +499,35 @@ bool Mesh::GetSubMesh(const string& name, const SubMesh* s) const {
 		}
 	}
 	return false;
+}
+
+void Mesh::generateNormals()
+{
+	delete[] normals;
+	normals = new Vector3[numVertices];
+	memset(normals, 0, sizeof(Vector3) * numVertices);
+
+	int triCount = GetTriCount();
+	for (int i = 0; i < triCount; i++) {
+		unsigned int a;
+		unsigned int b;
+		unsigned int c;
+		getVertexIndeciesForTri(i, &a, &b, &c);
+
+		// Calculate the normal of the triangle
+		Vector3 normal = Vector3::Cross(
+			vertices[b] - vertices[a],
+			vertices[c] - vertices[a]
+		);
+
+		// Add the normal to all three vertices
+		normals[a] += normal;
+		normals[b] += normal;
+		normals[c] += normal;
+	}
+
+	// Normalise all the normals
+	for (int i = 0; i < numVertices; i++) {
+		normals[i].Normalise();
+	}
 }
