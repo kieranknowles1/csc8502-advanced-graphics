@@ -2,9 +2,10 @@
 
 uniform sampler2D diffuseTex;
 uniform vec3 cameraPos;
-uniform vec4 lightColor;
+uniform vec3 lightColor;
 uniform vec3 lightPos;
 uniform float lightRadius;
+uniform float lightAttenuation;
 
 in Vertex {
     vec3 color;
@@ -50,6 +51,24 @@ vec3 getAmbient(vec3 coloredSurface) {
     return coloredSurface * AMBIENT;
 }
 
+float getAttenuation() {
+    float distance = length(lightPos - IN.worldPos);
+    if (distance > lightRadius) {
+        return 0.0;
+    }
+    // This is a piecewise function, {0 < normalisedDistance < 1} -> {0 < attenuation < 1}
+    float normalisedDistance = distance / lightRadius;
+
+    float factorDistance = normalisedDistance * lightAttenuation;
+    float factorDistanceSquared = pow(factorDistance, 2);
+
+    // https://www.desmos.com/calculator/ecqboyzch2
+    // http://learnwebgl.brown37.net/09_lights/lights_attenuation.html
+    float attenuation = 1.0 / (1 + factorDistance + factorDistanceSquared);
+    
+    return clamp(attenuation, 0.0, 1.0);
+}
+
 void main() {
     vec3 incident = normalize(lightPos - IN.worldPos);
     vec3 view = normalize(cameraPos - IN.worldPos);
@@ -57,10 +76,9 @@ void main() {
 
     vec4 diffuse = texture(diffuseTex, IN.texCoord);
 
-    float distance = length(lightPos - IN.worldPos);
-    float attenuation = 1.0 - clamp(distance / lightRadius, 0.0, 1.0);
+    float attenuation = getAttenuation();
 
-    vec3 coloredSurface = diffuse.rgb * lightColor.rgb;
+    vec3 coloredSurface = diffuse.rgb * lightColor;
     fragColor.rgb =
           getFinalDiffuse(incident, coloredSurface, attenuation)
         + getFinalSpecular(halfAngle, coloredSurface, attenuation)
