@@ -2,6 +2,8 @@
 
 uniform sampler2D diffuseTex;
 uniform sampler2D bumpTex;
+uniform samplerCube cubeTex;
+
 uniform vec3 cameraPos;
 uniform vec3 lightColor;
 uniform vec3 lightPos;
@@ -65,6 +67,7 @@ vec3 getFinalDiffuse(vec3 incident, vec3 coloredSurface, float attenuation) {
 // attenuation - The attenuation factor of the light at this point
 vec3 getFinalSpecular(vec3 halfAngle, vec3 coloredSurface, float attenuation) {
     return coloredSurface * getSpecularFactor(halfAngle) * attenuation * SPECULAR_INTENSITY;
+    // return texture(cubeTex, halfAngle).rgb * getSpecularFactor(halfAngle) * attenuation * SPECULAR_INTENSITY;
 }
 
 vec3 getAmbient(vec3 coloredSurface) {
@@ -93,6 +96,7 @@ void main() {
     vec3 incident = normalize(lightPos - IN.worldPos);
     vec3 view = normalize(cameraPos - IN.worldPos);
     vec3 halfAngle = normalize(incident + view);
+    vec3 reflectDir = reflect(-view, normalize(IN.normal));
 
     vec4 diffuse = texture(diffuseTex, IN.texCoord) * IN.color;
     vec3 bumpNormal = getBumpNormal();

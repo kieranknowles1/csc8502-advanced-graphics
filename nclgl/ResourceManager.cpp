@@ -8,10 +8,17 @@
 
 #include "common.h"
 
-ManagedTexture::ManagedTexture(const std::string& name, unsigned int flags)
+const std::string ManagedTexture::CubeWestExt = "_west.jpg";
+const std::string ManagedTexture::CubeEastExt = "_east.jpg";
+const std::string ManagedTexture::CubeUpExt = "_up.jpg";
+const std::string ManagedTexture::CubeDownExt = "_down.jpg";
+const std::string ManagedTexture::CubeNorthExt = "_north.jpg";
+const std::string ManagedTexture::CubeSouthExt = "_south.jpg";
+
+std::shared_ptr<ManagedTexture> ManagedTexture::fromFile(const std::string& name, unsigned int flags)
 {
 	auto fullPath = TEXTUREDIR + name;
-	texture = SOIL_load_OGL_texture(
+	GLuint texture = SOIL_load_OGL_texture(
 		fullPath.c_str(), SOIL_LOAD_AUTO,
 		SOIL_CREATE_NEW_ID, flags
 	);
@@ -20,16 +27,37 @@ ManagedTexture::ManagedTexture(const std::string& name, unsigned int flags)
 	{
 		throw std::runtime_error("Failed to load texture: " + name);
 	}
+
+	return std::make_shared<ManagedTexture>(name, GL_TEXTURE_2D, texture);
+}
+
+std::shared_ptr<ManagedTexture> ManagedTexture::fromCubeMap(const std::string& name)
+{
+	std::string base(std::string(TEXTUREDIR) + name);
+	auto texture = SOIL_load_OGL_cubemap(
+		(base + CubeWestExt).c_str(), (base + CubeEastExt).c_str(),
+		(base + CubeUpExt).c_str(), (base + CubeDownExt).c_str(),
+		(base + CubeSouthExt).c_str(), (base + CubeNorthExt).c_str(),
+		SOIL_LOAD_RGB, SOIL_CREATE_NEW_ID, 0
+	);
+
+	if (texture == 0)
+	{
+		throw std::runtime_error("Failed to load cubemap: " + name);
+	}
+
+	return std::make_shared<ManagedTexture>(name, GL_TEXTURE_CUBE_MAP, texture);
 }
 
 ManagedTexture::~ManagedTexture()
 {
+	//std::cout << "Deleting texture " << name << " with id " << texture << std::endl;
 	glDeleteTextures(1, &texture);
 }
 
 void ManagedTexture::bind()
 {
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(type, texture);
 }
 
 ResourceManager::ResourceManager()
@@ -50,8 +78,20 @@ std::shared_ptr<ManagedTexture> ResourceManager::getTexture(const std::string& n
 	auto it = textures.find(key);
 	if (it == textures.end() || it->second.expired())
 	{
-		auto tex = std::make_shared<ManagedTexture>(name, flags);
-		textures[key] = tex;
+		auto tex = ManagedTexture::fromFile(name, flags);
+		textures.emplace(key, tex);
+		return tex;
+	}
+	return it->second.lock();
+}
+
+std::shared_ptr<ManagedTexture> ResourceManager::getCubeMap(const std::string& name)
+{
+	auto it = cubeMaps.find(name);
+	if (it == cubeMaps.end() || it->second.expired())
+	{
+		auto tex = ManagedTexture::fromCubeMap(name);
+		cubeMaps.emplace(name, tex);
 		return tex;
 	}
 	return it->second.lock();

@@ -48,8 +48,12 @@ Mesh* Mesh::GenerateQuad() {
 	m->textureCoords[3] = Vector2(1.0f, 0.0f);
 
 	m->colours = new Vector4[m->numVertices];
+	m->normals = new Vector3[m->numVertices];
+	m->tangents = new Vector4[m->numVertices];
 	for (int i = 0; i < 4; i++) {
 		m->colours[i] = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+		m->normals[i] = Vector3(0.0f, 0.0f, -1.0f); // Point down
+		m->tangents[i] = Vector4(1.0f, 0.0f, 0.0f, 1.0f); // Point right
 	}
 
 	m->BufferData();
