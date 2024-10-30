@@ -7,11 +7,12 @@ Renderer::Renderer(Window& parent)
 	, heightMap(std::make_unique<HeightMap>(TEXTUREDIR "noise.png"))
 
 	, lightShader(std::make_unique<Shader>("BumpVertex.glsl", "BumpFragment.glsl"))
-	, reflectShader(std::make_unique<Shader>("ReflectVertex.glsl", "ReflectFragment.glsl"))
 	, skyboxShader(std::make_unique<Shader>("SkyboxVertex.glsl", "SkyboxFragment.glsl"))
 {
 	waterTex = resourceManager->getTexture("water.tga", SOIL_FLAG_MIPMAPS);
 	setTextureRepeating(waterTex->getId(), true);
+	waterBump = resourceManager->getTexture("waterbump.png", SOIL_FLAG_MIPMAPS);
+	setTextureRepeating(waterBump->getId(), true);
 	earthTex = resourceManager->getTexture("Barren Reds.JPG", SOIL_FLAG_MIPMAPS);
 	setTextureRepeating(earthTex->getId(), true);
 	earthBump = resourceManager->getTexture("Barren RedsDOT3.JPG", SOIL_FLAG_MIPMAPS);
@@ -75,6 +76,8 @@ void Renderer::drawHeightmap() {
 	textureMatrix.ToIdentity();
 	UpdateShaderMatrices();
 
+	glUniform1f(lightShader->getUniform("reflectionPower"), 0.25f);
+
 
 	glUniform1i(lightShader->getUniform("diffuseTex"), 0);
 	glActiveTexture(GL_TEXTURE0);
@@ -84,6 +87,10 @@ void Renderer::drawHeightmap() {
 	glActiveTexture(GL_TEXTURE1);
 	earthBump->bind();
 
+	glUniform1i(lightShader->getUniform("cubeTex"), 2);
+	glActiveTexture(GL_TEXTURE2);
+	cubeMap->bind();
+
 	light->bind(*this);
 	glUniform3f(lightShader->getUniform("cameraPos"), camera->getPosition().x, camera->getPosition().y, camera->getPosition().z);
 
@@ -91,15 +98,22 @@ void Renderer::drawHeightmap() {
 }
 
 void Renderer::drawWater() {
-	BindShader(reflectShader.get());
+	Shader* s = lightShader.get();
+	BindShader(s);
 
-	glUniform3f(reflectShader->getUniform("cameraPos"), camera->getPosition().x, camera->getPosition().y, camera->getPosition().z);
+	glUniform3f(s->getUniform("cameraPos"), camera->getPosition().x, camera->getPosition().y, camera->getPosition().z);
 
-	glUniform1i(reflectShader->getUniform("diffuseTex"), 0);
-	glUniform1i(reflectShader->getUniform("cubeTex"), 2);
+	glUniform1f(s->getUniform("reflectionPower"), 1.0f);
+
+	glUniform1i(s->getUniform("diffuseTex"), 0);
+	glUniform1i(s->getUniform("bumpTex"), 1);
+	glUniform1i(s->getUniform("cubeTex"), 2);
 
 	glActiveTexture(GL_TEXTURE0);
 	waterTex->bind();
+
+	glActiveTexture(GL_TEXTURE1);
+	waterBump->bind();
 
 	glActiveTexture(GL_TEXTURE2);
 	cubeMap->bind();;
@@ -110,10 +124,10 @@ void Renderer::drawWater() {
 		Matrix4::Scale(heightSize * 0.5f) *
 		Matrix4::Rotation(90, Vector3(1, 0, 0));
 
-	//textureMatrix =
-	//	Matrix4::Translation(Vector3(waterCycle, 0, waterCycle)) *
-	//	Matrix4::Scale(Vector3(10, 10, 10)) *
-	//	Matrix4::Rotation(waterRotate, Vector3(0, 0, 1));
+	textureMatrix =
+		Matrix4::Translation(Vector3(waterCycle, 0, waterCycle)) *
+		Matrix4::Scale(Vector3(10, 10, 10)) *
+		Matrix4::Rotation(waterRotate, Vector3(0, 0, 1));
 
 	UpdateShaderMatrices();
 	heightMap->Draw();

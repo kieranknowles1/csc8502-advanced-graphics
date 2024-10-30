@@ -10,6 +10,8 @@ uniform vec3 lightPos;
 uniform float lightRadius;
 uniform float lightAttenuation;
 
+uniform float reflectionPower;
+
 in Vertex {
     vec4 color;
     vec2 texCoord;
@@ -36,6 +38,11 @@ vec3 getBumpNormal() {
     );
 
     vec3 normal = texture(bumpTex, IN.texCoord).rgb;
+
+    // We don't have a bump map, so use raw normal
+    if (normal == vec3(0.0)) {
+        return normalize(IN.normal);
+    }
 
     // Transform the normal from the bump map to world space
     vec3 transformedNormal = TBN * normalize(normal * 2.0 - 1.0);
@@ -74,6 +81,13 @@ vec3 getAmbient(vec3 coloredSurface) {
     return coloredSurface * AMBIENT;
 }
 
+vec4 getReflection(vec3 viewDir) {
+    // TODO: Should we be reusuing getBumpNormal() here?
+    // or will the driver optimise this? Don't know how to check
+    vec3 reflectDir = reflect(-viewDir, normalize(getBumpNormal()));
+    return texture(cubeTex, reflectDir) * reflectionPower;
+}
+
 float getAttenuation() {
     float distance = length(lightPos - IN.worldPos);
     if (distance > lightRadius) {
@@ -107,6 +121,9 @@ void main() {
     fragColor.rgb =
           getFinalDiffuse(incident, coloredSurface, attenuation)
         + getFinalSpecular(halfAngle, coloredSurface, attenuation)
-        + getAmbient(coloredSurface);
+        + getAmbient(coloredSurface)
+        + getReflection(view).rgb;
     fragColor.a = diffuse.a;
+
+    // fragColor.rgb = texture(bumpTex, IN.texCoord).rgb;
 }

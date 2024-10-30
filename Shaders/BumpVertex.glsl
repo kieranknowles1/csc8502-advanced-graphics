@@ -3,6 +3,7 @@
 uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projMatrix;
+uniform mat4 textureMatrix;
 
 in vec3 position;
 in vec4 color;
@@ -21,7 +22,7 @@ out Vertex {
 
 void main() {
     OUT.color = color;
-    OUT.texCoord = texCoord;
+    OUT.texCoord = (textureMatrix * vec4(texCoord, 0.0, 1.0)).xy;
 
     // Transform the normal by the inverse transpose of the model matrix
     // we need this to avoid distortion after uneven scaling or translation

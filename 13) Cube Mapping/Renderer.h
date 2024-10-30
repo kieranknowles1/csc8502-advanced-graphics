@@ -26,7 +26,6 @@ protected:
 	std::unique_ptr<ResourceManager> resourceManager;
 
 	std::unique_ptr<Shader> lightShader;
-	std::unique_ptr<Shader> reflectShader;
 	std::unique_ptr<Shader> skyboxShader;
 
 	std::unique_ptr<HeightMap> heightMap;
@@ -35,6 +34,7 @@ protected:
 
 	std::shared_ptr<ManagedTexture> cubeMap;
 	std::shared_ptr<ManagedTexture> waterTex;
+	std::shared_ptr<ManagedTexture> waterBump;
 	std::shared_ptr<ManagedTexture> earthTex;
 	std::shared_ptr<ManagedTexture> earthBump;
 
