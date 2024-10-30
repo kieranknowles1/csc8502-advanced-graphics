@@ -531,3 +531,63 @@ void Mesh::generateNormals()
 		normals[i].Normalise();
 	}
 }
+
+void Mesh::generateTangents()
+{
+	if (textureCoords == nullptr) {
+		throw std::runtime_error("Cannot generate tangents without texture coordinates!");
+	}
+	delete[] tangents;
+	tangents = new Vector4[numVertices];
+	memset(tangents, 0, sizeof(Vector4) * numVertices);
+
+	int triCount = GetTriCount();
+	for (int i = 0; i < triCount; i++) {
+		unsigned int a;
+		unsigned int b;
+		unsigned int c;
+		getVertexIndeciesForTri(i, &a, &b, &c);
+
+		Vector4 tangent = generateTangent(a, b, c);
+		tangents[a] += tangent;
+		tangents[b] += tangent;
+		tangents[c] += tangent;
+	}
+
+	for (GLuint i = 0; i < numVertices; i++) {
+		// Don't normalise the handedness component
+		float handedness = tangents[i].w > 0.0f ? 1.0f : -1.0f;
+		tangents[i].w = 0.0f;
+
+		tangents[i].Normalise();
+		tangents[i].w = handedness;
+	}
+}
+
+Vector4 Mesh::generateTangent(int a, int b, int c)
+{
+	// ba - The vector from a to b
+	Vector3 ba = vertices[b] - vertices[a];
+	Vector3 ca = vertices[c] - vertices[a];
+
+	// tba - The vector from a to b in texture space
+	Vector2 tba = textureCoords[b] - textureCoords[a];
+	Vector2 tca = textureCoords[c] - textureCoords[a];
+
+	Matrix2 texMatrix = Matrix2(tba, tca).inverse();
+
+	Vector3 tangent = ba * texMatrix.values[0] + ca * texMatrix.values[1];
+	Vector3 binormal = ba * texMatrix.values[2] + ca * texMatrix.values[3];
+
+	Vector3 normal = Vector3::Cross(ba, ca);
+	Vector3 biCross = Vector3::Cross(normal, tangent);
+
+	float handedness = Vector3::Dot(biCross, binormal) < 0.0f ? -1.0f : 1.0f;
+
+	return Vector4(
+		tangent.x,
+		tangent.y,
+		tangent.z,
+		handedness
+	);
+}

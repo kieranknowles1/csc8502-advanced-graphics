@@ -13,3 +13,4 @@ add_subdirectory(nclgl)
 add_subdirectory("Third Party/SOIL/Simple OpenGL Image Library/src")
 
 add_subdirectory("11) Per Fragment Lighting A")
+add_subdirectory("12) Per Fragment Lighting B")

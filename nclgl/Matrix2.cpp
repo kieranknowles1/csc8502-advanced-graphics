@@ -54,19 +54,17 @@ Matrix2 Matrix2::Rotation(float degrees)	{
 
 	return mat;
 }
+
 //This is going to assume that the matrix is actually invertable!
-void Matrix2::Invert() {
+Matrix2 Matrix2::inverse() const {
+	Matrix2 tmp(*this);
+
 	float determinant = (values[0] * values[3]) - (values[1] * values[2]);
 	float invDet = 1.0f / determinant; //Turn our divides into multiplies!
 
-	values[0] = values[3]  * invDet;
-	values[1] = -values[2] * invDet;
-	values[2] = -values[1] * invDet;
-	values[3] = values[0]  * invDet;
-}
-
-Matrix2 Matrix2::Inverse() const {
-	Matrix2 newMatrix = *this;
-	newMatrix.Invert();
-	return newMatrix;
+	tmp.values[0] = values[3]  * invDet;
+	tmp.values[1] = -values[2] * invDet;
+	tmp.values[2] = -values[1] * invDet;
+	tmp.values[3] = values[0]  * invDet;
+	return tmp;
 }

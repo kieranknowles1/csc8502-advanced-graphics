@@ -77,8 +77,8 @@ public:
 		return vec;
 	};
 
-	void Invert();
-	Matrix2 Inverse() const;
+	// Assumes the matrix is invertible!
+	Matrix2 inverse() const;
 
 	static Matrix2 Rotation(float degrees);
 

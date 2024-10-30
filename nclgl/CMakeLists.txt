@@ -43,6 +43,7 @@ set(HEADERS
     Matrix2.h
     Matrix3.h
     Matrix4.h
+    Mesh.h
     MeshAnimation.h
     MeshMaterial.h
     Mouse.h

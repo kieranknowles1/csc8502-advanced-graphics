@@ -92,10 +92,16 @@ public:
 	// Fill vertex normals based on triangles
 	void generateNormals();
 
+	// Fill vertex tangents based on triangles
+	void generateTangents();
+
 protected:
 	// Fill a, b, and c with the vertex indices for the i-th triangle
 	// Returns false if i is out of bounds
 	bool getVertexIndeciesForTri(unsigned int i, unsigned int* a, unsigned int* b, unsigned int* c) const;
+
+	// Generate the tangent for the triangle with vertices a, b, and c
+	Vector4 generateTangent(int a, int b, int c);
 
 	void	BufferData();
 
