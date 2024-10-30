@@ -70,11 +70,26 @@
           # Usage: `nix develop [.#name=default]`
           default = cfgLib.shell.mkShellEx pkgs.mkShellNoCC {
             name = "dev";
+            # Install all dependencies for the duration of the shell
             packages = deps ++ [
               # I find clang error messages to be better quality
               # Anything is an improvement over MSVC
               pkgs.clang
             ];
+
+            # Bash snippet that runs when entering the shell
+            # mkShelllEx execs into $SHELL after this, so
+            # aliases and functions will not be kept
+            shellHook = ''
+              # mkcd into build if not already
+              if [[ "$PWD" != *build ]]; then
+                mkdir "build"
+                cd "build"
+              fi
+
+              cmake ..
+              code ..
+            '';
           };
         };
 
