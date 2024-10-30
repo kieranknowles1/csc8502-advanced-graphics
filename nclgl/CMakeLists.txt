@@ -28,10 +28,42 @@ set(SOURCES
     "${PROJECT_SOURCE_DIR}/Third Party/glad/glad.c"
 )
 
+set(HEADERS
+    Blur.h
+    Camera.h
+    common.h
+    ComputeShader.h
+    CubeBot.h
+    Frustum.h
+    GameTimer.h
+    HeightMap.h
+    InputDevice.h
+    Keyboard.h
+    Light.h
+    Matrix2.h
+    Matrix3.h
+    Matrix4.h
+    MeshAnimation.h
+    MeshMaterial.h
+    Mouse.h
+    OGLRenderer.h
+    Plane.h
+    Quaternion.h
+    ResourceManager.h 
+    SceneNode.h
+    Shader.h
+    SkeletonAnim.h
+    Stage.h
+    Vector2.h
+    Vector3.h
+    Vector4.h
+    Window.h
+)
+
 find_package(OpenGL REQUIRED)
 find_package(SDL2 REQUIRED)
 
-add_library(nclgl ${SOURCES})
+add_library(nclgl ${SOURCES} ${HEADERS})
 target_include_directories(nclgl PUBLIC "${PROJECT_SOURCE_DIR}/Third Party")
 
 target_link_libraries(nclgl INTERFACE
