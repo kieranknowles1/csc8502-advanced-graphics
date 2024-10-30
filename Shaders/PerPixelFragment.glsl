@@ -8,7 +8,7 @@ uniform float lightRadius;
 uniform float lightAttenuation;
 
 in Vertex {
-    vec3 color;
+    vec4 color;
     vec2 texCoord;
     vec3 normal;
     vec3 worldPos;
@@ -65,7 +65,7 @@ float getAttenuation() {
     // https://www.desmos.com/calculator/ecqboyzch2
     // http://learnwebgl.brown37.net/09_lights/lights_attenuation.html
     float attenuation = 1.0 / (1 + factorDistance + factorDistanceSquared);
-    
+
     return clamp(attenuation, 0.0, 1.0);
 }
 
@@ -74,7 +74,7 @@ void main() {
     vec3 view = normalize(cameraPos - IN.worldPos);
     vec3 halfAngle = normalize(incident + view);
 
-    vec4 diffuse = texture(diffuseTex, IN.texCoord);
+    vec4 diffuse = texture(diffuseTex, IN.texCoord) * IN.color;
 
     float attenuation = getAttenuation();
 
