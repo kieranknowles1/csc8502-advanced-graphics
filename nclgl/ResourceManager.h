@@ -26,6 +26,8 @@ private:
 class ResourceManager
 {
 public:
+	ResourceManager();
+
 	// Get a texture by name, loading it if necessary
 	std::shared_ptr<ManagedTexture> getTexture(const std::string& name, unsigned int flags);
 protected:
