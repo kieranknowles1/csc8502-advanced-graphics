@@ -35,7 +35,7 @@ add_library(nclgl ${SOURCES})
 target_include_directories(nclgl PUBLIC "${PROJECT_SOURCE_DIR}/Third Party")
 
 target_link_libraries(nclgl INTERFACE
-    OpenGL::OpenGL
+    ${OPENGL_LIBRARIES}
     SDL2::SDL2
     SOIL
 )
