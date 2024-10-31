@@ -1,12 +1,20 @@
-# Template Repository
+# CSC8502 - Advanced Graphics for Games
 
-This is a repository based on my
-[NixOS Configuration](https://github.com/kieranknowles1/nixcfg).
+This repository contains the code for the Advanced Graphics for Games module at Newcastle University as part of the MSc Computer Game Engineering course.
 
-See comments in [flake.nix](./flake.nix) for more information.
+## Building the project
 
-## What is Nix?
+The project is built using CMake and supports Windows and Linux. MacOS may work, but is completely untested.
 
-Nix, and more specifically NixOS, is a purely functional package manager and
-operating system. Like Arch, its users are masochists and mandated to tell
-everyone they use it.
+### Dependencies
+
+The following libraries must be available on `CMAKE_PREFIX_PATH`:
+- SDL2
+- OpenGL
+
+By default, this path is set to `H:/cmake`, and will probably need to be changed to match your system.
+
+### Building on Linux
+
+A Nix flake is provided for building on Linux, simply run `nix develop` to enter
+a shell and configure CMake. Then run `make` to build the project.
