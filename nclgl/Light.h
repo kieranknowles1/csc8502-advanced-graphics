@@ -20,6 +20,8 @@ public:
 	// Bind this light's uniforms to the active shader
 	void bind(const OGLRenderer& renderer) const;
 
+	const Vector3& getPosition() const { return position; }
+
 protected:
 	Vector3 position;
 	Vector3 color;
