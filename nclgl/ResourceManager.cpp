@@ -17,19 +17,22 @@ const std::string ManagedTexture::CubeSouthExt = "_south.jpg";
 
 ManagedTexture::ManagedTexture(const TextureKey& key)
 {
-	name = key.first;
+	name = key.name;
 	type = GL_TEXTURE_2D;
 
-	auto fullPath = TEXTUREDIR + key.first;
+	auto fullPath = TEXTUREDIR + key.name;
 	texture = SOIL_load_OGL_texture(
 		fullPath.c_str(), SOIL_LOAD_AUTO,
-		SOIL_CREATE_NEW_ID, key.second
+		SOIL_CREATE_NEW_ID, key.soilFlags
 	);
-
-	if (texture == 0)
-	{
+	if (texture == 0) {
 		throw std::runtime_error("Failed to load texture: " + name);
 	}
+
+	auto repeat = key.repeat ? GL_REPEAT : GL_CLAMP;
+	glBindTexture(type, texture);
+	glTexParameteri(type, GL_TEXTURE_WRAP_S, repeat);
+	glTexParameteri(type, GL_TEXTURE_WRAP_T, repeat);
 }
 
 std::shared_ptr<ManagedTexture> ManagedTexture::fromCubeMap(const std::string& name)

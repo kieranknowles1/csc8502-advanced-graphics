@@ -120,14 +120,6 @@ void OGLRenderer::BindShader(Shader* s) {
 	glUseProgram(s ? s->GetProgram() : 0);
 }
 
-void OGLRenderer::setTextureRepeating(GLuint texture, bool repeating) {
-	auto value = repeating ? GL_REPEAT : GL_CLAMP;
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, value);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, value);
-	glBindTexture(GL_TEXTURE_2D, 0);
-}
-
 void OGLRenderer::DebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)	{
 		string sourceName;
 		string typeName;

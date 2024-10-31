@@ -25,7 +25,7 @@ SkeletonAnim::SkeletonAnim(ResourceManager* rm, std::string mesh, std::string an
 		auto texture = rm->getTextures().get(
 			// INVERT_Y is needed for Role_T.msh, flags
 			// should be part of the material
-			std::make_pair(*filename, SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y)
+			{ *filename, SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y, false }
 		);
 
 		textures.emplace_back(texture);

@@ -57,8 +57,6 @@ public:
 	virtual void	RenderScene()		= 0;
 	virtual void	UpdateScene(float msec);
 
-	void setTextureRepeating(GLuint texture, bool repeating);
-
 	Shader* getCurrentShader() const { return currentShader; }
 
 	void			BindShader(Shader*s);

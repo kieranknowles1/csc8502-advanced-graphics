@@ -9,8 +9,23 @@
 class Shader;
 class Mesh;
 
-// TODO: Use our own key type
-using TextureKey = std::pair<std::string, int>;
+struct TextureKey
+{
+	std::string name;
+	int soilFlags;
+	bool repeat;
+
+	bool operator<(const TextureKey& other) const
+	{
+		if (name < other.name) return true;
+		if (name > other.name) return false;
+
+		if (soilFlags < other.soilFlags) return true;
+		if (soilFlags > other.soilFlags) return false;
+
+		return repeat < other.repeat;
+	}
+};
 
 // TODO: THis should be in its own file
 class ManagedTexture
@@ -64,6 +79,9 @@ private:
 	std::map<K, std::weak_ptr<V>> resources;
 };
 
+// Class to keep a cache of loaded resources, and to load them if not already
+// Methods may affect the OpenGL state, so should be called from the main thread
+// and not during rendering
 class ResourceManager
 {
 public:
