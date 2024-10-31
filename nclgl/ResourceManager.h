@@ -21,14 +21,18 @@ public:
     std::shared_ptr<V> get(const K& key)
     {
         auto it = resources.find(key);
-        if (it == resources.end() || it->second.expired())
+        // Attempting to lock an expired weak pointer will return a nullptr
+        // We don't use expired() here, as it would introduce a TOCTOU
+        std::shared_ptr<V> ptr = it != resources.end() ? it->second.lock() : nullptr;
+
+        if (ptr == nullptr)
         {
             auto resource = std::make_shared<V>(key);
             resources.emplace(key, resource);
             return resource;
         }
 
-        return it->second.lock();
+        return ptr;
     }
 
     ~ResourceMap() {
