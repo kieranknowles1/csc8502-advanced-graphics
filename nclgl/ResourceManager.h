@@ -5,61 +5,8 @@
 #include <memory>
 #include <iostream>
 
-#include "glad/glad.h"
-
-class Shader;
-class Mesh;
-
-struct TextureKey
-{
-    std::string name;
-    int soilFlags;
-    bool repeat;
-
-    bool operator<(const TextureKey& other) const
-    {
-        if (name < other.name) return true;
-        if (name > other.name) return false;
-
-        if (soilFlags < other.soilFlags) return true;
-        if (soilFlags > other.soilFlags) return false;
-
-        return repeat < other.repeat;
-    }
-};
-
-// TODO: THis should be in its own file
-class ManagedTexture
-{
-public:
-    const static std::string CubeWestExt;
-    const static std::string CubeEastExt;
-    const static std::string CubeUpExt;
-    const static std::string CubeDownExt;
-    const static std::string CubeNorthExt;
-    const static std::string CubeSouthExt;
-
-    ManagedTexture(const std::string& name, GLenum type, GLuint id) : name(name), type(type), texture(id) {};
-
-    ManagedTexture(const TextureKey& key);
-    std::string describe() const;
-
-    // TODO: These could probably be generics
-    static std::shared_ptr<ManagedTexture> fromCubeMap(const std::string& name);
-
-    ~ManagedTexture();
-
-    GLuint getId() const { return texture; }
-
-    // Bind the texture to the active texture unit
-    void bind();
-
-private:
-    std::string name;
-    GLenum type;
-    GLuint texture;
-};
-
+// Forward declarations won't work here, as we need the full declaration to generate templates
+#include "Texture.h"
 
 template <typename K, typename V>
 class ResourceMap
@@ -79,7 +26,7 @@ public:
     }
 
     ~ResourceMap() {
-        for (auto ptr : resources) {
+        for (auto& ptr : resources) {
             if (!ptr.second.expired()) {
                 // A resource not being deleted means that either we have a memory leak, or the resource manager wasn't destroyed last
                 // The CPP standard specifies that members are destroyed in reverse order of declaration, and the resource manager is needed
@@ -100,14 +47,12 @@ class ResourceManager
 public:
     ResourceManager();
 
-    ResourceMap<TextureKey, ManagedTexture>& getTextures() { return textures; }
-
-    std::shared_ptr<ManagedTexture> getCubeMap(const std::string& name);
+    ResourceMap<TextureKey, Texture>& getTextures() { return textures; }
+    ResourceMap<std::string, Texture>& getCubeMaps() { return cubeMaps; }
 protected:
     // TODO: Shaders need to be pairs of vertex and fragment shaders
     //std::map<std::string, Shader*> shaders;
-    ResourceMap<TextureKey, ManagedTexture> textures;
-
-    //std::map<std::pair<std::string, int>, std::weak_ptr<ManagedTexture>> textures;
-    std::map<std::string, std::weak_ptr<ManagedTexture>> cubeMaps;
+    // TODO: Manage meshes and anything else we load frequently
+    ResourceMap<TextureKey, Texture> textures;
+    ResourceMap<std::string, Texture> cubeMaps;
 };

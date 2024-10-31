@@ -32,11 +32,11 @@ protected:
 	std::unique_ptr<Mesh> quad;
 
 
-	std::shared_ptr<ManagedTexture> cubeMap;
-	std::shared_ptr<ManagedTexture> waterTex;
-	std::shared_ptr<ManagedTexture> waterBump;
-	std::shared_ptr<ManagedTexture> earthTex;
-	std::shared_ptr<ManagedTexture> earthBump;
+	std::shared_ptr<Texture> cubeMap;
+	std::shared_ptr<Texture> waterTex;
+	std::shared_ptr<Texture> waterBump;
+	std::shared_ptr<Texture> earthTex;
+	std::shared_ptr<Texture> earthBump;
 
 	std::unique_ptr<Camera> camera;
 	std::unique_ptr<Light> light;

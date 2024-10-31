@@ -10,8 +10,8 @@ set(SOURCES
     Matrix2.cpp
     Matrix3.cpp
     Matrix4.cpp
-    MeshAnimation.cpp
     Mesh.cpp
+    MeshAnimation.cpp
     MeshMaterial.cpp
     Mouse.cpp
     OGLRenderer.cpp
@@ -21,8 +21,8 @@ set(SOURCES
     SceneNode.cpp
     Shader.cpp
     SkeletonAnim.cpp
+    Texture.cpp
     Window.cpp
-    # TODO: We should probably be using a library for this
     "${PROJECT_SOURCE_DIR}/Third Party/glad/glad.c"
 
     PostProcess/Blur.cpp
@@ -57,6 +57,7 @@ set(HEADERS
     Vector2.h
     Vector3.h
     Vector4.h
+    Texture.h
     Window.h
 
     PostProcess/Blur.h

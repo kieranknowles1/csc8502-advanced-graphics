@@ -14,7 +14,7 @@ Renderer::Renderer(Window& parent)
 	earthTex = resourceManager->getTextures().get({"Barren Reds.JPG", SOIL_FLAG_MIPMAPS, true});
 	earthBump = resourceManager->getTextures().get({"Barren RedsDOT3.JPG", SOIL_FLAG_MIPMAPS, true});
 
-	cubeMap = resourceManager->getCubeMap("rusted");
+	cubeMap = resourceManager->getCubeMaps().get("rusted");
 
 
 	Vector3 heightMapSize = heightMap->getSize();

@@ -40,8 +40,8 @@ protected:
 	GLuint lightSpecularTex;
 
 	std::unique_ptr<HeightMap> heightMap;
-	std::shared_ptr<ManagedTexture> earthTex;
-	std::shared_ptr<ManagedTexture> earthBump;
+	std::shared_ptr<Texture> earthTex;
+	std::shared_ptr<Texture> earthBump;
 
 	std::vector<Light> pointLights;
 	std::unique_ptr<Mesh> sphere;

@@ -21,7 +21,7 @@ public:
 protected:
 	std::unique_ptr<ResourceManager> resourceManager;
 	std::unique_ptr<HeightMap> heightMap;
-	std::shared_ptr<ManagedTexture> heightMapTexture;
+	std::shared_ptr<Texture> heightMapTexture;
 	std::unique_ptr<Shader> shader;
 
 	std::unique_ptr<Camera> camera;

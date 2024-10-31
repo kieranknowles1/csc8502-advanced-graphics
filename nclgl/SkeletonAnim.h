@@ -8,7 +8,7 @@
 class MeshAnimation;
 class MeshMaterial;
 class ResourceManager;
-class ManagedTexture;
+class Texture;
 
 class SkeletonAnim : public SceneNode
 {
@@ -24,7 +24,7 @@ protected:
 
 	MeshAnimation* anim;
 	MeshMaterial* material;
-	std::vector<std::shared_ptr<ManagedTexture>> textures;
+	std::vector<std::shared_ptr<Texture>> textures;
 
 	int currentFrame = 0;
 	float nextFrameTime = 0.0f;

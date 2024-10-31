@@ -30,7 +30,7 @@ protected:
 	// For drawing the final FBO to the screen
 	Mesh* quad;
 	HeightMap* heightMap;
-	std::shared_ptr<ManagedTexture> heightMapTexture;
+	std::shared_ptr<Texture> heightMapTexture;
 	// Render the scene to this FBO
 	GLuint bufferFBO;
 	GLuint sceneBuffer;

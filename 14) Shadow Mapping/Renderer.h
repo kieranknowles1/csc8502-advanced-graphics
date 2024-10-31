@@ -41,8 +41,8 @@ protected:
 	GLuint shadowTex;
 	GLuint shadowFBO;
 
-	std::shared_ptr<ManagedTexture> sceneDiffuse;
-	std::shared_ptr<ManagedTexture> sceneBump;
+	std::shared_ptr<Texture> sceneDiffuse;
+	std::shared_ptr<Texture> sceneBump;
 	float sceneTime;
 
 	std::unique_ptr<Shader> sceneShader;
