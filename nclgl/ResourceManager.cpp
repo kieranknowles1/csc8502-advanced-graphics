@@ -15,20 +15,21 @@ const std::string ManagedTexture::CubeDownExt = "_down.jpg";
 const std::string ManagedTexture::CubeNorthExt = "_north.jpg";
 const std::string ManagedTexture::CubeSouthExt = "_south.jpg";
 
-std::shared_ptr<ManagedTexture> ManagedTexture::fromFile(const std::string& name, unsigned int flags)
+ManagedTexture::ManagedTexture(const TextureKey& key)
 {
-	auto fullPath = TEXTUREDIR + name;
-	GLuint texture = SOIL_load_OGL_texture(
+	name = key.first;
+	type = GL_TEXTURE_2D;
+
+	auto fullPath = TEXTUREDIR + key.first;
+	texture = SOIL_load_OGL_texture(
 		fullPath.c_str(), SOIL_LOAD_AUTO,
-		SOIL_CREATE_NEW_ID, flags
+		SOIL_CREATE_NEW_ID, key.second
 	);
 
 	if (texture == 0)
 	{
 		throw std::runtime_error("Failed to load texture: " + name);
 	}
-
-	return std::make_shared<ManagedTexture>(name, GL_TEXTURE_2D, texture);
 }
 
 std::shared_ptr<ManagedTexture> ManagedTexture::fromCubeMap(const std::string& name)
@@ -70,19 +71,6 @@ ResourceManager::ResourceManager()
 
 	auto pwd = std::filesystem::current_path().string();
 	std::cout << "Using working directory: " << pwd << std::endl;
-}
-
-std::shared_ptr<ManagedTexture> ResourceManager::getTexture(const std::string& name, unsigned int flags)
-{
-	auto key = std::make_pair(name, flags);
-	auto it = textures.find(key);
-	if (it == textures.end() || it->second.expired())
-	{
-		auto tex = ManagedTexture::fromFile(name, flags);
-		textures.emplace(key, tex);
-		return tex;
-	}
-	return it->second.lock();
 }
 
 std::shared_ptr<ManagedTexture> ResourceManager::getCubeMap(const std::string& name)

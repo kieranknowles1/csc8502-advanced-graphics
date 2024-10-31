@@ -10,8 +10,8 @@ Renderer::Renderer(Window& parent)
 	, sceneShader(std::make_unique<Shader>("ShadowSceneVert.glsl", "ShadowSceneFrag.glsl"))
 	, shadowShader(std::make_unique<Shader>("ShadowVert.glsl", "ShadowFrag.glsl"))
 
-	, sceneDiffuse(resourceManager->getTexture("Barren Reds.JPG", SOIL_FLAG_MIPMAPS))
-	, sceneBump(resourceManager->getTexture("Barren RedsDOT3.JPG", SOIL_FLAG_MIPMAPS))
+	, sceneDiffuse(resourceManager->getTextures().get(std::make_pair("Barren Reds.JPG", SOIL_FLAG_MIPMAPS)))
+	, sceneBump(resourceManager->getTextures().get(std::make_pair("Barren RedsDOT3.JPG", SOIL_FLAG_MIPMAPS)))
 
 	, sceneTime(0)
 {

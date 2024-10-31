@@ -22,10 +22,10 @@ SkeletonAnim::SkeletonAnim(ResourceManager* rm, std::string mesh, std::string an
 		const std::string* filename = nullptr;
 		material->GetEntry("Diffuse", &filename);
 
-		auto texture = rm->getTexture(
+		auto texture = rm->getTextures().get(
 			// INVERT_Y is needed for Role_T.msh, flags
 			// should be part of the material
-			*filename, SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y
+			std::make_pair(*filename, SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y)
 		);
 
 		textures.emplace_back(texture);
