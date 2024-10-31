@@ -1,14 +1,11 @@
-#include "../nclgl/window.h"
+#include "../nclgl/Window.h"
 #include "Renderer.h"
 
-int main() {	
+int main() {
 	Window w("Post Processing!", 1280, 720,false);
 	w.SetTitle("Adios, WinAPI");
-	
+
 	Renderer renderer(w);
-	if(!renderer.HasInitialised()) {
-		return -1;
-	}
 
 	w.LockMouseToWindow(true);
 	w.ShowOSPointer(false);

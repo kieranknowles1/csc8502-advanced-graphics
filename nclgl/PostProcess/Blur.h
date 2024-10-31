@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Stage.h"
-#include "Shader.h"
+#include "../Shader.h"
 
 namespace PostProcess {
 	class Blur : public Stage

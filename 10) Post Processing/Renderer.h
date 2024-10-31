@@ -4,7 +4,7 @@
 #include "../nclgl/Camera.h"
 #include "../nclgl/HeightMap.h"
 #include "../nclgl/ResourceManager.h"
-#include "../nclgl/Blur.h"
+#include "../nclgl/PostProcess/Blur.h"
 
 
 class Renderer : public OGLRenderer

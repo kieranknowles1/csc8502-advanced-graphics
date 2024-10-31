@@ -14,6 +14,7 @@ endif(WIN32)
 add_subdirectory(nclgl)
 add_subdirectory("Third Party/SOIL/Simple OpenGL Image Library/src")
 
+add_subdirectory("10) Post Processing")
 add_subdirectory("11) Per Fragment Lighting A")
 add_subdirectory("12) Per Fragment Lighting B")
 add_subdirectory("13) Cube Mapping")

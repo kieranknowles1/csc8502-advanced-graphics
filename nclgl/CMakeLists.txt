@@ -1,5 +1,4 @@
 set(SOURCES
-    Blur.cpp
     Camera.cpp
     ComputeShader.cpp
     CubeBot.cpp
@@ -22,14 +21,15 @@ set(SOURCES
     SceneNode.cpp
     Shader.cpp
     SkeletonAnim.cpp
-    Stage.cpp
     Window.cpp
     # TODO: We should probably be using a library for this
     "${PROJECT_SOURCE_DIR}/Third Party/glad/glad.c"
+
+    PostProcess/Blur.cpp
+    PostProcess/Stage.cpp
 )
 
 set(HEADERS
-    Blur.h
     Camera.h
     common.h
     ComputeShader.h
@@ -50,15 +50,17 @@ set(HEADERS
     OGLRenderer.h
     Plane.h
     Quaternion.h
-    ResourceManager.h 
+    ResourceManager.h
     SceneNode.h
     Shader.h
     SkeletonAnim.h
-    Stage.h
     Vector2.h
     Vector3.h
     Vector4.h
     Window.h
+
+    PostProcess/Blur.h
+    PostProcess/Stage.h
 )
 
 find_package(OpenGL REQUIRED)

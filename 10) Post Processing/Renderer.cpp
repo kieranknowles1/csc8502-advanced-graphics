@@ -17,8 +17,8 @@ Renderer::Renderer(Window& parent)
 	, postProcess(new PostProcess::Blur(10))
 {
 	resourceManager = std::make_unique<ResourceManager>();
-	heightMapTexture = resourceManager->getTexture(
-		"Barren Reds.JPG", SOIL_FLAG_MIPMAPS
+	heightMapTexture = resourceManager->getTextures().get(
+		{"Barren Reds.JPG", SOIL_FLAG_MIPMAPS, true}
 	);
 
 	projMatrix = Matrix4::Perspective(1.0f, 10000.0f,
@@ -27,9 +27,7 @@ Renderer::Renderer(Window& parent)
 	sceneShader = new Shader("TexturedVertex.glsl", "TexturedFragment.glsl");
 
 	if (!sceneShader->LoadSuccess())
-		return;
-
-	setTextureRepeating(heightMapTexture->getId(), true);
+		throw std::runtime_error("Failed to load shader");
 
 	// Generate our scene's depth texture
 	glGenTextures(1, &bufferDepthTex);
@@ -73,14 +71,12 @@ Renderer::Renderer(Window& parent)
 		GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, sceneBuffer, 0);
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		return;
+		throw std::runtime_error("Framebuffer not complete");
 	if (!bufferDepthTex || !postProcessScratch[0])
-		return;
+		throw std::runtime_error("Texture not created");
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glEnable(GL_DEPTH_TEST);
-
-	init = true;
 }
 
 Renderer::~Renderer()

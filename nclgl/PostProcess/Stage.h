@@ -2,7 +2,7 @@
 
 #include "glad/glad.h"
 
-#include "OGLRenderer.h"
+#include "../OGLRenderer.h"
 
 namespace PostProcess {
 	class Stage {
