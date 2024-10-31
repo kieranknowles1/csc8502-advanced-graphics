@@ -45,6 +45,15 @@ Shader::~Shader(void) {
 	DeleteIDs();
 }
 
+std::string Shader::describe() const
+{
+	return "Shader vert(" + shaderFiles[SHADER_VERTEX]
+		+ ") frag(" + shaderFiles[SHADER_FRAGMENT]
+		+ ") geom(" + shaderFiles[SHADER_GEOMETRY]
+		+ ") domain(" + shaderFiles[SHADER_DOMAIN]
+		+ ") hull(" + shaderFiles[SHADER_HULL] + ")";
+}
+
 void	Shader::Reload(bool deleteOld) {
 	if(deleteOld) {
 		DeleteIDs();

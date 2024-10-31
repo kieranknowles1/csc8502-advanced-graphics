@@ -7,7 +7,13 @@
 
 // Forward declarations won't work here, as we need the full declaration to generate templates
 #include "Texture.h"
+#include "Shader.h"
 
+// A map of resources, where the key is used to load the resource
+// `K` is the type of the key, which must be comparable
+// `V` is the type of the resource, which must have a constructor that takes a reference to a `K`
+// The resource is constructed on the first call to `get` for a given key, and destroyed when the last
+// reference other than the one in the map is destroyed
 template <typename K, typename V>
 class ResourceMap
 {
@@ -36,6 +42,12 @@ public:
         }
     }
 private:
+    // The resource manager is expected to last for the lifetime of the program,
+    // so we use weak pointers to allow resources to be deleted when no longer needed
+    // and reloaded when they are needed again
+    // A more advanced implementation might cache resources that might be needed again
+    // or allow for them to be loaded asynchronously (OpenGL makes this difficult, as
+    // we'd have to queue operations for the main thread)
     std::map<K, std::weak_ptr<V>> resources;
 };
 
@@ -49,10 +61,10 @@ public:
 
     ResourceMap<TextureKey, Texture>& getTextures() { return textures; }
     ResourceMap<std::string, Texture>& getCubeMaps() { return cubeMaps; }
+    ResourceMap<ShaderKey, Shader>& getShaders() { return shaders; }
 protected:
-    // TODO: Shaders need to be pairs of vertex and fragment shaders
-    //std::map<std::string, Shader*> shaders;
     // TODO: Manage meshes and anything else we load frequently
-    ResourceMap<TextureKey, Texture> textures;
     ResourceMap<std::string, Texture> cubeMaps;
+    ResourceMap<TextureKey, Texture> textures;
+    ResourceMap<ShaderKey, Shader> shaders;
 };

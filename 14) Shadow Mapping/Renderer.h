@@ -45,8 +45,8 @@ protected:
 	std::shared_ptr<Texture> sceneBump;
 	float sceneTime;
 
-	std::unique_ptr<Shader> sceneShader;
-	std::unique_ptr<Shader> shadowShader;
+	std::shared_ptr<Shader> sceneShader;
+	std::shared_ptr<Shader> shadowShader;
 
 	std::vector<BasicNode> meshes;
 

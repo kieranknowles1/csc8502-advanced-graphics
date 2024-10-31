@@ -13,12 +13,8 @@ struct TextureKey
 
     bool operator<(const TextureKey& other) const
     {
-        if (name < other.name) return true;
-        if (name > other.name) return false;
-
-        if (soilFlags < other.soilFlags) return true;
-        if (soilFlags > other.soilFlags) return false;
-
+        if (name != other.name) return name < other.name;
+        if (soilFlags != other.soilFlags) return soilFlags < other.soilFlags;
         return repeat < other.repeat;
     }
 };

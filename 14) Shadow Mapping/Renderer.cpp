@@ -7,8 +7,8 @@ Renderer::Renderer(Window& parent)
 	, camera(std::make_unique<Camera>(parent.GetKeyboard(), parent.GetMouse(), -30, 315, 0, Vector3(-8, 5, 8)))
 	, light(std::make_unique<Light>(Vector3(-20, 10, -20), Vector3(1, 1, 1), 250.0f))
 
-	, sceneShader(std::make_unique<Shader>("ShadowSceneVert.glsl", "ShadowSceneFrag.glsl"))
-	, shadowShader(std::make_unique<Shader>("ShadowVert.glsl", "ShadowFrag.glsl"))
+	, sceneShader(resourceManager->getShaders().get(ShaderKey("ShadowSceneVert.glsl", "ShadowSceneFrag.glsl")))
+	, shadowShader(resourceManager->getShaders().get(ShaderKey("ShadowVert.glsl", "ShadowFrag.glsl")))
 
 	, sceneDiffuse(resourceManager->getTextures().get({"Barren Reds.JPG", SOIL_FLAG_MIPMAPS, true}))
 	, sceneBump(resourceManager->getTextures().get({"Barren RedsDOT3.JPG", SOIL_FLAG_MIPMAPS, true}))
