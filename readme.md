@@ -9,12 +9,14 @@ The project is built using CMake and supports Windows and Linux. MacOS may work,
 ### Dependencies
 
 The following libraries must be available on `CMAKE_PREFIX_PATH`:
-- SDL2
-- OpenGL
+- [SDL2](https://github.com/libsdl-org/SDL)
+- OpenGL (included with Visual Studio on Windows)
 
 By default, this path is set to `H:/cmake`, and will probably need to be changed to match your system.
 
 ### Building on Linux
 
 A Nix flake is provided for building on Linux, simply run `nix develop` to enter
-a shell and configure CMake. Then run `make` to build the project.
+a shell and configure CMake. Then run `make` to build the project. This will
+work even if breaking changes are made to dependencies, as they are all pinned
+in `flake.lock`.
