@@ -6,19 +6,16 @@ Renderer::Renderer(Window& parent)
 
 	, camera(std::make_unique<Camera>(parent.GetKeyboard(), parent.GetMouse(), -30, 315, 0, Vector3(-8, 5, 8)))
 	, light(std::make_unique<Light>(Vector3(-20, 10, -20), Vector3(1, 1, 1), 250.0f))
-	
+
 	, sceneShader(std::make_unique<Shader>("ShadowSceneVert.glsl", "ShadowSceneFrag.glsl"))
 	, shadowShader(std::make_unique<Shader>("ShadowVert.glsl", "ShadowFrag.glsl"))
 
-	, sceneDiffuse(resourceManager->getTextures().get(std::make_pair("Barren Reds.JPG", SOIL_FLAG_MIPMAPS)))
-	, sceneBump(resourceManager->getTextures().get(std::make_pair("Barren RedsDOT3.JPG", SOIL_FLAG_MIPMAPS)))
+	, sceneDiffuse(resourceManager->getTextures().get({"Barren Reds.JPG", SOIL_FLAG_MIPMAPS, true}))
+	, sceneBump(resourceManager->getTextures().get({"Barren RedsDOT3.JPG", SOIL_FLAG_MIPMAPS, true}))
 
 	, sceneTime(0)
 {
 	camera->setSpeed(10.0f);
-
-	setTextureRepeating(sceneDiffuse->getId(), true);
-	setTextureRepeating(sceneBump->getId(), true);
 
 	glGenTextures(1, &shadowTex);
 	glBindTexture(GL_TEXTURE_2D, shadowTex);
@@ -104,7 +101,7 @@ void Renderer::drawMainScene() {
 	glUniform1i(sceneShader->getUniform("diffuseTex"), 0);
 	glActiveTexture(GL_TEXTURE0);
 	sceneDiffuse->bind();
-	
+
 	glUniform1i(sceneShader->getUniform("bumpTex"), 1);
 	glActiveTexture(GL_TEXTURE1);
 	sceneBump->bind();

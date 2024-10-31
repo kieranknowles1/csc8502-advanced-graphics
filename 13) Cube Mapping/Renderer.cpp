@@ -9,14 +9,10 @@ Renderer::Renderer(Window& parent)
 	, lightShader(std::make_unique<Shader>("BumpVertex.glsl", "BumpFragment.glsl"))
 	, skyboxShader(std::make_unique<Shader>("SkyboxVertex.glsl", "SkyboxFragment.glsl"))
 {
-	waterTex = resourceManager->getTexture("water.tga", SOIL_FLAG_MIPMAPS);
-	setTextureRepeating(waterTex->getId(), true);
-	waterBump = resourceManager->getTexture("waterbump.png", SOIL_FLAG_MIPMAPS);
-	setTextureRepeating(waterBump->getId(), true);
-	earthTex = resourceManager->getTexture("Barren Reds.JPG", SOIL_FLAG_MIPMAPS);
-	setTextureRepeating(earthTex->getId(), true);
-	earthBump = resourceManager->getTexture("Barren RedsDOT3.JPG", SOIL_FLAG_MIPMAPS);
-	setTextureRepeating(earthBump->getId(), true);
+	waterTex = resourceManager->getTextures().get({"water.tga", SOIL_FLAG_MIPMAPS, true});
+	waterBump = resourceManager->getTextures().get({"waterbump.png", SOIL_FLAG_MIPMAPS, true});
+	earthTex = resourceManager->getTextures().get({"Barren Reds.JPG", SOIL_FLAG_MIPMAPS, true});
+	earthBump = resourceManager->getTextures().get({"Barren RedsDOT3.JPG", SOIL_FLAG_MIPMAPS, true});
 
 	cubeMap = resourceManager->getCubeMap("rusted");
 

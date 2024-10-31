@@ -4,14 +4,10 @@ Renderer::Renderer(Window& parent)
 	: OGLRenderer(parent)
 	, resourceManager(std::make_unique<ResourceManager>())
 	, heightMap(std::make_unique<HeightMap>(TEXTUREDIR "noise.png"))
-	, heightMapTexture(resourceManager->getTexture("Barren Reds.JPG", SOIL_FLAG_MIPMAPS))
-	, bumpMap(resourceManager->getTexture("Barren RedsDOT3.JPG", SOIL_FLAG_MIPMAPS))
+	, heightMapTexture(resourceManager->getTextures().get({"Barren Reds.JPG", SOIL_FLAG_MIPMAPS, true}))
+	, bumpMap(resourceManager->getTextures().get({"Barren RedsDOT3.JPG", SOIL_FLAG_MIPMAPS, true}))
 	, shader(std::make_unique<Shader>("BumpVertex.glsl", "BumpFragment.glsl"))
 {
-	// TODO: This should be part of the resource manager
-	setTextureRepeating(heightMapTexture->getId(), true);
-	setTextureRepeating(bumpMap->getId(), true);
-
 	Vector3 heightMapSize = heightMap->getSize();
 	camera = std::make_unique<Camera>(
 		parent.GetKeyboard(), parent.GetMouse(),
