@@ -2,6 +2,8 @@
 
 uniform sampler2D diffuseTex;
 uniform sampler2D bumpTex;
+uniform sampler2D shadowTex;
+
 uniform samplerCube cubeTex;
 
 uniform vec3 cameraPos;
@@ -19,6 +21,7 @@ in Vertex {
     vec3 worldPos;
     vec3 tangent;
     vec3 binormal;
+    vec4 shadowProj;
 } IN;
 
 out vec4 fragColor;
@@ -106,6 +109,32 @@ float getAttenuation() {
     return clamp(attenuation, 0.0, 1.0);
 }
 
+float getShadow() {
+    vec3 shadowNDC = IN.shadowProj.xyz / IN.shadowProj.w;
+
+    // Are we in the shadow mapped region?
+    bool maybeShaded = abs(shadowNDC.x) < 1.0f
+        && abs(shadowNDC.y) < 1.0f
+        && abs(shadowNDC.z) < 1.0f;
+
+    if (maybeShaded) {
+        vec3 biasCoord = shadowNDC * 0.5 + 0.5;
+        // Texture always returns a vec4. This is a depth
+        // texture, so we only need the first component
+        float shadowDepth = texture(shadowTex, biasCoord.xy).x;
+        // The light is further than what was recorded
+        // in the shadow map, so we're in shadow
+        if (shadowDepth < biasCoord.z) {
+            return 0.0;
+        }
+        return 1.0;
+    }
+
+    // return 1.0;
+    // We're outside the lit region
+    return 0.0;
+}
+
 void main() {
     vec3 incident = normalize(lightPos - IN.worldPos);
     vec3 view = normalize(cameraPos - IN.worldPos);
@@ -121,9 +150,10 @@ void main() {
     fragColor.rgb =
           getFinalDiffuse(incident, coloredSurface, attenuation)
         + getFinalSpecular(halfAngle, coloredSurface, attenuation)
-        + getAmbient(coloredSurface)
         + getReflection(view).rgb;
-    fragColor.a = diffuse.a;
+    fragColor.rgb *= getShadow();
 
-    // fragColor.rgb = texture(bumpTex, IN.texCoord).rgb;
+    // Ambient light always affects the surface
+    fragColor.rgb += getAmbient(coloredSurface);
+    fragColor.a = diffuse.a;
 }

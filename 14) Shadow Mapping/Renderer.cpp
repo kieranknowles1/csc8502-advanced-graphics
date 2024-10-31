@@ -24,7 +24,7 @@ Renderer::Renderer(Window& parent)
 	glBindTexture(GL_TEXTURE_2D, shadowTex);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, ShadowSize, ShadowSize, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -71,9 +71,9 @@ void Renderer::RenderScene() {
 
 void Renderer::drawShadowScene() {
 	glBindFramebuffer(GL_FRAMEBUFFER, shadowFBO);
-	glClear(GL_DEPTH_BUFFER_BIT);
 
 	// Temporarily increase OpenGL's viewport size so that we can render at higher than screen resolution
+	glClear(GL_DEPTH_BUFFER_BIT);
 	glViewport(0, 0, ShadowSize, ShadowSize);
 	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // No color buffer is available
 

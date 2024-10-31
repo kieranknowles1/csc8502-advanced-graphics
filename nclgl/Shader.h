@@ -48,6 +48,10 @@ public:
 	}
 
 protected:
+	// Check if we have any incorrect names that could cause tricky bugs
+	void checkBannedNames();
+	void checkBannedName(const std::string& bad, const std::string& alt);
+
 	void	DeleteIDs();
 
 	bool	LoadShaderFile(const  std::string& from, std::string &into);

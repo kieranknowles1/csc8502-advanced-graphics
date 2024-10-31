@@ -58,6 +58,8 @@ void	Shader::Reload(bool deleteOld) {
 	SetDefaultAttributes();
 	LinkProgram();
 	PrintLinkLog(programID);
+
+	checkBannedNames();
 }
 
 bool	Shader::LoadShaderFile(const string& filename, string &into)	{
@@ -129,6 +131,20 @@ void	Shader::SetDefaultAttributes()	{
 
 	glBindAttribLocation(programID, WEIGHTVALUE_BUFFER, "jointWeights");
 	glBindAttribLocation(programID, WEIGHTINDEX_BUFFER, "jointIndices");
+}
+
+void Shader::checkBannedNames()
+{
+	// Basic idiot proofing so we don't get silly bugs
+	checkBannedName("projectionMatrix", "projMatrix");
+}
+
+void Shader::checkBannedName(const std::string& bad, const std::string& alt)
+{
+	if (getUniform(bad.c_str()) != -1)
+	{
+		cout << "Warning: Uniform " << bad << " is incorrect. Should be called " << alt << " instead.\n";
+	}
 }
 
 void	Shader::DeleteIDs() {
