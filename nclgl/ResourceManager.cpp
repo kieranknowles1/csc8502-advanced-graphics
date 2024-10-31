@@ -35,6 +35,11 @@ ManagedTexture::ManagedTexture(const TextureKey& key)
 	glTexParameteri(type, GL_TEXTURE_WRAP_T, repeat);
 }
 
+std::string ManagedTexture::describe() const
+{
+	return "Texture: " + name;
+}
+
 std::shared_ptr<ManagedTexture> ManagedTexture::fromCubeMap(const std::string& name)
 {
 	std::string base(std::string(TEXTUREDIR) + name);
