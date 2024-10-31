@@ -35,7 +35,13 @@ Shader::Shader(const string& vertex, const string& fragment, const string& geome
 	allShaders.emplace_back(this);
 }
 
-Shader::~Shader(void)	{
+Shader::~Shader(void) {
+	// Prevent use-after-free if reloading
+	auto it = std::find(allShaders.begin(), allShaders.end(), this);
+	if (it != allShaders.end()) {
+		allShaders.erase(it);
+	}
+
 	DeleteIDs();
 }
 
@@ -75,7 +81,7 @@ bool	Shader::LoadShaderFile(const string& filename, string &into)	{
 		cout << "ERROR ERROR ERROR ERROR: File does not exist!\n";
 		return false;
 	}
-	int lineNum = 1; 
+	int lineNum = 1;
 	while(!file.eof()){
 		getline(file,textLine);
 		textLine += "\n";
