@@ -5,6 +5,29 @@
 
 #include <glad/glad.h>
 
+class Shader;
+class Texture;
+
+namespace TextureUnit
+{
+    class Unit
+    {
+    public:
+        constexpr Unit(GLenum unit, const char* uniform) : unit(unit), uniform(uniform) {};
+
+        constexpr GLenum enumValue() const { return unit; }
+        constexpr GLint intValue() const { return unit - GL_TEXTURE0; }
+
+        void bind(const Shader& shader, const Texture& texture) const;
+    private:
+        GLenum unit;
+        const char* uniform;
+	};
+
+    const Unit Diffuse = Unit(GL_TEXTURE0, "diffuseTex");
+    const Unit Normal = Unit(GL_TEXTURE1, "bumpTex");
+}
+
 struct TextureKey
 {
     std::string name;
@@ -44,7 +67,7 @@ public:
     std::string describe() const;
 
     // Bind the texture to the active texture unit
-    void bind();
+    void bind() const;
 
 private:
     std::string name;

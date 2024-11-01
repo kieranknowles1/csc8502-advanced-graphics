@@ -4,6 +4,7 @@
 
 #include <SOIL/SOIL.h>
 
+#include "Shader.h"
 #include "common.h"
 
 const std::string Texture::CubeWestExt = "_west.jpg";
@@ -53,7 +54,7 @@ Texture::~Texture()
     glDeleteTextures(1, &texture);
 }
 
-void Texture::bind()
+void Texture::bind() const
 {
     glBindTexture(type, texture);
 }
@@ -62,4 +63,11 @@ std::string Texture::describe() const
 {
     std::string typeStr = type == GL_TEXTURE_2D ? "Texture" : "CubeMap";
     return typeStr + ": " + name;
+}
+
+void TextureUnit::Unit::bind(const Shader& shader, const Texture& texture) const
+{
+	glActiveTexture(enumValue());
+	texture.bind();
+	glUniform1i(shader.getUniform(uniform), intValue());
 }

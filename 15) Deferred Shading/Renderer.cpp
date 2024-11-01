@@ -129,15 +129,8 @@ void Renderer::fillBuffers() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	BindShader(sceneShader.get());
-	glUniform1i(sceneShader->getUniform("diffuseTex"), 0);
-	glUniform1i(sceneShader->getUniform("bumpTex"), 1);
-
-	glActiveTexture(GL_TEXTURE0);
-	earthTex->bind();
-
-	// We don't do lighting yet, so just store the normals for later
-	glActiveTexture(GL_TEXTURE1);
-	earthBump->bind();
+	TextureUnit::Diffuse.bind(*sceneShader, *earthTex);
+	TextureUnit::Normal.bind(*sceneShader, *earthBump);
 
 	modelMatrix.ToIdentity();
 	viewMatrix = camera->buildViewMatrix();

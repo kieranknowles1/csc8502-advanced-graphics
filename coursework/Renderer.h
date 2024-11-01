@@ -11,7 +11,6 @@ public:
     void UpdateScene(float msec) override;
 protected:
     std::unique_ptr<ResourceManager> resourceManager;
-
-    Mesh* triangle;
-    Shader* basicShader;
+    
+    std::unique_ptr<Mesh> heightMap;
 };
