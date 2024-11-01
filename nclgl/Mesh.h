@@ -2,17 +2,17 @@
 Class:Mesh
 Implements:
 Author:Rich Davison	 <richard-gordon.davison@newcastle.ac.uk>
-Description:Wrapper around OpenGL primitives, geometry and related 
+Description:Wrapper around OpenGL primitives, geometry and related
 OGL functions.
 
 There's a couple of extra functions in here that you didn't get in the tutorial
-series, to draw debug normals and tangents. 
+series, to draw debug normals and tangents.
 
 
--_-_-_-_-_-_-_,------,   
+-_-_-_-_-_-_-_,------,
 _-_-_-_-_-_-_-|   /\_/\   NYANYANYAN
 -_-_-_-_-_-_-~|__( ^ .^) /
-_-_-_-_-_-_-_-""  ""   
+_-_-_-_-_-_-_-""  ""
 
 *//////////////////////////////////////////////////////////////////////////////
 
@@ -26,9 +26,9 @@ _-_-_-_-_-_-_-""  ""
 //holds which data
 enum MeshBuffer {
 	VERTEX_BUFFER	,
-	COLOUR_BUFFER	, 
+	COLOUR_BUFFER	,
 	TEXTURE_BUFFER	,
-	NORMAL_BUFFER	, 
+	NORMAL_BUFFER	,
 	TANGENT_BUFFER	,
 
 	WEIGHTVALUE_BUFFER,		//new this year, weight values of vertices
@@ -65,6 +65,13 @@ public:
 		return primCount / 3;
 	}
 
+	unsigned int getVertexCount() const {
+		return numVertices;
+	}
+	const Vector3& getVertex(int i) const {
+		return vertices[i];
+	}
+
 	unsigned int GetJointCount() const {
 		return (unsigned int)jointNames.size();
 	}
@@ -83,7 +90,7 @@ public:
 	}
 
 	int		GetSubMeshCount() const {
-		return (int)meshLayers.size(); 
+		return (int)meshLayers.size();
 	}
 
 	bool GetSubMesh(int i, const SubMesh* s) const;
@@ -111,7 +118,7 @@ protected:
 
 	GLuint	numVertices;
 	GLuint	numIndices;
-	
+
 	GLuint	type;
 
 	Vector3*		vertices;

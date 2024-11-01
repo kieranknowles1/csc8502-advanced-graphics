@@ -10,6 +10,7 @@ In demos with a camera:
 - `C` to move down
 - Hold `Tab` to move faster
 - `Mouse` to look around
+- `P` to print the current camera position
 
 ## Building the project
 

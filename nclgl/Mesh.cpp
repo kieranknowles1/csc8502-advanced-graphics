@@ -37,13 +37,13 @@ Mesh* Mesh::GenerateQuad() {
 
 	m->vertices[0] = Vector3(-1.0f, 1.0f, 0.0f); // Top left
 	m->textureCoords[0] = Vector2(0.0f, 1.0f);
-	
+
 	m->vertices[1] = Vector3(-1.0f, -1.0f, 0.0f); // Bottom left
 	m->textureCoords[1] = Vector2(0.0f, 0.0f);
-	
+
 	m->vertices[2] = Vector3(1.0f, 1.0f, 0.0f); // Top right
 	m->textureCoords[2] = Vector2(1.0f, 1.0f);
-	
+
 	m->vertices[3] = Vector3(1.0f, -1.0f, 0.0f); // Bottom right
 	m->textureCoords[3] = Vector2(1.0f, 0.0f);
 
@@ -72,7 +72,7 @@ Mesh* Mesh::LoadDebugCube()
 
 Mesh::Mesh(void)	{
 	glGenVertexArrays(1, &arrayObject);
-	
+
 	for(int i = 0; i < MAX_BUFFER; ++i) {
 		bufferObject[i] = 0;
 	}
@@ -113,7 +113,7 @@ void Mesh::Draw() const {
 	else{
 		glDrawArrays(type, 0, numVertices);
 	}
-	glBindVertexArray(0);	
+	glBindVertexArray(0);
 }
 
 void Mesh::DrawSubMesh(int i) {
@@ -124,7 +124,7 @@ void Mesh::DrawSubMesh(int i) {
 
 	glBindVertexArray(arrayObject);
 	if (bufferObject[INDEX_BUFFER]) {
-		const GLvoid* offset = (const GLvoid * )(m.start * sizeof(unsigned int)); 
+		const GLvoid* offset = (const GLvoid * )(m.start * sizeof(unsigned int));
 		glDrawElements(type, m.count, GL_UNSIGNED_INT, offset);
 	}
 	else {
@@ -208,16 +208,16 @@ void	Mesh::BufferData()	{
 
 		glObjectLabel(GL_BUFFER, bufferObject[INDEX_BUFFER], -1, "Indices");
 	}
-	glBindVertexArray(0);	
+	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 
 /*
-* 
+*
 * Extra file loading stuff!
-* 
+*
 * */
 
 enum class GeometryChunkTypes {
@@ -428,6 +428,14 @@ Mesh* Mesh::LoadFromMeshFile(const string& name) {
 	if (!readColours.empty()) {
 		mesh->colours = new Vector4[numVertices];
 		memcpy(mesh->colours, readColours.data(), numVertices * sizeof(Vector4));
+	}
+	else {
+		// If no colours are specified, default to white
+		// otherwise the shader will see all black
+		mesh->colours = new Vector4[numVertices];
+		for (int i = 0; i < numVertices; ++i) {
+			mesh->colours[i] = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+		}
 	}
 
 	if (!readNormals.empty()) {

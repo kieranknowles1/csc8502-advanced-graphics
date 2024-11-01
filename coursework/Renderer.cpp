@@ -1,10 +1,12 @@
 #include "Renderer.h"
 
 #include "../nclgl/HeightMap.h"
+#include "../nclgl/CubeBot.h"
 
 Renderer::Renderer(Window& parent)
     : OGLRenderer(parent)
     , resourceManager(std::make_unique<ResourceManager>())
+    , cube(Mesh::LoadFromMeshFile("OffsetCubeY.msh"))
 {
     setDefaultMateriel({
         resourceManager->getTextures().get({"Barren Reds.JPG", SOIL_FLAG_MIPMAPS, true}),
@@ -31,6 +33,7 @@ Renderer::Renderer(Window& parent)
 }
 
 Renderer::~Renderer(void)	{
+    // Free resources so that ResourceManager doesn't see them as leaked
     setDefaultMateriel({
         nullptr,
         nullptr,
@@ -41,6 +44,9 @@ Renderer::~Renderer(void)	{
 void Renderer::UpdateScene(float dt) {
     camera->update(dt);
     viewMatrix = camera->buildViewMatrix();
+
+    presentRoot->update(dt);
+    futureRoot->update(dt);
 }
 
 void Renderer::RenderScene()	{
@@ -60,6 +66,19 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
     root->addChild(new SceneNode(
         heightMap.get()
     ));
+
+    auto treeParent = new SceneNode();
+    // TODO: Use a proper mesh
+    auto tree = std::make_unique<CubeBot>(cube.get());
+
+    spawnTrees(treeParent, heightMap.get(), 500, tree.get());
+    root->addChild(treeParent);
+
+    auto bot = new CubeBot(cube.get());
+    bot->setTransform(
+        Matrix4::Translation(camera->getPosition())
+    );
+
     return root;
 }
 
@@ -67,4 +86,20 @@ std::unique_ptr<SceneNode> Renderer::createFutureScene()
 {
 	// TODO: Implement
     return std::make_unique<SceneNode>();
+}
+
+void Renderer::spawnTrees(SceneNode* parent, Mesh* mesh, int count, SceneNode* tree)
+{
+    std::uniform_int_distribution<int> pointDist(0, mesh->getVertexCount());
+    for (int i = 0; i < count; i++) {
+        auto instance = tree->deepCopy();
+        // Pick a random point
+        auto point = mesh->getVertex(pointDist(rng));
+
+        instance->setTransform(
+            Matrix4::Translation(point)
+        );
+
+        parent->addChild(instance);
+    }
 }

@@ -86,6 +86,10 @@ void Camera::update(float dt) {
 		position -= up * distance;
 	}
 
+	if (keyboard->KeyTriggered(SDL_SCANCODE_P)) {
+		std::cout << "Camera at " << position.x << ", " << position.y << ", " << position.z << std::endl;
+	}
+
 	// What good is freedom if you don't have 6 degrees of it?
 	// TODO: Roll should also affect pitch/yaw controls
 	//if (keyboard->KeyDown(KEYBOARD_Q)) {
@@ -103,7 +107,7 @@ void Camera::update(float dt) {
 	// which make modern hardware struggle which doesn't matter because you
 	// just called in 50 allies to the beat of the music and now your job
 	// is to watch the fireworks after strafe-sniping the enemy cruisers
-	// TLDR: It's £7 on Steam
+	// TLDR: It's ï¿½7 on Steam
 }
 
 Matrix4 Camera::buildViewMatrix() {
