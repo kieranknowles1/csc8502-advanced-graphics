@@ -354,16 +354,6 @@ Mesh* Mesh::LoadFromMeshFile(const string& name) {
 	file >> numIndices;
 	file >> numChunks;
 
-	// vector<Vector3> readPositions;
-	vector<Vector4> readColours;
-	vector<Vector3> readNormals;
-	vector<Vector4> readTangents;
-	vector<Vector2> readUVs;
-	vector<Vector4> readWeights;
-	vector<int> readWeightIndices;
-
-	vector<unsigned int>		readIndices;
-
 	for (int i = 0; i < numChunks; ++i) {
 		int chunkType = (int)GeometryChunkTypes::VPositions;
 
@@ -371,14 +361,14 @@ Mesh* Mesh::LoadFromMeshFile(const string& name) {
 
 		switch ((GeometryChunkTypes)chunkType) {
 		case GeometryChunkTypes::VPositions:ReadTextFloats(file, mesh->vertices, numVertices);  break;
-		case GeometryChunkTypes::VColors:	ReadTextFloats(file, readColours, numVertices);  break;
-		case GeometryChunkTypes::VNormals:	ReadTextFloats(file, readNormals, numVertices);  break;
-		case GeometryChunkTypes::VTangents:	ReadTextFloats(file, readTangents, numVertices);  break;
-		case GeometryChunkTypes::VTex0:		ReadTextFloats(file, readUVs, numVertices);  break;
-		case GeometryChunkTypes::Indices:	ReadIndices(file, readIndices, numIndices); break;
+		case GeometryChunkTypes::VColors:	ReadTextFloats(file, mesh->colours, numVertices);  break;
+		case GeometryChunkTypes::VNormals:	ReadTextFloats(file, mesh->normals, numVertices);  break;
+		case GeometryChunkTypes::VTangents:	ReadTextFloats(file, mesh->tangents, numVertices);  break;
+		case GeometryChunkTypes::VTex0:		ReadTextFloats(file, mesh->textureCoords, numVertices);  break;
+		case GeometryChunkTypes::Indices:	ReadIndices(file, mesh->indices, numIndices); break;
 
-		case GeometryChunkTypes::VWeightValues:		ReadTextFloats(file, readWeights, numVertices);  break;
-		case GeometryChunkTypes::VWeightIndices:	ReadTextVertexIndices(file, readWeightIndices, numVertices);  break;
+		case GeometryChunkTypes::VWeightValues:		ReadTextFloats(file, mesh->weights, numVertices);  break;
+		case GeometryChunkTypes::VWeightIndices:	ReadTextVertexIndices(file, mesh->weightIndices, numVertices);  break;
 		case GeometryChunkTypes::JointNames:		ReadJointNames(file, mesh->jointNames);  break;
 		case GeometryChunkTypes::JointParents:		ReadJointParents(file, mesh->jointParents);  break;
 		case GeometryChunkTypes::BindPose:			ReadRigPose(file, mesh->bindPose);  break;
@@ -392,38 +382,12 @@ Mesh* Mesh::LoadFromMeshFile(const string& name) {
 	mesh->numVertices	= numVertices;
 	mesh->numIndices	= numIndices;
 
-	if (!readColours.empty()) {
-		mesh->colours = std::move(readColours);
-	}
-	else {
+	if (mesh->colours.empty()) {
 		// If no colours are specified, default to white
 		// otherwise the shader will see all black
 		for (int i = 0; i < numVertices; ++i) {
 			mesh->colours.emplace_back(Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 		}
-	}
-
-	if (!readNormals.empty()) {
-		mesh->normals = std::move(readNormals);
-	}
-
-	if (!readTangents.empty()) {
-		mesh->tangents = std::move(readTangents);
-	}
-
-	if (!readUVs.empty()) {
-		mesh->textureCoords = std::move(readUVs);
-	}
-	if (!readIndices.empty()) {
-		mesh->indices = std::move(readIndices);
-	}
-
-	if (!readWeights.empty()) {
-		mesh->weights = std::move(readWeights);
-	}
-
-	if (!readWeightIndices.empty()) {
-		mesh->weightIndices = std::move(readWeightIndices);
 	}
 
 	mesh->BufferData();
