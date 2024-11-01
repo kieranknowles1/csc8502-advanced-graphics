@@ -36,8 +36,7 @@ HeightMap::HeightMap(const std::string& file, Vector3 vertexScale, Vector2 textu
 			vertices[offset] = Vector3(x, data[offset], z) * vertexScale;
 			textureCoords[offset] = Vector2(x, z) * textureScale;
 
-			float colour = data[offset] / 255.0f;
-			colours[offset] = Vector4(colour, colour, colour, 1.0f);
+			colours[offset] = Vector4(1.0, 1.0, 1.0, 1.0);
 		}
 	}
 	SOIL_free_image_data(data);

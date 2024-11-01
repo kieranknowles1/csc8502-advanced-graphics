@@ -8,7 +8,7 @@
 
 class Renderer : public OGLRenderer {
 public:
-	constexpr static int LightCount = 32;
+	constexpr static int LightCount = 512;
 
 	Renderer(Window& parent);
 	~Renderer() override;
@@ -20,13 +20,14 @@ protected:
 	void drawPointLights();
 	void combineBuffers();
 
-	void generateScreenTexture(bool depth);
+	// Allocate a screen-sized texture for use as a framebuffer
+	GLuint generateScreenTexture(bool depth = false);
 
 	std::unique_ptr<ResourceManager> resourceManager;
 
-	std::unique_ptr<Shader> sceneShader;
-	std::unique_ptr<Shader> pointlightShader;
-	std::unique_ptr<Shader> combineShader;
+	std::shared_ptr<Shader> sceneShader;
+	std::shared_ptr<Shader> pointlightShader;
+	std::shared_ptr<Shader> combineShader;
 
 	std::unique_ptr<Camera> camera;
 

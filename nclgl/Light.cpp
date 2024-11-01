@@ -12,5 +12,6 @@ void Light::bind(const OGLRenderer& renderer) const {
 	glUniform3fv(shader->getUniform(PositionUniform.c_str()), 1, (float*)&position);
 	glUniform3f(shader->getUniform(ColorUniform.c_str()), color.x, color.y, color.z);
 	glUniform1f(shader->getUniform(RadiusUniform.c_str()), radius);
-	glUniform1f(shader->getUniform(AttenuationUniform.c_str()), attenuation);
+	// TODO: Reimplement attenuation
+	//glUniform1f(shader->getUniform(AttenuationUniform.c_str()), attenuation);
 }
