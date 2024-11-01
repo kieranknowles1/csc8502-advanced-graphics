@@ -58,8 +58,16 @@ public:
 
 	void	Reload(bool deleteOld = true);
 
-	bool	LoadSuccess() {
-		return shaderValid[0] == GL_TRUE && programValid == GL_TRUE;
+	bool LoadSuccess() {
+		if (programValid != GL_TRUE) {
+			return false;
+		}
+		for (int i = 0; i < SHADER_MAX; ++i) {
+			if (shaderValid[i] != GL_TRUE) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	static void ReloadAllShaders();
@@ -67,7 +75,12 @@ public:
 	static void	PrintLinkLog(GLuint program);
 
 	int getUniform(const char* name) const {
-		return glGetUniformLocation(programID, name);
+		int id = glGetUniformLocation(programID, name);
+		if (id < 0) {
+			std::cerr << "Warning: " << name << " not found in shader " << describe() << std::endl;
+		}
+
+		return id;
 	}
 
 protected:

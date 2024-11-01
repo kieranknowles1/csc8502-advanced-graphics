@@ -67,7 +67,7 @@ void	Shader::Reload(bool deleteOld) {
 		}
 		else {
 			objectIDs[i]	= 0;
-			shaderValid[i]	= 0;
+			shaderValid[i]	= GL_TRUE; // Empty files are valid
 		}
 	}
 	SetDefaultAttributes();
@@ -156,7 +156,7 @@ void Shader::checkBannedNames()
 
 void Shader::checkBannedName(const std::string& bad, const std::string& alt)
 {
-	if (getUniform(bad.c_str()) != -1)
+	if (glGetUniformLocation(programID, bad.c_str()) != -1)
 	{
 		cout << "Warning: Uniform " << bad << " is incorrect. Should be called " << alt << " instead.\n";
 	}
