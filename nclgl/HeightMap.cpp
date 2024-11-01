@@ -6,11 +6,13 @@ int vertex(int x, int y, int width) {
 	return x + (y * width);
 }
 
-HeightMap::HeightMap(const std::string& file, Vector3 vertexScale, Vector2 textureScale)
+HeightMap::HeightMap(const std::string& file, int layers, Vector3 vertexScale, Vector2 textureScale)
 {
 	int width = 0;
 	int height = 0;
 	int channels = 0;
+
+	// TODO: Scale by number of layers
 
 	// Load the image data as greyscale
 	unsigned char* data = SOIL_load_image(file.c_str(), &width, &height, &channels, SOIL_LOAD_L);

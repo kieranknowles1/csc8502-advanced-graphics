@@ -30,6 +30,7 @@ OGLRenderer::OGLRenderer(Window &window)
 	: currentShader(nullptr)
 	, width(window.GetScreenSize().x)
 	, height(window.GetScreenSize().y)
+	, rng(0) // Use the same seed for consistency
 {
 	glContext = SDL_GL_CreateContext(window.getSdlWindow());
 	if (!glContext) {
