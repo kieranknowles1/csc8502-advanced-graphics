@@ -9,6 +9,7 @@ const std::string Light::AttenuationUniform = "lightAttenuation";
 
 void Light::bind(const OGLRenderer& renderer) const {
 	auto shader = renderer.getCurrentShader();
+	auto position = getWorldTransform().GetPositionVector();
 	glUniform3fv(shader->getUniform(PositionUniform.c_str()), 1, (float*)&position);
 	glUniform3f(shader->getUniform(ColorUniform.c_str()), color.x, color.y, color.z);
 	glUniform1f(shader->getUniform(RadiusUniform.c_str()), radius);

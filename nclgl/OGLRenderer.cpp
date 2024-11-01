@@ -21,17 +21,6 @@ _-_-_-_-_-_-_-""  ""
 #include "SceneNode.h"
 #include "Light.h"
 
-using std::string;
-
-
-
-static const float biasValues[16] = {
-	0.5, 0.0, 0.0, 0.0,
-	0.0, 0.5, 0.0, 0.0,
-	0.0, 0.0, 0.5, 0.0,
-	0.5, 0.5, 0.5, 1.0
-};
-
 /*
 Creates an OpenGL 3.2 CORE PROFILE rendering context. Sets itself
 as the current renderer of the passed 'parent' Window. Not the best
@@ -124,9 +113,9 @@ void OGLRenderer::BindShader(Shader* s) {
 }
 
 void OGLRenderer::DebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)	{
-		string sourceName;
-		string typeName;
-		string severityName;
+		std::string sourceName;
+		std::string typeName;
+		std::string severityName;
 
 		if (type == GL_DEBUG_TYPE_OTHER_ARB) {
 			return;
@@ -159,17 +148,17 @@ void OGLRenderer::DebugCallback(GLenum source, GLenum type, GLuint id, GLenum se
 			case GL_DEBUG_SEVERITY_LOW_ARB		: severityName = "Priority(Low)"		;break;
 		}
 
-		std::cout << "OpenGL Debug Output: " + sourceName + ", " + typeName + ", " + severityName + ", " + string(message) << "\n";
+		std::cout << "OpenGL Debug Output: " + sourceName + ", " + typeName + ", " + severityName + ", " + std::string(message) << "\n";
 }
 
 void OGLRenderer::drawTree(SceneNode* root) {
+	clearNodeLists();
+
 	buildNodeLists(root);
 	sortNodeLists();
 
 	drawNodes(opaqueNodes);
 	drawNodes(transparentNodes);
-
-	clearNodeLists();
 }
 
 void OGLRenderer::buildNodeLists(SceneNode* from) {
@@ -180,6 +169,12 @@ void OGLRenderer::buildNodeLists(SceneNode* from) {
 	if (from->getMesh()) {
 		auto& list = from->getIsTransparent() ? transparentNodes : opaqueNodes;
 		list.push_back(from);
+
+	}
+
+	auto asLight = dynamic_cast<Light*>(from);
+	if (asLight) {
+		lights.push_back(asLight);
 	}
 
 	for (auto child = from->childrenBegin(); child != from->childrenEnd(); child++) {

@@ -110,6 +110,8 @@ protected:
 	}
 	std::shared_ptr<Materiel> defaultMateriel;
 
+	// TODO: The base class should handle lights
+	std::vector<Light*> lights;
 private:
 	void buildNodeLists(SceneNode* from);
 	void sortNodeLists();
@@ -118,8 +120,6 @@ private:
 	// TODO: Frustum culling
 	std::vector<SceneNode*> transparentNodes;
 	std::vector<SceneNode*> opaqueNodes;
-	// TODO: Lights should be part of the scene graph
-	std::vector<Light*> lights;
 
 	Shader* currentShader;
 	SDL_GLContext glContext;

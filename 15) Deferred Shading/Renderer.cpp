@@ -24,20 +24,6 @@ Renderer::Renderer(Window& parent)
 	auto heightMapSize = heightMap->getSize();
 	camera = std::make_unique<Camera>(parent.GetKeyboard(), parent.GetMouse(), -45, 0, 0, (heightMapSize * 0.5f) + Vector3(0, 500, 0));
 
-	std::mt19937 rng(0); // Keep things consistent
-	std::uniform_real_distribution<float> xDist(0, heightMapSize.x);
-	std::uniform_real_distribution<float> zDist(0, heightMapSize.z);
-	std::uniform_real_distribution<float> yDist(0, 150);
-	std::uniform_real_distribution<float> colorDist(0, 1);
-	std::uniform_real_distribution<float> radiusDist(250, 500);
-	for (int i = 0; i < LightCount; i++) {
-		Vector3 position = Vector3(xDist(rng), yDist(rng), zDist(rng));
-		Vector3 color = Vector3(colorDist(rng), colorDist(rng), colorDist(rng));
-		float radius = radiusDist(rng);
-
-		pointLights.emplace_back(position, color, radius);
-	}
-
 	glGenFramebuffers(1, &bufferFBO); // For the first pass - draw scene into G-Buffer
 	// TODO: Should lighting be done using PostProcess::Stages?
 	glGenFramebuffers(1, &pointLightFBO); // Second pass - draw point lights into light buffer
@@ -88,6 +74,27 @@ Renderer::Renderer(Window& parent)
 		nullptr,
 	});
 	root->addChild(height);
+
+	lightParent = new SceneNode();
+	root->addChild(lightParent);
+
+	std::mt19937 rng(0); // Keep things consistent
+	std::uniform_real_distribution<float> xDist(0, heightMapSize.x);
+	std::uniform_real_distribution<float> zDist(0, heightMapSize.z);
+	std::uniform_real_distribution<float> yDist(0, 150);
+	std::uniform_real_distribution<float> colorDist(0, 1);
+	std::uniform_real_distribution<float> radiusDist(250, 500);
+	for (int i = 0; i < LightCount; i++) {
+		Vector3 position = Vector3(xDist(rng), yDist(rng), zDist(rng));
+		Vector4 color = Vector4(colorDist(rng), colorDist(rng), colorDist(rng), 1.0);
+		float radius = radiusDist(rng);
+
+		auto light = new Light(radius);
+		light->setTransform(Matrix4::Translation(position));
+		light->setColor(color);
+
+		lightParent->addChild(light);
+	}
 }
 
 GLuint Renderer::generateScreenTexture(bool depth) {
@@ -193,8 +200,8 @@ void Renderer::drawPointLights() {
 	invViewProj.bind(pointlightShader->getUniform("inverseProjView"));
 
 	UpdateShaderMatrices();
-	for (auto& light : pointLights) {
-		light.bind(*this);
+	for (auto& light : lights) {
+		light->bind(*this);
 		sphere->Draw();
 	}
 
@@ -231,5 +238,15 @@ void Renderer::combineBuffers() {
 
 void Renderer::UpdateScene(float dt)
 {
+	time += dt;
 	camera->update(dt);
+
+	// sin works in radians, so don't start with a huge value
+	// or you'll give yourself a headache
+	float scale = sin(time * 0.5f);
+	lightParent->setTransform(
+		Matrix4::Scale(Vector3(scale, 1, 1))
+	);
+
+	root->update(dt);
 }

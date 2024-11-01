@@ -48,8 +48,10 @@ protected:
 	std::shared_ptr<Texture> earthBump;
 
 	std::unique_ptr<SceneNode> root;
+	SceneNode* lightParent;
 
-	std::vector<Light> pointLights;
 	std::unique_ptr<Mesh> sphere;
 	std::unique_ptr<Mesh> quad;
+
+	float time = 0.0f;
 };
