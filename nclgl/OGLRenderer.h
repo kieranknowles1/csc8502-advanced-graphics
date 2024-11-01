@@ -19,6 +19,7 @@ _-_-_-_-_-_-_-""  ""
 #include <fstream>
 #include <vector>
 #include <memory>
+#include <random>
 
 #include "glad/glad.h"
 
@@ -34,6 +35,7 @@ _-_-_-_-_-_-_-""  ""
 #include "Window.h"
 #include "Shader.h"
 #include "Mesh.h"
+#include "Materiel.h"
 
 using std::vector;
 
@@ -44,7 +46,6 @@ class Light;
 class Mesh;
 class Window;
 class SceneNode;
-class Materiel;
 
 struct DebugSettings {
 	// Whether to draw the bounding boxes of nodes
@@ -77,8 +78,8 @@ public:
 		return debugCube;
 	}
 
-	Materiel* getDefaultMateriel() const {
-		return defaultMateriel.get();
+	const Materiel& getDefaultMateriel() const {
+		return defaultMateriel;
 	}
 
 protected:
@@ -106,13 +107,15 @@ protected:
 
 	void drawTree(SceneNode* root);
 
-	void setDefaultMateriel(std::shared_ptr<Materiel> materiel) {
+	void setDefaultMateriel(const Materiel& materiel) {
 		defaultMateriel = materiel;
 	}
-	std::shared_ptr<Materiel> defaultMateriel;
+	Materiel defaultMateriel;
 
 	// TODO: The base class should handle lights
 	std::vector<Light*> lights;
+
+	std::mt19937 rng;
 private:
 	void buildNodeLists(SceneNode* from);
 	void sortNodeLists();

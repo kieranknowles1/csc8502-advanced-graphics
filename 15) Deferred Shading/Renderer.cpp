@@ -68,10 +68,10 @@ Renderer::Renderer(Window& parent)
 
 	root = std::make_unique<SceneNode>();
 	auto height = new SceneNode(heightMap.get());
-	height->setMateriel({
+	setDefaultMateriel({
 		earthTex,
 		earthBump,
-		nullptr,
+		sceneShader,
 	});
 	root->addChild(height);
 
