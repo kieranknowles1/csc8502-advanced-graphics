@@ -42,6 +42,8 @@ class Shader;
 class Light;
 class Mesh;
 class Window;
+class SceneNode;
+class Materiel;
 
 struct DebugSettings {
 	// Whether to draw the bounding boxes of nodes
@@ -73,6 +75,11 @@ public:
 	const Mesh* getDebugCube() const {
 		return debugCube;
 	}
+
+	Materiel* getDefaultMateriel() const {
+		return defaultMateriel.get();
+	}
+
 protected:
 	virtual void	Resize(int x, int y);
 
@@ -96,7 +103,24 @@ protected:
 	DebugSettings debugSettings;
 	Mesh* debugCube;
 
+	void drawTree(SceneNode* root);
+
+	void setDefaultMateriel(std::shared_ptr<Materiel> materiel) {
+		defaultMateriel = materiel;
+	}
+	std::shared_ptr<Materiel> defaultMateriel;
+
 private:
+	void buildNodeLists(SceneNode* from);
+	void sortNodeLists();
+	void clearNodeLists();
+	void drawNodes(const std::vector<SceneNode*>& nodes);
+	// TODO: Frustum culling
+	std::vector<SceneNode*> transparentNodes;
+	std::vector<SceneNode*> opaqueNodes;
+	// TODO: Lights should be part of the scene graph
+	std::vector<Light*> lights;
+
 	Shader* currentShader;
 	SDL_GLContext glContext;
 

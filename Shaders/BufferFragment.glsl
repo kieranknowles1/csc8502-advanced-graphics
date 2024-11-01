@@ -24,6 +24,6 @@ void main() {
     vec3 normal = texture2D(bumpTex, IN.texCoord).rgb * 2.0 - 1.0;
     normal = normalize(TBN * normal);
 
-    fragColor[0] = texture2D(diffuseTex, IN.texCoord);
+    fragColor[0] = texture2D(diffuseTex, IN.texCoord) * IN.color;
     fragColor[1] = vec4(normal * 0.5 + 0.5, 1.0);
 }

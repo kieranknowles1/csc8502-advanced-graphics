@@ -5,6 +5,8 @@
 #include "../nclgl/HeightMap.h"
 #include "../nclgl/Light.h"
 #include "../nclgl/ResourceManager.h"
+#include "../nclgl/Materiel.h"
+#include "../nclgl/SceneNode.h"
 
 class Renderer : public OGLRenderer {
 public:
@@ -41,8 +43,11 @@ protected:
 	GLuint lightSpecularTex;
 
 	std::unique_ptr<HeightMap> heightMap;
+	std::unique_ptr<Materiel> materiel;
 	std::shared_ptr<Texture> earthTex;
 	std::shared_ptr<Texture> earthBump;
+
+	std::unique_ptr<SceneNode> root;
 
 	std::vector<Light> pointLights;
 	std::unique_ptr<Mesh> sphere;

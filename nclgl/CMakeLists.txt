@@ -7,6 +7,7 @@ set(SOURCES
     HeightMap.cpp
     Keyboard.cpp
     Light.cpp
+    Materiel.cpp
     Matrix2.cpp
     Matrix3.cpp
     Matrix4.cpp
@@ -40,6 +41,7 @@ set(HEADERS
     InputDevice.h
     Keyboard.h
     Light.h
+    Materiel.h
     Matrix2.h
     Matrix3.h
     Matrix4.h

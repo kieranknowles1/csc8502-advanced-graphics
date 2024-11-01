@@ -5,8 +5,6 @@
 
 SceneNode::SceneNode(Mesh* mesh, Vector4 color)
 	: parent(nullptr)
-	, shader(nullptr)
-	, texture(0)
 	, mesh(mesh)
 	, color(color)
 	, scale(Vector3(1, 1, 1))
@@ -81,8 +79,9 @@ void SceneNode::drawSelf(OGLRenderer& r)
 		return;
 
 	Shader* prevShader = r.getCurrentShader();
-	if (shader) {
-		r.BindShader(shader);
+	// TODO: Should probably be part of the material
+	if (materiel.shader) {
+		r.BindShader(materiel.shader.get());
 		r.UpdateShaderMatrices();
 	}
 
@@ -91,9 +90,8 @@ void SceneNode::drawSelf(OGLRenderer& r)
 	Matrix4 model = getWorldTransform();
 	model.bind(shader->getUniform("modelMatrix"));
 	color.bind(shader->getUniform("nodeColor"));
-	glUniform1i(shader->getUniform("useTexture"), texture != 0);
-	glUniform1i(shader->getUniform("diffuseTex"), 0);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	// TODO: Should probably be part of the material
+	TextureUnit::Diffuse.bind(*shader, *materiel.diffuse);
 
 	mesh->Draw();
 	drawDebug(r);
@@ -118,13 +116,12 @@ void SceneNode::drawDebug(OGLRenderer& r) {
 
 SceneNode::SceneNode(const SceneNode& s)
 	: parent(nullptr)
-	, shader(s.shader)
+	, materiel(s.materiel)
 	, mesh(s.mesh)
 	, color(s.color)
 	, scale(s.scale)
 	, transform(s.transform)
 	, worldTransform(s.worldTransform)
-	, texture(s.texture)
 	, boundingRadius(s.boundingRadius)
 	, distanceFromCamera(s.distanceFromCamera)
 	{}

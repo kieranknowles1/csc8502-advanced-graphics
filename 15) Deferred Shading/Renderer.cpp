@@ -79,6 +79,15 @@ Renderer::Renderer(Window& parent)
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
+
+	root = std::make_unique<SceneNode>();
+	auto height = new SceneNode(heightMap.get());
+	height->setMateriel({
+		earthTex,
+		earthBump,
+		nullptr,
+	});
+	root->addChild(height);
 }
 
 GLuint Renderer::generateScreenTexture(bool depth) {
@@ -137,7 +146,8 @@ void Renderer::fillBuffers() {
 	projMatrix = Matrix4::Perspective(1, 10000, (float)width / (float)height, 45);
 
 	UpdateShaderMatrices();
-	heightMap->Draw();
+
+	drawTree(root.get());
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

@@ -1,10 +1,12 @@
 #pragma once
 
+#include <vector>
+
 #include "Matrix4.h"
 #include "Vector3.h"
 #include "Vector4.h"
 #include "Mesh.h"
-#include <vector>
+#include "Materiel.h"
 
 // A node in the scene graph. Should not be reused for multiple objects.
 class SceneNode
@@ -40,18 +42,11 @@ public:
 
 	bool isChildOf(SceneNode* other);
 
-	// Set the shader used to draw this node and its children
-	// Will be inherited, unless a child overrides it
-	void setShader(Shader* s) { shader = s; }
-
 	// Set the parent of this node
 	// If the node already has a parent, it will be moved to the new parent
 	// Setting the parent to nullptr will remove the node from the scene graph,
 	// but not delete it
 	void setParent(SceneNode* newParent);
-
-	void setTexture(GLuint tex) { texture = tex; }
-	GLuint getTexture() const { return texture; }
 
 	float getBoundingRadius() const {
 		// FIXME: This is not adjusted by parent scale. A bounding box would be better
@@ -69,6 +64,14 @@ public:
 	virtual void drawSelf(OGLRenderer& r);
 	void drawDebug(OGLRenderer& r);
 
+	bool getIsTransparent() const { return isTransparent; }
+	void setIsTransparent(bool t) { isTransparent = t; }
+
+	bool isEnabled() const { return enabled; }
+	void setEnabled(bool e) { enabled = e; }
+
+	void setMateriel(const Materiel& m) { materiel = m; }
+
 	using SceneNodeIterator = std::vector<SceneNode*>::iterator;
 	SceneNodeIterator childrenBegin() { return children.begin(); }
 	SceneNodeIterator childrenEnd() { return children.end(); }
@@ -77,15 +80,18 @@ protected:
 	virtual void onUpdate(float dt) {}
 
 	Mesh* mesh;
-	Shader* shader;
 	Matrix4 worldTransform;
 	Matrix4 transform;
 	Vector3 scale;
 	Vector4 color;
-	GLuint texture = 0;
 
 	float boundingRadius;
 	float distanceFromCamera;
+
+	bool isTransparent;
+	bool enabled = true;
+
+	Materiel materiel;
 
 	std::vector<SceneNode*> children;
 

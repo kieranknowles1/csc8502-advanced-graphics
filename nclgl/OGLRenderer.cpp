@@ -18,6 +18,9 @@ _-_-_-_-_-_-_-""  ""
 
 #include <SDL2/SDL.h>
 
+#include "SceneNode.h"
+#include "Light.h"
+
 using std::string;
 
 
@@ -157,4 +160,44 @@ void OGLRenderer::DebugCallback(GLenum source, GLenum type, GLuint id, GLenum se
 		}
 
 		std::cout << "OpenGL Debug Output: " + sourceName + ", " + typeName + ", " + severityName + ", " + string(message) << "\n";
+}
+
+void OGLRenderer::drawTree(SceneNode* root) {
+	buildNodeLists(root);
+	sortNodeLists();
+
+	drawNodes(opaqueNodes);
+	drawNodes(transparentNodes);
+
+	clearNodeLists();
+}
+
+void OGLRenderer::buildNodeLists(SceneNode* from) {
+	if (!from->isEnabled()) {
+		return;
+	}
+
+	if (from->getMesh()) {
+		auto& list = from->getIsTransparent() ? transparentNodes : opaqueNodes;
+		list.push_back(from);
+	}
+
+	for (auto child = from->childrenBegin(); child != from->childrenEnd(); child++) {
+		buildNodeLists(*child);
+	}
+}
+
+void OGLRenderer::sortNodeLists() {
+}
+
+void OGLRenderer::clearNodeLists() {
+	opaqueNodes.clear();
+	transparentNodes.clear();
+	lights.clear();
+}
+
+void OGLRenderer::drawNodes(const std::vector<SceneNode*>& nodes) {
+	for (auto& node : nodes) {
+		node->drawSelf(*this);
+	}
 }
