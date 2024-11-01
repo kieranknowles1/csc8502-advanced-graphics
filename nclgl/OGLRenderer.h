@@ -18,6 +18,7 @@ _-_-_-_-_-_-_-""  ""
 #include <string>
 #include <fstream>
 #include <vector>
+#include <memory>
 
 #include "glad/glad.h"
 
