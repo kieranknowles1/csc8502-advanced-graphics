@@ -24,10 +24,11 @@ HeightMap::HeightMap(const std::string& file, int layers, Vector3 vertexScale, V
 	numVertices = width * height;
 	// -1 as we can't get a position from the last row/column
 	numIndices = (width - 1) * (height - 1) * 6;
-	vertices = new Vector3[numVertices];
-	colours = new Vector4[numVertices];
-	textureCoords = new Vector2[numVertices];
-	indices = new unsigned int[numIndices];
+
+	vertices.resize(numVertices);
+	textureCoords.resize(numVertices);
+	colours.resize(numVertices);
+	indices.resize(numIndices);
 
 	// Iterate over each pixel, treating each pixel as a vertex
 	for (int x = 0; x < width; x++) {

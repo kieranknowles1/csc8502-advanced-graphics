@@ -61,7 +61,7 @@ public:
 	static Mesh* LoadFromMeshFile(const std::string& name);
 
 	unsigned int GetTriCount() const {
-		int primCount = indices ? numIndices : numVertices;
+		int primCount = indices.size() ? numIndices : numVertices;
 		return primCount / 3;
 	}
 
@@ -81,11 +81,11 @@ public:
 	int GetParentForJoint(const std::string& name) const;
 	int GetParentForJoint(int i) const;
 
-	const Matrix4* GetBindPose() const {
+	const std::vector<Matrix4>& GetBindPose() const {
 		return bindPose;
 	}
 
-	const Matrix4* GetInverseBindPose() const {
+	const std::vector<Matrix4>& GetInverseBindPose() const {
 		return inverseBindPose;
 	}
 
@@ -121,19 +121,19 @@ protected:
 
 	GLuint	type;
 
-	Vector3*		vertices;
-	Vector4*		colours;
-	Vector2*		textureCoords;
-	Vector3*		normals;
-	Vector4*		tangents;
+	std::vector<Vector3>		vertices;
+	std::vector<Vector4>		colours;
+	std::vector<Vector2>		textureCoords;
+	std::vector<Vector3>		normals;
+	std::vector<Vector4>		tangents;
 
-	Vector4*		weights;
-	int*			weightIndices;
+	std::vector<Vector4>		weights;
+	std::vector<int>		weightIndices;
 
-	unsigned int*	indices;
+	std::vector<unsigned int>	indices;
 
-	Matrix4* bindPose;
-	Matrix4* inverseBindPose;
+	std::vector<Matrix4>		bindPose;
+	std::vector<Matrix4>		inverseBindPose;
 
 	std::vector<std::string>	jointNames;
 	std::vector<int>			jointParents;
