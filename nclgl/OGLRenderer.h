@@ -121,6 +121,15 @@ private:
 	std::vector<SceneNode*> transparentNodes;
 	std::vector<SceneNode*> opaqueNodes;
 
+	GLuint gBufferFbo;
+	GLuint gBufferDepth;
+	GLuint gBufferColour;
+	GLuint gBufferNormal;
+
+	GLuint deferredLightFbo;
+	GLuint deferredLightColour;
+	GLuint deferredLightSpecular;
+
 	Shader* currentShader;
 	SDL_GLContext glContext;
 

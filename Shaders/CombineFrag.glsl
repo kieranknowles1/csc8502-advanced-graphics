@@ -5,6 +5,7 @@ uniform sampler2D diffuseLight;
 uniform sampler2D specularLight;
 
 #define AMBIENT_INTENSITY 0.1
+#define BRIGHTNESS 1.0
 
 in Vertex {
     vec2 texCoord;
@@ -18,7 +19,7 @@ void main() {
     vec3 specular = texture(specularLight, IN.texCoord).rgb;
 
     fragColor.rgb = diffuse * AMBIENT_INTENSITY;
-    fragColor.rgb += diffuse * light;
+    fragColor.rgb += diffuse * light * BRIGHTNESS;
     fragColor.rgb += specular;
 
     fragColor.a = 1.0;

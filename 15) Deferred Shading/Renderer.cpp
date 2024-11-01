@@ -84,6 +84,7 @@ Renderer::Renderer(Window& parent)
 	std::uniform_real_distribution<float> yDist(0, 150);
 	std::uniform_real_distribution<float> colorDist(0, 1);
 	std::uniform_real_distribution<float> radiusDist(250, 500);
+	std::uniform_real_distribution<float> fovDist(1, 180);
 	for (int i = 0; i < LightCount; i++) {
 		Vector3 position = Vector3(xDist(rng), yDist(rng), zDist(rng));
 		Vector4 color = Vector4(colorDist(rng), colorDist(rng), colorDist(rng), 1.0);
@@ -92,6 +93,7 @@ Renderer::Renderer(Window& parent)
 		auto light = new Light(radius);
 		light->setTransform(Matrix4::Translation(position));
 		light->setColor(color);
+		light->setFov(fovDist(rng));
 
 		lightParent->addChild(light);
 	}
@@ -243,10 +245,18 @@ void Renderer::UpdateScene(float dt)
 
 	// sin works in radians, so don't start with a huge value
 	// or you'll give yourself a headache
-	float scale = sin(time * 0.5f);
-	lightParent->setTransform(
-		Matrix4::Scale(Vector3(scale, 1, 1))
-	);
+	//float scale = sin(time * 0.5f);
+	//lightParent->setTransform(
+	//	Matrix4::Scale(Vector3(scale, 1, 1))
+	//);
+
+	float rotate = time * 100;
+	for (auto light = lightParent->childrenBegin(); light != lightParent->childrenEnd(); ++light) {
+		(*light)->setTransform(
+			Matrix4::Translation((*light)->getTransform().GetPositionVector())
+			* Matrix4::Rotation(rotate, Vector3(0, 1, 0))
+		);
+	}
 
 	root->update(dt);
 }
