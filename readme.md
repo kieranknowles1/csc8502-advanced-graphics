@@ -2,6 +2,15 @@
 
 This repository contains the code for the Advanced Graphics for Games module at Newcastle University as part of the MSc Computer Game Engineering course.
 
+## Controls
+
+In demos with a camera:
+- `WASD` movement
+- `Space` to move up
+- `C` to move down
+- Hold `Tab` to move faster
+- `Mouse` to look around
+
 ## Building the project
 
 The project is built using CMake and supports Windows and Linux. MacOS may work, but is completely untested.
