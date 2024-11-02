@@ -6,7 +6,6 @@ using std::string;
 Mesh* Mesh::GenerateTriangle() {
 	Mesh* m = new Mesh();
 
-	m->numVertices = 3;
 	m->vertices.emplace_back(0.0f, 0.5f, 0.0f);
 	m->vertices.emplace_back(0.5f, -0.5f, 0.0f);
 	m->vertices.emplace_back(-0.5f, -0.5f, 0.0f);
@@ -26,7 +25,6 @@ Mesh* Mesh::GenerateTriangle() {
 
 Mesh* Mesh::GenerateQuad() {
 	Mesh* m = new Mesh();
-	m->numVertices = 4;
 	m->type = GL_TRIANGLE_STRIP; // Draw a triangle after each point, using the last two points and the new one
 
 	m->vertices.emplace_back(-1.0f, 1.0f, 0.0f); // Top left
@@ -68,10 +66,7 @@ Mesh::Mesh(void)	{
 		bufferObject[i] = 0;
 	}
 
-	numVertices  = 0;
 	type		 = GL_TRIANGLES;
-
-	numIndices		= 0;
 }
 
 Mesh::~Mesh(void)	{
@@ -82,10 +77,10 @@ Mesh::~Mesh(void)	{
 void Mesh::Draw() const {
 	glBindVertexArray(arrayObject);
 	if(bufferObject[INDEX_BUFFER]) {
-		glDrawElements(type, numIndices, GL_UNSIGNED_INT, 0);
+		glDrawElements(type, indices.size(), GL_UNSIGNED_INT, 0);
 	}
 	else{
-		glDrawArrays(type, 0, numVertices);
+		glDrawArrays(type, 0, vertices.size());
 	}
 	glBindVertexArray(0);
 }
@@ -141,33 +136,33 @@ void	Mesh::BufferData()	{
 	glBindVertexArray(arrayObject);
 
 	////Buffer vertex data
-	UploadAttribute(&bufferObject[VERTEX_BUFFER], numVertices, sizeof(Vector3), 3, VERTEX_BUFFER, vertices.data(), "Positions");
+	UploadAttribute(&bufferObject[VERTEX_BUFFER], vertices.size(), sizeof(Vector3), 3, VERTEX_BUFFER, vertices.data(), "Positions");
 
 	if(textureCoords.size()) {	//Buffer texture data
-		UploadAttribute(&bufferObject[TEXTURE_BUFFER], numVertices, sizeof(Vector2), 2, TEXTURE_BUFFER, textureCoords.data(), "TexCoords");
+		UploadAttribute(&bufferObject[TEXTURE_BUFFER], textureCoords.size(), sizeof(Vector2), 2, TEXTURE_BUFFER, textureCoords.data(), "TexCoords");
 	}
 
 	if (colours.size()) {
-		UploadAttribute(&bufferObject[COLOUR_BUFFER], numVertices, sizeof(Vector4), 4, COLOUR_BUFFER, colours.data(), "Colours");
+		UploadAttribute(&bufferObject[COLOUR_BUFFER], colours.size(), sizeof(Vector4), 4, COLOUR_BUFFER, colours.data(), "Colours");
 	}
 
 	if (normals.size()) {	//Buffer normal data
-		UploadAttribute(&bufferObject[NORMAL_BUFFER], numVertices, sizeof(Vector3), 3, NORMAL_BUFFER, normals.data(), "Normals");
+		UploadAttribute(&bufferObject[NORMAL_BUFFER], normals.size(), sizeof(Vector3), 3, NORMAL_BUFFER, normals.data(), "Normals");
 	}
 
 	if (tangents.size()) {	//Buffer tangent data
-		UploadAttribute(&bufferObject[TANGENT_BUFFER], numVertices, sizeof(Vector4), 4, TANGENT_BUFFER, tangents.data(), "Tangents");
+		UploadAttribute(&bufferObject[TANGENT_BUFFER], tangents.size(), sizeof(Vector4), 4, TANGENT_BUFFER, tangents.data(), "Tangents");
 	}
 
 	if (weights.size()) {		//Buffer weights data
-		UploadAttribute(&bufferObject[WEIGHTVALUE_BUFFER], numVertices, sizeof(Vector4), 4, WEIGHTVALUE_BUFFER, weights.data(), "Weights");
+		UploadAttribute(&bufferObject[WEIGHTVALUE_BUFFER], weights.size(), sizeof(Vector4), 4, WEIGHTVALUE_BUFFER, weights.data(), "Weights");
 	}
 
 	//Buffer weight indices data...uses a different function since its integers...
 	if (weightIndices.size()) {
 		glGenBuffers(1, &bufferObject[WEIGHTINDEX_BUFFER]);
 		glBindBuffer(GL_ARRAY_BUFFER, bufferObject[WEIGHTINDEX_BUFFER]);
-		glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(int) * 4, weightIndices.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, weightIndices.size() * sizeof(int) * 4, weightIndices.data(), GL_STATIC_DRAW);
 		glVertexAttribIPointer(WEIGHTINDEX_BUFFER, 4, GL_INT, 0, 0); //note the new function...
 		glEnableVertexAttribArray(WEIGHTINDEX_BUFFER);
 
@@ -178,7 +173,7 @@ void	Mesh::BufferData()	{
 	if(indices.size()) {
 		glGenBuffers(1, &bufferObject[INDEX_BUFFER]);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferObject[INDEX_BUFFER]);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices*sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size()*sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
 
 		glObjectLabel(GL_BUFFER, bufferObject[INDEX_BUFFER], -1, "Indices");
 	}
@@ -320,12 +315,13 @@ void ReadSubMeshNames(std::ifstream& file, int count, vector<string>& names) {
 }
 
 Mesh* Mesh::LoadFromMeshFile(const string& name) {
-	Mesh* mesh = new Mesh();
+	return new Mesh(name);
+}
 
+Mesh::Mesh(const string& name)
+	: Mesh()
+{
 	std::ifstream file(MESHDIR + name);
-	if (!file.is_open()) {
-		file = std::ifstream("../../Meshes/" + name);
-	}
 
 	std::string filetype;
 	int fileVersion;
@@ -333,15 +329,13 @@ Mesh* Mesh::LoadFromMeshFile(const string& name) {
 	file >> filetype;
 
 	if (filetype != "MeshGeometry") {
-		std::cout << "File is not a MeshGeometry file!" << std::endl;
-		return nullptr;
+		throw std::runtime_error("File is not a MeshGeometry file!");
 	}
 
 	file >> fileVersion;
 
 	if (fileVersion != 1) {
-		std::cout << "MeshGeometry file has incompatible version!" << std::endl;
-		return nullptr;
+		throw std::runtime_error("MeshGeometry file has incompatible version!");
 	}
 
 	int numMeshes	= 0; //read
@@ -360,39 +354,33 @@ Mesh* Mesh::LoadFromMeshFile(const string& name) {
 		file >> chunkType;
 
 		switch ((GeometryChunkTypes)chunkType) {
-		case GeometryChunkTypes::VPositions:ReadTextFloats(file, mesh->vertices, numVertices);  break;
-		case GeometryChunkTypes::VColors:	ReadTextFloats(file, mesh->colours, numVertices);  break;
-		case GeometryChunkTypes::VNormals:	ReadTextFloats(file, mesh->normals, numVertices);  break;
-		case GeometryChunkTypes::VTangents:	ReadTextFloats(file, mesh->tangents, numVertices);  break;
-		case GeometryChunkTypes::VTex0:		ReadTextFloats(file, mesh->textureCoords, numVertices);  break;
-		case GeometryChunkTypes::Indices:	ReadIndices(file, mesh->indices, numIndices); break;
+		case GeometryChunkTypes::VPositions:ReadTextFloats(file, vertices, numVertices);  break;
+		case GeometryChunkTypes::VColors:	ReadTextFloats(file, colours, numVertices);  break;
+		case GeometryChunkTypes::VNormals:	ReadTextFloats(file, normals, numVertices);  break;
+		case GeometryChunkTypes::VTangents:	ReadTextFloats(file, tangents, numVertices);  break;
+		case GeometryChunkTypes::VTex0:		ReadTextFloats(file, textureCoords, numVertices);  break;
+		case GeometryChunkTypes::Indices:	ReadIndices(file, indices, numIndices); break;
 
-		case GeometryChunkTypes::VWeightValues:		ReadTextFloats(file, mesh->weights, numVertices);  break;
-		case GeometryChunkTypes::VWeightIndices:	ReadTextVertexIndices(file, mesh->weightIndices, numVertices);  break;
-		case GeometryChunkTypes::JointNames:		ReadJointNames(file, mesh->jointNames);  break;
-		case GeometryChunkTypes::JointParents:		ReadJointParents(file, mesh->jointParents);  break;
-		case GeometryChunkTypes::BindPose:			ReadRigPose(file, mesh->bindPose);  break;
-		case GeometryChunkTypes::BindPoseInv:		ReadRigPose(file, mesh->inverseBindPose);  break;
-		case GeometryChunkTypes::SubMeshes: 		ReadSubMeshes(file, numMeshes, mesh->meshLayers); break;
-		case GeometryChunkTypes::SubMeshNames: 		ReadSubMeshNames(file, numMeshes, mesh->layerNames); break;
+		case GeometryChunkTypes::VWeightValues:		ReadTextFloats(file, weights, numVertices);  break;
+		case GeometryChunkTypes::VWeightIndices:	ReadTextVertexIndices(file, weightIndices, numVertices);  break;
+		case GeometryChunkTypes::JointNames:		ReadJointNames(file, jointNames);  break;
+		case GeometryChunkTypes::JointParents:		ReadJointParents(file, jointParents);  break;
+		case GeometryChunkTypes::BindPose:			ReadRigPose(file, bindPose);  break;
+		case GeometryChunkTypes::BindPoseInv:		ReadRigPose(file, inverseBindPose);  break;
+		case GeometryChunkTypes::SubMeshes: 		ReadSubMeshes(file, numMeshes, meshLayers); break;
+		case GeometryChunkTypes::SubMeshNames: 		ReadSubMeshNames(file, numMeshes, layerNames); break;
 		}
 	}
-	//Now that the data has been read, we can shove it into the actual Mesh object
 
-	mesh->numVertices	= numVertices;
-	mesh->numIndices	= numIndices;
-
-	if (mesh->colours.empty()) {
+	if (colours.empty()) {
 		// If no colours are specified, default to white
 		// otherwise the shader will see all black
 		for (int i = 0; i < numVertices; ++i) {
-			mesh->colours.emplace_back(Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+			colours.emplace_back(Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 		}
 	}
 
-	mesh->BufferData();
-
-	return mesh;
+	BufferData();
 }
 
 int Mesh::GetIndexForJoint(const std::string& name) const {
@@ -439,7 +427,7 @@ bool Mesh::GetSubMesh(const string& name, const SubMesh* s) const {
 void Mesh::generateNormals()
 {
 	normals.clear();
-	normals.resize(numVertices, Vector3(0.0f, 0.0f, 0.0f));
+	normals.resize(vertices.size(), Vector3(0.0f, 0.0f, 0.0f));
 
 	int triCount = GetTriCount();
 	for (int i = 0; i < triCount; i++) {
@@ -461,7 +449,7 @@ void Mesh::generateNormals()
 	}
 
 	// Normalise all the normals
-	for (int i = 0; i < numVertices; i++) {
+	for (int i = 0; i < normals.size(); i++) {
 		normals[i].Normalise();
 	}
 }
@@ -472,7 +460,7 @@ void Mesh::generateTangents()
 		throw std::runtime_error("Cannot generate tangents without texture coordinates!");
 	}
 	tangents.clear();
-	tangents.resize(numVertices, Vector4(0.0f, 0.0f, 0.0f, 0.0f));
+	tangents.resize(vertices.size(), Vector4(0.0f, 0.0f, 0.0f, 0.0f));
 
 	int triCount = GetTriCount();
 	for (int i = 0; i < triCount; i++) {
@@ -487,7 +475,7 @@ void Mesh::generateTangents()
 		tangents[c] += tangent;
 	}
 
-	for (GLuint i = 0; i < numVertices; i++) {
+	for (GLuint i = 0; i < tangents.size(); i++) {
 		// Don't normalise the handedness component
 		float handedness = tangents[i].w > 0.0f ? 1.0f : -1.0f;
 		tangents[i].w = 0.0f;

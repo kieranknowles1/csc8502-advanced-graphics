@@ -21,9 +21,9 @@ HeightMap::HeightMap(const std::string& file, int layers, Vector3 vertexScale, V
 		throw std::runtime_error("Failed to load heightmap image");
 	}
 
-	numVertices = width * height;
+	int numVertices = width * height;
 	// -1 as we can't get a position from the last row/column
-	numIndices = (width - 1) * (height - 1) * 6;
+	int numIndices = (width - 1) * (height - 1) * 6;
 
 	vertices.resize(numVertices);
 	textureCoords.resize(numVertices);

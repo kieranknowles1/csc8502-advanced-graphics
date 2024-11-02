@@ -53,6 +53,7 @@ public:
 	};
 
 	Mesh(void);
+	Mesh(const std::string& name);
 	~Mesh(void);
 
 	void Draw() const;
@@ -61,12 +62,12 @@ public:
 	static Mesh* LoadFromMeshFile(const std::string& name);
 
 	unsigned int GetTriCount() const {
-		int primCount = indices.size() ? numIndices : numVertices;
+		int primCount = indices.size() ? indices.size() : vertices.size();
 		return primCount / 3;
 	}
 
 	unsigned int getVertexCount() const {
-		return numVertices;
+		return vertices.size();
 	}
 	const Vector3& getVertex(int i) const {
 		return vertices[i];
@@ -115,9 +116,6 @@ protected:
 	GLuint	arrayObject;
 
 	GLuint	bufferObject[MAX_BUFFER];
-
-	GLuint	numVertices;
-	GLuint	numIndices;
 
 	GLuint	type;
 
