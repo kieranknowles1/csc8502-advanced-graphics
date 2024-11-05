@@ -15,6 +15,8 @@ _-_-_-_-_-_-_-""  ""
 *//////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+#include <set>
+
 #include "OGLRenderer.h"
 
 enum ShaderStage {
@@ -77,7 +79,14 @@ public:
 	int getUniform(const char* name) const {
 		int id = glGetUniformLocation(programID, name);
 		if (id < 0) {
-			std::cerr << "Warning: " << name << " not found in shader " << describe() << std::endl;
+			// Only warn once per uniform
+			if (badUniforms.find(name) == badUniforms.end()) {
+				// This function isn't really const, but this is a debug
+				// path anyway, so I don't consider it a big deal
+				auto notConstThis = const_cast<Shader*>(this);
+				notConstThis->badUniforms.insert(name);
+				std::cerr << "Warning: " << name << " not found in shader " << describe() << std::endl;
+			}
 		}
 
 		return id;
@@ -101,6 +110,8 @@ protected:
 	GLint	shaderValid[SHADER_MAX];
 
 	std::string  shaderFiles[SHADER_MAX];
+
+	std::set<std::string> badUniforms;
 
 	static std::vector<Shader*> allShaders;
 };

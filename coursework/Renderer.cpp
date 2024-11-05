@@ -14,7 +14,20 @@ Renderer::Renderer(Window& parent)
         resourceManager->getShaders().get({"BumpVertex.glsl", "BufferFragment.glsl"})
     });
 
-    heightMap = std::make_shared<HeightMap>(TEXTUREDIR "heightmap.png", 4, Vector3(8, 2, 8));
+    heightMap = std::make_shared<HeightMap>(TEXTUREDIR "heightmap.png", Vector3(8, 2, 8));
+    auto tesselateShader = resourceManager->getShaders().get({
+        "TessVertex.glsl",
+        "BufferFragment.glsl",
+        "",
+        "TessControl.glsl",
+        "TessEval.glsl"
+    });
+    heightMapMateriel = Materiel({
+        defaultMateriel.diffuse,
+        defaultMateriel.normal,
+        tesselateShader,
+        resourceManager->getTextures().get({"noise.png", SOIL_FLAG_MIPMAPS, true})
+    });
 
     auto heightMapSize = heightMap->getSize();
     camera = std::make_unique<Camera>(
@@ -63,9 +76,11 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
 {
     auto root = std::make_unique<SceneNode>();
 
-    root->addChild(new SceneNode(
-        heightMap
-    ));
+    auto heightMapNode = new SceneNode(
+		this->heightMap
+	);
+    heightMapNode->setMateriel(heightMapMateriel);
+    root->addChild(heightMapNode);
 
     auto treeParent = new SceneNode();
     // TODO: Use a proper mesh

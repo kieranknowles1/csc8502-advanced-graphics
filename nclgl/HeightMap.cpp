@@ -6,13 +6,13 @@ int vertex(int x, int y, int width) {
 	return x + (y * width);
 }
 
-HeightMap::HeightMap(const std::string& file, int layers, Vector3 vertexScale, Vector2 textureScale)
+HeightMap::HeightMap(const std::string& file, Vector3 vertexScale, Vector2 textureScale)
 {
+	type = GL_PATCHES; // We're going to tesselate this based on a noise map
+
 	int width = 0;
 	int height = 0;
 	int channels = 0;
-
-	// TODO: Scale by number of layers
 
 	// Load the image data as greyscale
 	unsigned char* data = SOIL_load_image(file.c_str(), &width, &height, &channels, SOIL_LOAD_L);
@@ -23,7 +23,8 @@ HeightMap::HeightMap(const std::string& file, int layers, Vector3 vertexScale, V
 
 	int numVertices = width * height;
 	// -1 as we can't get a position from the last row/column
-	int numIndices = (width - 1) * (height - 1) * 6;
+	//int numIndices = (width - 1) * (height - 1) * 6;
+	int numIndices = (width - 1) * (height - 1) * 4; // 4 vertices per patch
 
 	vertices.resize(numVertices);
 	textureCoords.resize(numVertices);
@@ -48,18 +49,10 @@ HeightMap::HeightMap(const std::string& file, int layers, Vector3 vertexScale, V
 	int i = 0;
 	for (int z = 0; z < height - 1; z++) {
 		for (int x = 0; x < width - 1; x++) {
-			int a = vertex(x, z, width);
-			int b = vertex(x + 1, z, width);
-			int c = vertex(x + 1, z + 1, width);
-			int d = vertex(x, z + 1, width);
-
-			indices[i++] = a;
-			indices[i++] = c;
-			indices[i++] = b;
-
-			indices[i++] = c;
-			indices[i++] = a;
-			indices[i++] = d;
+			indices[i++] = vertex(x, z, width); // Top left
+			indices[i++] = vertex(x, z + 1, width); // Bottom left
+			indices[i++] = vertex(x + 1, z, width); // Top right
+			indices[i++] = vertex(x + 1, z + 1, width); // Bottom right
 		}
 	}
 

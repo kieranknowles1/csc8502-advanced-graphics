@@ -39,8 +39,6 @@ void main() {
     vec4 worldPos = modelMatrix * vec4(position, 1.0);
     OUT.worldPos = worldPos.xyz;
 
-
-
     // Since we already need the world position in the fragment shader, we can
     // reuse it instead of multiplying by modelMatrix again
     gl_Position = projMatrix * viewMatrix * worldPos;

@@ -9,8 +9,14 @@ void Materiel::bind(OGLRenderer& r, const Materiel& defaults) const {
     r.UpdateShaderMatrices();
 
     auto diffuse = this->diffuse ? this->diffuse : defaults.diffuse;
-    TextureUnit::Diffuse.bind(*shader, *diffuse);
+    if (diffuse != nullptr)
+        TextureUnit::Diffuse.bind(*shader, *diffuse);
 
     auto normal = this->normal ? this->normal : defaults.normal;
-    TextureUnit::Normal.bind(*shader, *normal);
+    if (normal != nullptr)
+        TextureUnit::Normal.bind(*shader, *normal);
+
+    auto noise = this->noise ? this->noise : defaults.noise;
+    if (noise != nullptr)
+		TextureUnit::Noise.bind(*shader, *noise);
 }

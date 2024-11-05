@@ -68,6 +68,9 @@ Mesh::~Mesh(void)	{
 
 void Mesh::Draw() const {
 	glBindVertexArray(arrayObject);
+	if (type == GL_PATCHES) {
+		glPatchParameteri(GL_PATCH_VERTICES, 4);
+	}
 	if(bufferObject[INDEX_BUFFER]) {
 		glDrawElements(type, indices.size(), GL_UNSIGNED_INT, 0);
 	}

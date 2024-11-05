@@ -55,6 +55,7 @@ std::string Shader::describe() const
 }
 
 void	Shader::Reload(bool deleteOld) {
+	badUniforms.clear();
 	if(deleteOld) {
 		DeleteIDs();
 	}
@@ -63,6 +64,7 @@ void	Shader::Reload(bool deleteOld) {
 
 	for (int i = 0; i < SHADER_MAX; ++i) {
 		if (!shaderFiles[i].empty()) {
+			std::cout << "Compiling " << ShaderNames[i] << " Shader...\n";
 			GenerateShaderObject(i);
 		}
 		else {

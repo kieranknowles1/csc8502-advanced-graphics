@@ -24,6 +24,7 @@ protected:
     std::unique_ptr<Camera> camera;
 
     std::shared_ptr<HeightMap> heightMap;
+    Materiel heightMapMateriel;
     std::shared_ptr<Mesh> cube;
 
     std::unique_ptr<SceneNode> presentRoot;

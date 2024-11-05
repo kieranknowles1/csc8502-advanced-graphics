@@ -26,6 +26,7 @@ namespace TextureUnit
 
     const Unit Diffuse = Unit(GL_TEXTURE0, "diffuseTex");
     const Unit Normal = Unit(GL_TEXTURE1, "bumpTex");
+    const Unit Noise = Unit(GL_TEXTURE2, "noiseTex");
 }
 
 struct TextureKey
