@@ -16,15 +16,15 @@ protected:
     std::unique_ptr<SceneNode> createPresentScene();
     std::unique_ptr<SceneNode> createFutureScene();
 
-    void spawnTrees(SceneNode* parent, Mesh* mesh, int count, SceneNode* tree);
+    // Spawn `count` trees at random locations on `spawnOn` mesh as copies of `tree`
+    void spawnTrees(SceneNode* parent, Mesh* spawnOn, int count, SceneNode* tree);
 
     std::unique_ptr<ResourceManager> resourceManager;
 
     std::unique_ptr<Camera> camera;
 
-    std::unique_ptr<HeightMap> heightMap;
-    // TODO: Handle this in the resource manager
-    std::unique_ptr<Mesh> cube;
+    std::shared_ptr<HeightMap> heightMap;
+    std::shared_ptr<Mesh> cube;
 
     std::unique_ptr<SceneNode> presentRoot;
     std::unique_ptr<SceneNode> futureRoot;

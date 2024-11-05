@@ -5,6 +5,7 @@ using std::string;
 
 Mesh* Mesh::GenerateTriangle() {
 	Mesh* m = new Mesh();
+	m->name = "TrianglePrimitive";
 
 	m->vertices.emplace_back(0.0f, 0.5f, 0.0f);
 	m->vertices.emplace_back(0.5f, -0.5f, 0.0f);
@@ -25,6 +26,7 @@ Mesh* Mesh::GenerateTriangle() {
 
 Mesh* Mesh::GenerateQuad() {
 	Mesh* m = new Mesh();
+	m->name = "QuadPrimitive";
 	m->type = GL_TRIANGLE_STRIP; // Draw a triangle after each point, using the last two points and the new one
 
 	m->vertices.emplace_back(-1.0f, 1.0f, 0.0f); // Top left
@@ -46,16 +48,6 @@ Mesh* Mesh::GenerateQuad() {
 	}
 
 	m->BufferData();
-	return m;
-}
-
-Mesh* Mesh::LoadDebugCube()
-{
-	Mesh* m = LoadFromMeshFile("Cube.msh");
-	if (!m) throw std::runtime_error("Failed to load cube mesh!");
-	// This mesh isn't designed for lines, but works well enough for debugging
-	m->type = GL_LINES;
-
 	return m;
 }
 
@@ -321,7 +313,12 @@ Mesh* Mesh::LoadFromMeshFile(const string& name) {
 Mesh::Mesh(const string& name)
 	: Mesh()
 {
-	std::ifstream file(MESHDIR + name);
+	this->name = name;
+	auto fullPath = MESHDIR + name;
+	std::ifstream file(fullPath);
+	if (!file.good()) {
+		throw std::runtime_error("Failed to open mesh file: " + fullPath);
+	}
 
 	std::string filetype;
 	int fileVersion;

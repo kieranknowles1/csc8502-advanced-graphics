@@ -1,6 +1,6 @@
 #include "CubeBot.h"
 
-CubeBot::CubeBot(Mesh* cube) {
+CubeBot::CubeBot(std::shared_ptr<Mesh> cube) {
 	const Vector4 RED = Vector4(1, 0, 0, 1);
 	const Vector4 GREEN = Vector4(0, 1, 0, 1);
 	const Vector4 BLUE = Vector4(0, 0, 1, 1);
@@ -53,7 +53,6 @@ CubeBot::~CubeBot()
 
 void CubeBot::onUpdate(float dt)
 {
-	return;
 	transform = transform
 		* Matrix4::Rotation(30.0f * dt, Vector3(0, 1, 0));
 

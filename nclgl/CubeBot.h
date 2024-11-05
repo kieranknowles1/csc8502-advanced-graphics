@@ -3,7 +3,7 @@
 class CubeBot : public SceneNode
 {
 public:
-	CubeBot(Mesh* cube);
+	CubeBot(std::shared_ptr<Mesh> cube);
 	~CubeBot();
 
 	const std::string getName() const override { return "CubeBot"; }

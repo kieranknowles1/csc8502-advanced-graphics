@@ -74,10 +74,6 @@ public:
 		return debugSettings;
 	}
 
-	const Mesh* getDebugCube() const {
-		return debugCube;
-	}
-
 	const Materiel& getDefaultMateriel() const {
 		return defaultMateriel;
 	}
@@ -103,7 +99,6 @@ protected:
 	int		height;			//Render area height (not quite the same as window height)
 
 	DebugSettings debugSettings;
-	Mesh* debugCube;
 
 	void drawTree(SceneNode* root);
 

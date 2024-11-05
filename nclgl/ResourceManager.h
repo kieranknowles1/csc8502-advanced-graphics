@@ -66,9 +66,10 @@ public:
     ResourceMap<TextureKey, Texture>& getTextures() { return textures; }
     ResourceMap<std::string, Texture>& getCubeMaps() { return cubeMaps; }
     ResourceMap<ShaderKey, Shader>& getShaders() { return shaders; }
+    ResourceMap<std::string, Mesh>& getMeshes() { return meshes; }
 protected:
-    // TODO: Manage meshes and anything else we load frequently
     ResourceMap<std::string, Texture> cubeMaps;
     ResourceMap<TextureKey, Texture> textures;
     ResourceMap<ShaderKey, Shader> shaders;
+    ResourceMap<std::string, Mesh> meshes;
 };

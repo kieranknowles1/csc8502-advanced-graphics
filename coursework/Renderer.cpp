@@ -6,7 +6,7 @@
 Renderer::Renderer(Window& parent)
     : OGLRenderer(parent)
     , resourceManager(std::make_unique<ResourceManager>())
-    , cube(Mesh::LoadFromMeshFile("OffsetCubeY.msh"))
+    , cube(resourceManager->getMeshes().get({"OffsetCubeY.msh"}))
 {
     setDefaultMateriel({
         resourceManager->getTextures().get({"Barren Reds.JPG", SOIL_FLAG_MIPMAPS, true}),
@@ -14,7 +14,7 @@ Renderer::Renderer(Window& parent)
         resourceManager->getShaders().get({"BumpVertex.glsl", "BufferFragment.glsl"})
     });
 
-    heightMap = std::make_unique<HeightMap>(TEXTUREDIR "noise.png", 4);
+    heightMap = std::make_shared<HeightMap>(TEXTUREDIR "noise.png", 4);
 
     auto heightMapSize = heightMap->getSize();
     camera = std::make_unique<Camera>(
@@ -64,20 +64,15 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
     auto root = std::make_unique<SceneNode>();
 
     root->addChild(new SceneNode(
-        heightMap.get()
+        heightMap
     ));
 
     auto treeParent = new SceneNode();
     // TODO: Use a proper mesh
-    auto tree = std::make_unique<CubeBot>(cube.get());
+    auto tree = std::make_unique<CubeBot>(cube);
 
     spawnTrees(treeParent, heightMap.get(), 500, tree.get());
     root->addChild(treeParent);
-
-    auto bot = new CubeBot(cube.get());
-    bot->setTransform(
-        Matrix4::Translation(camera->getPosition())
-    );
 
     return root;
 }
@@ -88,13 +83,13 @@ std::unique_ptr<SceneNode> Renderer::createFutureScene()
     return std::make_unique<SceneNode>();
 }
 
-void Renderer::spawnTrees(SceneNode* parent, Mesh* mesh, int count, SceneNode* tree)
+void Renderer::spawnTrees(SceneNode* parent, Mesh* spawnOn, int count, SceneNode* tree)
 {
-    std::uniform_int_distribution<int> pointDist(0, mesh->getVertexCount());
+    std::uniform_int_distribution<int> pointDist(0, spawnOn->getVertexCount());
     for (int i = 0; i < count; i++) {
         auto instance = tree->deepCopy();
         // Pick a random point
-        auto point = mesh->getVertex(pointDist(rng));
+        auto point = spawnOn->getVertex(pointDist(rng));
 
         instance->setTransform(
             Matrix4::Translation(point)

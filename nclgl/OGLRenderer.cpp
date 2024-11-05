@@ -53,9 +53,6 @@ OGLRenderer::OGLRenderer(Window &window)
 	glClearColor(0.2f,0.2f,0.2f,1.0f);			//When we clear the screen, we want it to be dark grey
 
 	window.SetRenderer(this);					//Tell our window about the new renderer! (Which will in turn resize the renderer window to fit...)
-
-	// We need to init OpenGL before sending anythings to the GPU
-	debugCube = Mesh::LoadDebugCube();
 }
 
 /*
@@ -63,7 +60,6 @@ Destructor. Deletes the default shader, and the OpenGL rendering context.
 */
 OGLRenderer::~OGLRenderer(void)	{
 	SDL_GL_DeleteContext(glContext);
-	delete debugCube;
 }
 
 /*

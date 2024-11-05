@@ -20,7 +20,7 @@ public:
 	// Overrides should set themselves up as close to the original as possible
 	virtual SceneNode* deepCopy() const;
 
-	SceneNode(Mesh* mesh = nullptr, Vector4 color = Vector4(1, 1, 1, 1));
+	SceneNode(std::shared_ptr<Mesh> mesh = nullptr, Vector4 color = Vector4(1, 1, 1, 1));
 	virtual ~SceneNode();
 
 	// Set the local transform of this node
@@ -34,8 +34,8 @@ public:
 	Vector3 getScale() const { return scale; }
 	void setScale(const Vector3& s) { scale = s; }
 
-	Mesh* getMesh() const { return mesh; }
-	void setMesh(Mesh* mesh) { this->mesh = mesh; }
+	std::shared_ptr<Mesh> getMesh() const { return mesh; }
+	void setMesh(std::shared_ptr<Mesh> mesh) { this->mesh = mesh; }
 
 	void addChild(SceneNode* s);
 	void update(float dt);
@@ -79,7 +79,7 @@ protected:
 	// Called every frame BEFORE children are updated
 	virtual void onUpdate(float dt) {}
 
-	Mesh* mesh;
+	std::shared_ptr<Mesh> mesh;
 	Matrix4 worldTransform;
 	Matrix4 transform;
 	Vector3 scale;

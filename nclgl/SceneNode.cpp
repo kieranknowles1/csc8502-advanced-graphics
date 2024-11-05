@@ -3,7 +3,7 @@
 #include <cassert>
 #include <algorithm>
 
-SceneNode::SceneNode(Mesh* mesh, Vector4 color)
+SceneNode::SceneNode(std::shared_ptr<Mesh> mesh, Vector4 color)
     : parent(nullptr)
     , mesh(mesh)
     , color(color)
@@ -100,7 +100,8 @@ void SceneNode::drawDebug(OGLRenderer& r) {
             * Matrix4::Scale(Vector3(1.0 / scale.x, 1.0 / scale.y, 1.0 / scale.z)) // Undo scale to the node to get pre-scale bounding box
             * Matrix4::Scale(Vector3(radius * sqrt2, radius * sqrt2, radius * sqrt2)); // sqrt(2) gives an approximate fit, but it's not perfect
         transform.bind(shader->getUniform("modelMatrix"));
-        r.getDebugCube()->Draw();
+        // TODO: Reimplement debug cube
+        //r.getDebugCube()->Draw();
     }
 }
 
