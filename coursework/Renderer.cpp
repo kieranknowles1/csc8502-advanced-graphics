@@ -6,7 +6,6 @@
 
 Renderer::Renderer(Window& parent)
     : OGLRenderer(parent)
-    , resourceManager(std::make_unique<ResourceManager>())
     , cube(resourceManager->getMeshes().get({"OffsetCubeY.msh"}))
 {
     setDefaultMateriel({
@@ -38,7 +37,6 @@ Renderer::Renderer(Window& parent)
         parent.GetKeyboard(), parent.GetMouse(),
         -45, 0, 0, (heightMapSize * 0.5f) + Vector3(0, 500, 0)
     );
-    sphere = resourceManager->getMeshes().get("Sphere.msh");
 
     projMatrix = Matrix4::Perspective(1.0f, 10000.0f, (float)width / (float)height, 45.0f);
 
@@ -52,12 +50,6 @@ Renderer::Renderer(Window& parent)
 }
 
 Renderer::~Renderer(void)	{
-    // Free resources so that ResourceManager doesn't see them as leaked
-    setDefaultMateriel({
-        nullptr,
-        nullptr,
-        nullptr
-    });
 }
 
 void Renderer::UpdateScene(float dt) {

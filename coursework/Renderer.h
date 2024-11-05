@@ -19,8 +19,6 @@ protected:
     // Spawn `count` trees at random locations on `spawnOn` mesh as copies of `tree`
     void spawnTrees(SceneNode* parent, Mesh* spawnOn, int count, SceneNode* tree);
 
-    std::unique_ptr<ResourceManager> resourceManager;
-
     std::shared_ptr<HeightMap> heightMap;
     Materiel heightMapMateriel;
     std::shared_ptr<Mesh> cube;

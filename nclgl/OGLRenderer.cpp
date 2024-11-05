@@ -22,6 +22,7 @@ _-_-_-_-_-_-_-""  ""
 #include "Light.h"
 
 #include "Camera.h"
+#include "ResourceManager.h"
 
 /*
 Creates an OpenGL 3.2 CORE PROFILE rendering context. Sets itself
@@ -30,6 +31,7 @@ way to do it - but it kept the Tutorial code down to a minimum!
 */
 OGLRenderer::OGLRenderer(Window &window)
 	: currentShader(nullptr)
+	, resourceManager(std::make_unique<ResourceManager>())
 	, width(window.GetScreenSize().x)
 	, height(window.GetScreenSize().y)
 	, rng(0) // Use the same seed for consistency
@@ -90,7 +92,11 @@ OGLRenderer::OGLRenderer(Window &window)
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	// Meshes upload themselves on construction
+	// so need to be created after the context
 	quad.reset(Mesh::GenerateQuad());
+	sphere = resourceManager->getMeshes().get("Sphere.msh");
 }
 
 /*
@@ -215,7 +221,7 @@ void OGLRenderer::DebugCallback(GLenum source, GLenum type, GLuint id, GLenum se
 }
 
 void OGLRenderer::drawTree(SceneNode* root) {
-	clearNodeLists();
+	context.clear();
 
 	buildNodeLists(root);
 	sortNodeLists();
@@ -223,8 +229,8 @@ void OGLRenderer::drawTree(SceneNode* root) {
 	// Pass 1 - Draw scene into g-buffer
 	glBindFramebuffer(GL_FRAMEBUFFER, gBufferFbo);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	drawNodes(opaqueNodes);
-	drawNodes(transparentNodes);
+	drawNodes(context.opaqueNodes);
+	drawNodes(context.transparentNodes);
 
 	// Pass 2 - Draw point lights
 	drawPointLights();
@@ -263,7 +269,7 @@ void OGLRenderer::drawPointLights() {
 		camera->getPosition().x, camera->getPosition().y, camera->getPosition().z
 	);
 
-	// Use to calculate coordinates for dp	
+	// Use to calculate coordinates for dp
 	glUniform2f(pointLightShader->getUniform("pixelSize"),
 		1.0f / width, 1.0f / height
 	);
@@ -273,7 +279,7 @@ void OGLRenderer::drawPointLights() {
 	invViewProj.bind(pointLightShader->getUniform("inverseProjView"));
 
 	UpdateShaderMatrices();
-	for (auto& light : lights) {
+	for (auto& light : context.lights) {
 		light->bind(*this);
 		sphere->Draw();
 	}
@@ -322,14 +328,14 @@ void OGLRenderer::buildNodeLists(SceneNode* from) {
 	}
 
 	if (from->getMesh()) {
-		auto& list = from->getIsTransparent() ? transparentNodes : opaqueNodes;
+		auto& list = from->getIsTransparent() ? context.transparentNodes : context.opaqueNodes;
 		list.push_back(from);
 
 	}
 
 	auto asLight = dynamic_cast<Light*>(from);
 	if (asLight) {
-		lights.push_back(asLight);
+		context.lights.push_back(asLight);
 	}
 
 	for (auto child = from->childrenBegin(); child != from->childrenEnd(); child++) {
@@ -338,9 +344,12 @@ void OGLRenderer::buildNodeLists(SceneNode* from) {
 }
 
 void OGLRenderer::sortNodeLists() {
+	// TODO: Sort by camera distance
 }
 
-void OGLRenderer::clearNodeLists() {
+void RenderContext::clear() {
+	// Clearing a std::vector doesn't free the memory
+	// which is desirable in this case
 	opaqueNodes.clear();
 	transparentNodes.clear();
 	lights.clear();

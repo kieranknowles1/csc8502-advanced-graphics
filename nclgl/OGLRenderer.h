@@ -47,10 +47,21 @@ class Mesh;
 class Window;
 class SceneNode;
 class Camera;
+class ResourceManager;
 
 struct DebugSettings {
 	// Whether to draw the bounding boxes of nodes
 	bool drawBoundingBoxes = false;
+};
+
+// Scratchpad for rendering a scene
+// Kept between frames to reduce memory allocation
+struct RenderContext {
+	std::vector<Light*> lights;
+	std::vector<SceneNode*> transparentNodes;
+	std::vector<SceneNode*> opaqueNodes;
+
+	void clear();
 };
 
 class OGLRenderer	{
@@ -82,6 +93,10 @@ public:
 protected:
 	virtual void	Resize(int x, int y);
 
+	// Put this early in the declaration so it's destroyed after
+	// its users
+	std::unique_ptr<ResourceManager> resourceManager;
+
 	void StartDebugGroup(const std::string& s) {
 		glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, (GLsizei)s.length(), s.c_str());
 	}
@@ -108,12 +123,12 @@ protected:
 	}
 	Materiel defaultMateriel;
 
-	// TODO: The base class should handle lights
-	std::vector<Light*> lights;
-
 	std::mt19937 rng;
 
 	std::unique_ptr<Camera> camera;
+
+	// Used to draw deferred lighting
+	// Directional lights are implemented with fragment discards
 	std::shared_ptr<Mesh> sphere;
 
 	void setPointLightShader(std::shared_ptr<Shader> shader) {
@@ -125,11 +140,9 @@ protected:
 private:
 	void buildNodeLists(SceneNode* from);
 	void sortNodeLists();
-	void clearNodeLists();
 	void drawNodes(const std::vector<SceneNode*>& nodes);
 	// TODO: Frustum culling
-	std::vector<SceneNode*> transparentNodes;
-	std::vector<SceneNode*> opaqueNodes;
+	RenderContext context;
 
 	GLuint generateScreenTexture(bool depth = false);
 

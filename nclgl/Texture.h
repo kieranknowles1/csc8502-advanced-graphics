@@ -8,6 +8,9 @@
 class Shader;
 class Texture;
 
+// Define where textures are bound and by what uniforms
+// in a central location. This makes it easier to change
+// and avoids conflicts between slots
 namespace TextureUnit
 {
     class Unit
@@ -15,9 +18,15 @@ namespace TextureUnit
     public:
         constexpr Unit(GLenum unit, const char* uniform) : unit(unit), uniform(uniform) {};
 
+        // Get the GLenum value of the texture unit, used
+        // in glActiveTexture
         constexpr GLenum enumValue() const { return unit; }
+        // Get the integer value of the texture unit, used
+        // in glUniform1i
         constexpr GLint intValue() const { return unit - GL_TEXTURE0; }
 
+        // Bind a texture to this unit and uniform, assumes the
+        // shader is already bound
         void bind(const Shader& shader, const Texture& texture) const;
     private:
         GLenum unit;

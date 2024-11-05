@@ -10,7 +10,7 @@ uniform mat4 projMatrix;
 uniform mat4 textureMatrix;
 uniform vec4 nodeColor;
 
-#define NOISE_POWER 16.0f
+#define NOISE_POWER 32.0f
 #define NOISE_SCALE vec2(0.125f)
 
 // From TessVertex.glsl
@@ -84,4 +84,8 @@ void main() {
     OUT.normal = normalize(cross(p1 - p0, p3 - p0));
     OUT.tangent = normalize(p1 - p0);
     OUT.binormal = normalize(p3 - p0);
+
+#ifdef DEBUG
+    OUT.color.rgb = vec3(gl_TessLevelOuter[0] / 16.0, 0, 0);
+#endif
 }
