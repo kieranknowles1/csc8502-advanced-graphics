@@ -21,6 +21,8 @@ _-_-_-_-_-_-_-""  ""
 #include "SceneNode.h"
 #include "Light.h"
 
+#include "Camera.h"
+
 /*
 Creates an OpenGL 3.2 CORE PROFILE rendering context. Sets itself
 as the current renderer of the passed 'parent' Window. Not the best
@@ -53,6 +55,42 @@ OGLRenderer::OGLRenderer(Window &window)
 	glClearColor(0.2f,0.2f,0.2f,1.0f);			//When we clear the screen, we want it to be dark grey
 
 	window.SetRenderer(this);					//Tell our window about the new renderer! (Which will in turn resize the renderer window to fit...)
+
+	// Set up frame buffers for deferred rendering
+	gBufferColor = generateScreenTexture();
+	gBufferDepth = generateScreenTexture(/*depth=*/true);
+	gBufferNormal = generateScreenTexture();
+
+	deferredLightDiffuse = generateScreenTexture();
+	deferredLightSpecular = generateScreenTexture();
+
+	GLenum buffers[] = {
+		GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1
+	};
+
+	glGenFramebuffers(1, &gBufferFbo);
+	glGenFramebuffers(1, &deferredLightFbo);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, gBufferFbo);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gBufferColor, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gBufferNormal, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, gBufferDepth, 0);
+	glDrawBuffers(2, buffers);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		throw std::runtime_error("Framebuffer not complete");
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, deferredLightFbo);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, deferredLightDiffuse, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, deferredLightSpecular, 0);
+	glDrawBuffers(2, buffers);
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		throw std::runtime_error("Framebuffer not complete");
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	quad.reset(Mesh::GenerateQuad());
 }
 
 /*
@@ -60,6 +98,34 @@ Destructor. Deletes the default shader, and the OpenGL rendering context.
 */
 OGLRenderer::~OGLRenderer(void)	{
 	SDL_GL_DeleteContext(glContext);
+
+	glDeleteFramebuffers(1, &gBufferFbo);
+	glDeleteFramebuffers(1, &deferredLightFbo);
+
+	glDeleteTextures(1, &gBufferColor);
+	glDeleteTextures(1, &gBufferDepth);
+	glDeleteTextures(1, &gBufferNormal);
+	glDeleteTextures(1, &deferredLightDiffuse);
+	glDeleteTextures(1, &deferredLightSpecular);
+}
+
+GLuint OGLRenderer::generateScreenTexture(bool depth) {
+	GLuint tex;
+	glGenTextures(1, &tex);
+	glBindTexture(GL_TEXTURE_2D, tex);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	auto format = depth ? GL_DEPTH_COMPONENT24 : GL_RGBA8;
+	auto type = depth ? GL_DEPTH_COMPONENT : GL_RGBA;
+
+	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, type, GL_UNSIGNED_BYTE, nullptr);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	return tex;
 }
 
 /*
@@ -154,8 +220,100 @@ void OGLRenderer::drawTree(SceneNode* root) {
 	buildNodeLists(root);
 	sortNodeLists();
 
+	// Pass 1 - Draw scene into g-buffer
+	glBindFramebuffer(GL_FRAMEBUFFER, gBufferFbo);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	drawNodes(opaqueNodes);
 	drawNodes(transparentNodes);
+
+	// Pass 2 - Draw point lights
+	drawPointLights();
+
+	// Pass 3 - Combine
+	// TODO: Also do post-processing here
+	combineBuffers();
+}
+
+void OGLRenderer::drawPointLights() {
+	glBindFramebuffer(GL_FRAMEBUFFER, deferredLightFbo);
+	BindShader(pointLightShader.get());
+
+	glClearColor(0, 0, 0, 1);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	// Combine lights additively
+	glBlendFunc(GL_ONE, GL_ONE);
+	// Draw each sphere exactly once, even if the camera is inside it
+	glCullFace(GL_FRONT);
+	// Don't occlude anything
+	glDepthFunc(GL_ALWAYS);
+	glDepthMask(GL_FALSE);
+
+	// Pass in the g-buffer textures
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, gBufferDepth);
+	glUniform1i(pointLightShader->getUniform("depthTex"), 0);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, gBufferNormal);
+	glUniform1i(pointLightShader->getUniform("normalTex"), 1);
+
+	glUniform3f(
+		pointLightShader->getUniform("cameraPos"),
+		camera->getPosition().x, camera->getPosition().y, camera->getPosition().z
+	);
+
+	// Use to calculate coordinates for dp	
+	glUniform2f(pointLightShader->getUniform("pixelSize"),
+		1.0f / width, 1.0f / height
+	);
+
+	// Save having to calculate this in the shader
+	Matrix4 invViewProj = (projMatrix * viewMatrix).Inverse();
+	invViewProj.bind(pointLightShader->getUniform("inverseProjView"));
+
+	UpdateShaderMatrices();
+	for (auto& light : lights) {
+		light->bind(*this);
+		sphere->Draw();
+	}
+
+	// Restore the state
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glCullFace(GL_BACK);
+	glDepthFunc(GL_LEQUAL);
+	glDepthMask(GL_TRUE);
+	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void OGLRenderer::combineBuffers() {
+	BindShader(combineShader.get());
+	auto oldModel = modelMatrix;
+	auto oldView = viewMatrix;
+	auto oldProj = projMatrix;
+	modelMatrix.ToIdentity();
+	viewMatrix.ToIdentity();
+	projMatrix.ToIdentity();
+	UpdateShaderMatrices();
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, gBufferColor);
+	glUniform1i(combineShader->getUniform("diffuseTex"), 0);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, deferredLightDiffuse);
+	glUniform1i(combineShader->getUniform("diffuseLight"), 1);
+
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, deferredLightSpecular);
+	glUniform1i(combineShader->getUniform("specularLight"), 2);
+
+	quad->Draw();
+
+	modelMatrix = oldModel;
+	viewMatrix = oldView;
+	projMatrix = oldProj;
 }
 
 void OGLRenderer::buildNodeLists(SceneNode* from) {

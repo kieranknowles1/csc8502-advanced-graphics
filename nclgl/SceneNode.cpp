@@ -117,14 +117,19 @@ SceneNode::SceneNode(const SceneNode& s)
     , distanceFromCamera(s.distanceFromCamera)
     {}
 
+void SceneNode::copyChildrenFrom(const SceneNode& other)
+{
+	for (auto child : other.children) {
+		addChild(child->deepCopy());
+	}
+}
+
 SceneNode* SceneNode::deepCopy() const
 {
     SceneNode* copy = new SceneNode(*this);
     // Don't do this in the constructor, as derived classes
     // may need to know which child is which
-    for (auto child : children) {
-        std::cout << "Child: " << child->getName() << std::endl;
-        copy->addChild(child->deepCopy());
-    }
+    // Expose deepCopyChildren in case derived classes want to use it
+    copy->copyChildrenFrom(*this);
     return copy;
 }

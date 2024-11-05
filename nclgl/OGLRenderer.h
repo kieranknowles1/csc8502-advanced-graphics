@@ -46,6 +46,7 @@ class Light;
 class Mesh;
 class Window;
 class SceneNode;
+class Camera;
 
 struct DebugSettings {
 	// Whether to draw the bounding boxes of nodes
@@ -111,6 +112,16 @@ protected:
 	std::vector<Light*> lights;
 
 	std::mt19937 rng;
+
+	std::unique_ptr<Camera> camera;
+	std::shared_ptr<Mesh> sphere;
+
+	void setPointLightShader(std::shared_ptr<Shader> shader) {
+		pointLightShader = shader;
+	}
+	void setCombineShader(std::shared_ptr<Shader> shader) {
+		combineShader = shader;
+	}
 private:
 	void buildNodeLists(SceneNode* from);
 	void sortNodeLists();
@@ -120,14 +131,22 @@ private:
 	std::vector<SceneNode*> transparentNodes;
 	std::vector<SceneNode*> opaqueNodes;
 
+	GLuint generateScreenTexture(bool depth = false);
+
 	GLuint gBufferFbo;
 	GLuint gBufferDepth;
-	GLuint gBufferColour;
+	GLuint gBufferColor;
 	GLuint gBufferNormal;
 
+	std::shared_ptr<Shader> pointLightShader;
 	GLuint deferredLightFbo;
-	GLuint deferredLightColour;
+	GLuint deferredLightDiffuse;
 	GLuint deferredLightSpecular;
+	void drawPointLights();
+
+	std::shared_ptr<Shader> combineShader;
+	std::unique_ptr<Mesh> quad;
+	void combineBuffers();
 
 	Shader* currentShader;
 	SDL_GLContext glContext;

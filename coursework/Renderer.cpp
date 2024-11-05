@@ -2,6 +2,7 @@
 
 #include "../nclgl/HeightMap.h"
 #include "../nclgl/CubeBot.h"
+#include "../nclgl/Light.h"
 
 Renderer::Renderer(Window& parent)
     : OGLRenderer(parent)
@@ -13,6 +14,9 @@ Renderer::Renderer(Window& parent)
         resourceManager->getTextures().get({"Barren RedsDOT3.JPG", SOIL_FLAG_MIPMAPS, true}),
         resourceManager->getShaders().get({"BumpVertex.glsl", "BufferFragment.glsl"})
     });
+
+    setPointLightShader(resourceManager->getShaders().get({"PointLightVertex.glsl", "PointLightFrag.glsl"}));
+    setCombineShader(resourceManager->getShaders().get({"CombineVert.glsl", "CombineFrag.glsl"}));
 
     heightMap = std::make_shared<HeightMap>(TEXTUREDIR "heightmap.png", Vector3(8, 2, 8));
     auto tesselateShader = resourceManager->getShaders().get({
@@ -34,6 +38,7 @@ Renderer::Renderer(Window& parent)
         parent.GetKeyboard(), parent.GetMouse(),
         -45, 0, 0, (heightMapSize * 0.5f) + Vector3(0, 500, 0)
     );
+    sphere = resourceManager->getMeshes().get("Sphere.msh");
 
     projMatrix = Matrix4::Perspective(1.0f, 10000.0f, (float)width / (float)height, 45.0f);
 
@@ -42,6 +47,7 @@ Renderer::Renderer(Window& parent)
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
     glCullFace(GL_BACK);
 }
 
@@ -103,6 +109,9 @@ void Renderer::spawnTrees(SceneNode* parent, Mesh* spawnOn, int count, SceneNode
     std::uniform_int_distribution<int> pointDist(0, spawnOn->getVertexCount());
     for (int i = 0; i < count; i++) {
         auto instance = tree->deepCopy();
+        auto light = new Light(512.0f);
+        light->setTransform(Matrix4::Translation(Vector3(0, 256, 0)));
+        instance->addChild(light);
         // Pick a random point
         auto point = spawnOn->getVertex(pointDist(rng));
 

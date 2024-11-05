@@ -101,6 +101,7 @@ protected:
 
 	// Copies the parent, but not the children
 	SceneNode(const SceneNode& s);
+	void copyChildrenFrom(const SceneNode& from);
 
 	SceneNode* parent;
 

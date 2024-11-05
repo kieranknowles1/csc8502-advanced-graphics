@@ -49,5 +49,15 @@ protected:
 	// The direction the light is facing
 	// As matricies are weird, this can have weird effects if the parent node is rotated
 	Vector3 facing = Vector3(0, 1, 0);
+
+	const std::string getName() const override { return "Light"; }
+
+	Light(const Light& l)
+		: SceneNode(l), radius(l.radius), attenuation(l.attenuation), fov(l.fov), facing(l.facing) {}
+	SceneNode* deepCopy() const override {
+		auto copy = new Light(*this);
+		copy->copyChildrenFrom(*this);
+		return new Light(*this);
+	}
 };
 
