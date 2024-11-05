@@ -10,11 +10,12 @@ uniform mat4 projMatrix;
 uniform mat4 textureMatrix;
 uniform vec4 nodeColor;
 
-#define NOISE_POWER 32.0f
-#define NOISE_SCALE vec2(0.25f)
+#define NOISE_POWER 16.0f
+#define NOISE_SCALE vec2(0.125f)
 
 // From TessVertex.glsl
 in Vertex {
+    vec4 color;
     vec2 texCoord;
 } IN[];
 
@@ -65,8 +66,20 @@ void main() {
 
     // TODO: Set these properly
     OUT.color = vec4(1.0);
-    OUT.normal = vec3(0.0, 1.0, 0.0);
-    OUT.tangent = vec3(1.0, 0.0, 0.0);
-    OUT.binormal = vec3(0.0, 0.0, 1.0);
     OUT.worldPos = worldPos.xyz;
+
+    // TES shaders have access to all patch vertices, so
+    // we can use them to calculate the normal
+    // NOTE: This doesn't account for the tessellated vertices,
+    // but is close enough for my purposes
+    // The CPP side only supports triangles, so we have to do this
+    // manually
+    vec3 p0 = gl_in[0].gl_Position.xyz;
+    vec3 p1 = gl_in[1].gl_Position.xyz;
+    vec3 p2 = gl_in[2].gl_Position.xyz;
+    vec3 p3 = gl_in[3].gl_Position.xyz;
+
+    OUT.normal = normalize(cross(p1 - p0, p3 - p0));
+    OUT.tangent = normalize(p1 - p0);
+    OUT.binormal = normalize(p3 - p0);
 }

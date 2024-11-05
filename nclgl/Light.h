@@ -14,7 +14,7 @@ public:
 	static const std::string FOVUniform;
 	static const std::string forwardUniform;
 
-	Light(float radius, float attenuation = 2.0f)
+	Light(float radius, float attenuation = 3.0f)
 		: radius(radius), attenuation(attenuation) {}
 
 	~Light(void) {}
