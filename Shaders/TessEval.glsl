@@ -30,17 +30,15 @@ out Vertex {
 } OUT; // Not an array, this runs for each tessellated vertex
 
 // Interpolate vertex attributes based on abstract weightings from gl_TessCoord
-vec3 quadMix3(vec3 a, vec3 b, vec3 c, vec3 d) {
-    vec3 p0 = mix(a, c, gl_TessCoord.x);
-    vec3 p1 = mix(b, d, gl_TessCoord.x);
-    return mix(p0, p1, gl_TessCoord.y);
-}
-
-vec2 quadMix2(vec2 a, vec2 b, vec2 c, vec2 d) {
-    vec2 p0 = mix(a, c, gl_TessCoord.x);
-    vec2 p1 = mix(b, d, gl_TessCoord.x);
-    return mix(p0, p1, gl_TessCoord.y);
-}
+#define DECLARE_MIXER(type, name) \
+    type name(type a, type b, type c, type d) { \
+        type p0 = mix(a, c, gl_TessCoord.x); \
+        type p1 = mix(b, d, gl_TessCoord.x); \
+        return mix(p0, p1, gl_TessCoord.y); \
+    }
+DECLARE_MIXER(vec2, quadMix2)
+DECLARE_MIXER(vec3, quadMix3)
+DECLARE_MIXER(vec4, quadMix4)
 
 void main() {
     vec3 combinedPos = quadMix3(
@@ -64,8 +62,12 @@ void main() {
 
     gl_Position = projMatrix * viewMatrix * worldPos;
 
-    // TODO: Set these properly
-    OUT.color = vec4(1.0);
+    OUT.color = quadMix4(
+        IN[0].color,
+        IN[1].color,
+        IN[2].color,
+        IN[3].color
+    );
     OUT.worldPos = worldPos.xyz;
 
     // TES shaders have access to all patch vertices, so
