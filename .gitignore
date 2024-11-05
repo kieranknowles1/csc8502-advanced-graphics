@@ -9,6 +9,9 @@
 # Nix
 /result/
 
+# Windows
+Thumbs.db
+
 # User-specific files
 *.rsuser
 *.suo

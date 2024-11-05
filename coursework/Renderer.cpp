@@ -14,7 +14,7 @@ Renderer::Renderer(Window& parent)
         resourceManager->getShaders().get({"BumpVertex.glsl", "BufferFragment.glsl"})
     });
 
-    heightMap = std::make_shared<HeightMap>(TEXTUREDIR "noise.png", 4);
+    heightMap = std::make_shared<HeightMap>(TEXTUREDIR "heightmap.png", 4, Vector3(8, 2, 8));
 
     auto heightMapSize = heightMap->getSize();
     camera = std::make_unique<Camera>(
