@@ -43,16 +43,35 @@ Renderer::Renderer(Window& parent)
     presentRoot = createPresentScene();
     futureRoot = createFutureScene();
 
+    glGenFramebuffers(1, &oldFbo);
+    oldTex = generateScreenTexture();
+    glBindFramebuffer(GL_FRAMEBUFFER, oldFbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, oldTex, 0);
+
+    glGenFramebuffers(1, &newFbo);
+    newTex = generateScreenTexture();
+    glBindFramebuffer(GL_FRAMEBUFFER, newFbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, newTex, 0);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    timeWarp = std::make_unique<TimeWarp>(resourceManager.get(), oldTex, newTex);
+
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glEnable(GL_BLEND);
     glCullFace(GL_BACK);
 }
 
-Renderer::~Renderer(void)	{
+Renderer::~Renderer(void) {
+    glDeleteFramebuffers(1, &oldFbo);
+    glDeleteFramebuffers(1, &newFbo);
+    glDeleteTextures(1, &oldTex);
+    glDeleteTextures(1, &newTex);
 }
 
 void Renderer::UpdateScene(float dt) {
+    time += dt;
     camera->update(dt);
     viewMatrix = camera->buildViewMatrix();
 
@@ -61,13 +80,28 @@ void Renderer::UpdateScene(float dt) {
 }
 
 void Renderer::RenderScene()	{
-    glClearColor(0.2f,0.2f,0.2f,1.0f);
+    //glClearColor(0.2f,0.2f,0.2f,1.0f);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    //BindShader(getDefaultMateriel().shader.get());
+    //UpdateShaderMatrices();
+
+    // If we're fully in the past or future, the other scene is not visible
+    // Don't bother rendering it
+    if (timeWarp->getRatio() != 1)
+        drawTree(presentRoot.get(), oldFbo);
+    if (timeWarp->getRatio() != 0)
+        drawTree(futureRoot.get(), newFbo);
+
+    combineBuffers();
+
+    //drawTree(presentRoot.get());
+}
+
+void Renderer::combineBuffers() {
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    BindShader(getDefaultMateriel().shader.get());
-    UpdateShaderMatrices();
-
-    drawTree(presentRoot.get());
+    timeWarp->apply(*this);
 }
 
 std::unique_ptr<SceneNode> Renderer::createPresentScene()
@@ -120,7 +154,18 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
 std::unique_ptr<SceneNode> Renderer::createFutureScene()
 {
 	// TODO: Implement
-    return std::make_unique<SceneNode>();
+    auto node = std::make_unique<SceneNode>(heightMap);
+    node->setColor(Vector4(0.5f, 0.5f, 1.0f, 1.0f));
+    node->setMateriel(heightMapMateriel);
+
+    Light* sun = new Light(1024); // Radius doesn't matter for sun lights
+    sun->setFacing(
+        Vector3(1, 1, 0).Normalised()
+    );
+    sun->setType(Light::Type::Sun);
+    node->addChild(sun);
+
+    return node;
 }
 
 void Renderer::spawnTrees(SceneNode* parent, Mesh* spawnOn, int count, const std::vector<SceneNode*>& templates)

@@ -117,7 +117,7 @@ protected:
 
 	DebugSettings debugSettings;
 
-	void drawTree(SceneNode* root);
+	void drawTree(SceneNode* root, GLuint destFbo = 0);
 
 	void setDefaultMateriel(const Materiel& materiel) {
 		defaultMateriel = materiel;
@@ -138,14 +138,14 @@ protected:
 	void setCombineShader(std::shared_ptr<Shader> shader) {
 		combineShader = shader;
 	}
+
+	GLuint generateScreenTexture(bool depth = false);
 private:
 	void buildNodeLists(SceneNode* from);
 	void sortNodeLists();
 	void drawNodes(const std::vector<SceneNode*>& nodes);
 	// TODO: Frustum culling
 	RenderContext context;
-
-	GLuint generateScreenTexture(bool depth = false);
 
 	GLuint gBufferFbo;
 	GLuint gBufferDepth;
@@ -160,7 +160,7 @@ private:
 
 	std::shared_ptr<Shader> combineShader;
 	std::unique_ptr<Mesh> quad;
-	void combineBuffers();
+	void combineBuffers(GLuint destFbo = 0);
 
 	Shader* currentShader;
 	SDL_GLContext glContext;

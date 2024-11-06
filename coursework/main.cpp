@@ -9,12 +9,19 @@ int main()	{
     w.ShowOSPointer(false);
 
     while(w.UpdateWindow()  && !w.GetKeyboard()->KeyDown(SDL_SCANCODE_ESCAPE)){
-        renderer.UpdateScene(w.GetTimer()->GetTimeDeltaSeconds());
+        float dt = w.GetTimer()->GetTimeDeltaSeconds();
+        renderer.UpdateScene(dt);
         renderer.RenderScene();
         w.swapBuffers();
         if (w.GetKeyboard()->KeyDown(SDL_SCANCODE_F5)) {
             Shader::ReloadAllShaders();
         }
+
+        if (w.GetKeyboard()->KeyDown(SDL_SCANCODE_1)) {
+            renderer.setTimeWarpFactor(renderer.getTimeWarpFactor() - dt);
+        } else if (w.GetKeyboard()->KeyDown(SDL_SCANCODE_2)) {
+			renderer.setTimeWarpFactor(renderer.getTimeWarpFactor() + dt);
+		}
     }
     return 0;
 }

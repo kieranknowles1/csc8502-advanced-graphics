@@ -6,12 +6,17 @@
 #include "../nclgl/Camera.h"
 #include "../nclgl/HeightMap.h"
 
+#include "TimeWarp.h"
+
 class Renderer : public OGLRenderer	{
 public:
     Renderer(Window &parent);
     ~Renderer() override;
     void RenderScene() override;
     void UpdateScene(float msec) override;
+
+    void setTimeWarpFactor(float factor) { timeWarp->setRatio(factor); }
+    float getTimeWarpFactor() const { return timeWarp->getRatio(); }
 protected:
     std::unique_ptr<SceneNode> createPresentScene();
     std::unique_ptr<SceneNode> createFutureScene();
@@ -25,4 +30,16 @@ protected:
 
     std::unique_ptr<SceneNode> presentRoot;
     std::unique_ptr<SceneNode> futureRoot;
+
+    std::unique_ptr<TimeWarp> timeWarp;
+
+    GLuint oldFbo;
+    GLuint oldTex;
+
+    GLuint newFbo;
+    GLuint newTex;
+
+    std::shared_ptr<Shader> combineShader;
+    void combineBuffers();
+    float time = 0;
 };

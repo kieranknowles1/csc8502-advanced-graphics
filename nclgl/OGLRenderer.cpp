@@ -220,7 +220,7 @@ void OGLRenderer::DebugCallback(GLenum source, GLenum type, GLuint id, GLenum se
 		std::cout << "OpenGL Debug Output: " + sourceName + ", " + typeName + ", " + severityName + ", " + std::string(message) << "\n";
 }
 
-void OGLRenderer::drawTree(SceneNode* root) {
+void OGLRenderer::drawTree(SceneNode* root, GLuint destFbo) {
 	context.clear();
 
 	buildNodeLists(root);
@@ -237,7 +237,7 @@ void OGLRenderer::drawTree(SceneNode* root) {
 
 	// Pass 3 - Combine
 	// TODO: Also do post-processing here
-	combineBuffers();
+	combineBuffers(destFbo);
 }
 
 void OGLRenderer::drawPointLights() {
@@ -294,7 +294,11 @@ void OGLRenderer::drawPointLights() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void OGLRenderer::combineBuffers() {
+void OGLRenderer::combineBuffers(GLuint destFbo) {
+	glBindFramebuffer(GL_FRAMEBUFFER, destFbo);
+
+	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	BindShader(combineShader.get());
 	auto oldModel = modelMatrix;
 	auto oldView = viewMatrix;
@@ -321,6 +325,8 @@ void OGLRenderer::combineBuffers() {
 	modelMatrix = oldModel;
 	viewMatrix = oldView;
 	projMatrix = oldProj;
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void OGLRenderer::buildNodeLists(SceneNode* from) {
