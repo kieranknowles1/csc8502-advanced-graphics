@@ -30,3 +30,7 @@ A Nix flake is provided for building on Linux, simply run `nix develop` to enter
 a shell and configure CMake. Then run `make` to build the project. This will
 work even if breaking changes are made to dependencies, as they are all pinned
 in `flake.lock`.
+
+### Building on Windows
+
+The project makes heavy use of `std` containers, which are very slow in MSVC debug builds. Because of this, using `RelWithDebInfo` is recommended for development.

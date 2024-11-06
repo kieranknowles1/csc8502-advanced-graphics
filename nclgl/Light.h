@@ -7,12 +7,20 @@ class OGLRenderer;
 class Light : public SceneNode
 {
 public:
+	enum class Type {
+		// A point light with an optional radius
+		Point = 0,
+		// A directional light that lights everything in a single direction with no falloff
+		Sun = 1,
+	};
+
 	static const std::string PositionUniform;
 	static const std::string ColorUniform;
 	static const std::string RadiusUniform;
 	static const std::string AttenuationUniform;
 	static const std::string FOVUniform;
 	static const std::string forwardUniform;
+	static const std::string typeUniform;
 
 	Light(float radius, float attenuation = 3.0f)
 		: radius(radius), attenuation(attenuation) {}
@@ -35,6 +43,9 @@ public:
 	void setFacing(const Vector3& f) { facing = f; }
 	Vector3 getFacing() const { return facing; }
 
+	void setType(Type t) { type = t; }
+	Type getType() const { return type; }
+
 protected:
 	float radius;
 	// How quickly the light fades with distance. 2.0 is a good default
@@ -50,10 +61,17 @@ protected:
 	// As matricies are weird, this can have weird effects if the parent node is rotated
 	Vector3 facing = Vector3(0, 1, 0);
 
+	Type type = Type::Point;
+
 	const std::string getName() const override { return "Light"; }
 
 	Light(const Light& l)
-		: SceneNode(l), radius(l.radius), attenuation(l.attenuation), fov(l.fov), facing(l.facing) {}
+		: SceneNode(l)
+		, radius(l.radius)
+		, attenuation(l.attenuation)
+		, fov(l.fov)
+		, facing(l.facing)
+		, type(l.type) {}
 	SceneNode* deepCopy() const override {
 		auto copy = new Light(*this);
 		copy->copyChildrenFrom(*this);

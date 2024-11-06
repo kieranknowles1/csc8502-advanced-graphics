@@ -10,7 +10,7 @@ uniform mat4 projMatrix;
 uniform mat4 textureMatrix;
 uniform vec4 nodeColor;
 
-#define NOISE_POWER 32.0f
+#define NOISE_POWER 16.0f
 #define NOISE_SCALE vec2(0.125f)
 
 // From TessVertex.glsl

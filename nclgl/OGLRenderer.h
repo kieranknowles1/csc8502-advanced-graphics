@@ -74,6 +74,7 @@ public:
 	virtual void	UpdateScene(float msec);
 
 	Shader* getCurrentShader() const { return currentShader; }
+	Camera* getCamera() const { return camera.get(); }
 
 	void			BindShader(Shader*s);
 	void			UpdateShaderMatrices();

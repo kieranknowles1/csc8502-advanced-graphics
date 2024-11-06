@@ -17,7 +17,7 @@ public:
 
 	Matrix4 buildViewMatrix();
 
-	Vector3 getPosition() const { return position; }
+	const Vector3& getPosition() const { return position; }
 	void setPosition(Vector3 position) { this->position = position; }
 
 	float getPitch() const { return pitch; }

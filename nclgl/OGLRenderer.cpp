@@ -250,6 +250,7 @@ void OGLRenderer::drawPointLights() {
 	// Combine lights additively
 	glBlendFunc(GL_ONE, GL_ONE);
 	// Draw each sphere exactly once, even if the camera is inside it
+	glEnable(GL_CULL_FACE); // Some meshes are double-sided, and there is no GL_KEEP_BOTH
 	glCullFace(GL_FRONT);
 	// Don't occlude anything
 	glDepthFunc(GL_ALWAYS);

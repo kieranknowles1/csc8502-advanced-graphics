@@ -14,6 +14,12 @@ uniform float lightFOV;
 // Forward vector of the light
 uniform vec3 lightForward;
 
+// The type of light
+// Must match the enum in Light.h
+const int Type_Point = 0;
+const int Type_Sun = 1;
+uniform int lightType;
+
 
 uniform mat4 inverseProjView;
 
@@ -36,6 +42,10 @@ bool isInsideFOV(vec3 incident) {
 }
 
 float getAttenuation(vec3 worldPos) {
+    if (lightType == Type_Sun) {
+        return 1.0;
+    }
+
     float distance = length(lightPos - worldPos);
     if (distance > lightRadius) {
         return 0.0;
@@ -55,8 +65,11 @@ void main() {
     vec2 texCoord = gl_FragCoord.xy * pixelSize;
     vec3 worldPos = getWorldPosition(texCoord);
     float attenuation = getAttenuation(worldPos);
+    if (attenuation <= 0.0) {
+        discard;
+    }
 
-    vec3 incident = normalize(lightPos - worldPos);
+    vec3 incident = lightType == Type_Point ? normalize(lightPos - worldPos) : lightForward;
     vec3 viewDir = normalize(cameraPos - worldPos);
     vec3 halfDir = normalize(incident + viewDir);
 
@@ -74,5 +87,5 @@ void main() {
     vec3 attenuated = lightColor * attenuation;
 
     diffuseOutput = vec4(attenuated * lambert, 1.0);
-    specularOutput = vec4(attenuated * specFactor * SPECULAR_INTENSITY, 1.0); 
+    specularOutput = vec4(attenuated * specFactor * SPECULAR_INTENSITY, 1.0);
 }

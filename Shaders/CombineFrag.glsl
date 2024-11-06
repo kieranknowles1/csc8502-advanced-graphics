@@ -4,9 +4,7 @@ uniform sampler2D diffuseTex;
 uniform sampler2D diffuseLight;
 uniform sampler2D specularLight;
 
-// #define AMBIENT_INTENSITY 0.1
-// TODO: Restore to 0.1 once we have sunlight
-#define AMBIENT_INTENSITY 1.0
+#define AMBIENT_INTENSITY 0.1
 #define BRIGHTNESS 1.0
 
 in Vertex {

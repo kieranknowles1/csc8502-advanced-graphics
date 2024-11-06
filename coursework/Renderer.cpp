@@ -75,8 +75,8 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
     auto root = std::make_unique<SceneNode>();
 
     auto heightMapNode = new SceneNode(
-		this->heightMap
-	);
+        this->heightMap
+    );
     heightMapNode->setMateriel(heightMapMateriel);
     root->addChild(heightMapNode);
 
@@ -85,15 +85,15 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
     auto templates = std::vector<SceneNode*>();
     auto loadTree = [&](const std::string& name, Vector3 scale, float yOff) {
         auto mesh = resourceManager->getMeshes().get(name + ".msh");
-		auto tree = new SceneNode(mesh);
+        auto tree = new SceneNode(mesh);
         tree->setScale(scale);
         tree->setTransform(
-			tree->getTransform() *
-			Matrix4::Translation(Vector3(0, yOff, 0))
-		);
+            tree->getTransform() *
+            Matrix4::Translation(Vector3(0, yOff, 0))
+        );
         tree->setMateriels(Materiel::fromFile(resourceManager.get(), name + ".mat"));
-		templates.push_back(tree);
-	};
+        templates.push_back(tree);
+        };
     loadTree("quaternius/Pine_1", Vector3(10, 10, 10), -40);
     loadTree("quaternius/Pine_2", Vector3(10, 10, 10), -40);
     loadTree("quaternius/Pine_3", Vector3(10, 10, 10), -40);
@@ -106,6 +106,13 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
     }
 
     root->addChild(treeParent);
+
+    Light* sun = new Light(1024); // Radius doesn't matter for sun lights
+    sun->setFacing(
+        Vector3(-1, 1, 0).Normalised()
+    );
+    sun->setType(Light::Type::Sun);
+    root->addChild(sun);
 
     return root;
 }
@@ -130,9 +137,6 @@ void Renderer::spawnTrees(SceneNode* parent, Mesh* spawnOn, int count, const std
             instance->getTransform() *
             Matrix4::Translation(point)
         );
-
-        auto light = new Light(512);
-        //instance->addChild(light);
 
         parent->addChild(instance);
     }
