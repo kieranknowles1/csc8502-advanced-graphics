@@ -13,15 +13,13 @@ MeshMaterial::MeshMaterial(const std::string& filename) {
 	file >> dataType;
 
 	if (dataType != "MeshMat") {
-		std::cout << "File " << filename << " is not a MeshMaterial!\n";
-		return;
+		throw std::runtime_error("File " + filename + " is not a MeshMaterial!");
 	}
 	int version;
 	file >> version;
 
 	if (version != 1) {
-		std::cout << "File " << filename << " has incompatible version " << version << "!\n";
-		return;
+		throw std::runtime_error("File " + filename + " has incompatible version " + std::to_string(version) + "!");
 	}
 
 	int matCount;

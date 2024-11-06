@@ -81,10 +81,32 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
     root->addChild(heightMapNode);
 
     auto treeParent = new SceneNode();
-    // TODO: Use a proper mesh
-    auto tree = std::make_unique<CubeBot>(cube);
 
-    spawnTrees(treeParent, heightMap.get(), 500, tree.get());
+    auto templates = std::vector<SceneNode*>();
+    auto loadTree = [&](const std::string& name, Vector3 scale, float yOff) {
+		auto tree = new SceneNode(
+			resourceManager->getMeshes().get(name + ".msh")
+		);
+        tree->setScale(scale);
+        tree->setTransform(
+			tree->getTransform() *
+			Matrix4::Translation(Vector3(0, yOff, 0))
+		);
+        // TODO: Load the material from a file
+		tree->setMateriel(defaultMateriel);
+		templates.push_back(tree);
+	};
+    loadTree("quaternius/Pine_1", Vector3(10, 10, 10), -32);
+    loadTree("quaternius/Pine_2", Vector3(10, 10, 10), -32);
+    loadTree("quaternius/Pine_3", Vector3(10, 10, 10), -32);
+    loadTree("quaternius/Pine_4", Vector3(10, 10, 10), -32);
+    loadTree("quaternius/Pine_5", Vector3(10, 10, 10), -32);
+
+    spawnTrees(treeParent, heightMap.get(), 500, templates);
+    for (auto& tree : templates) {
+        delete tree;
+    }
+
     root->addChild(treeParent);
 
     return root;
@@ -96,20 +118,23 @@ std::unique_ptr<SceneNode> Renderer::createFutureScene()
     return std::make_unique<SceneNode>();
 }
 
-void Renderer::spawnTrees(SceneNode* parent, Mesh* spawnOn, int count, SceneNode* tree)
+void Renderer::spawnTrees(SceneNode* parent, Mesh* spawnOn, int count, const std::vector<SceneNode*>& templates)
 {
     std::uniform_int_distribution<int> pointDist(0, spawnOn->getVertexCount());
+    std::uniform_int_distribution<int> templateDist(0, templates.size() - 1);
     for (int i = 0; i < count; i++) {
-        auto instance = tree->deepCopy();
-        auto light = new Light(512.0f);
-        light->setTransform(Matrix4::Translation(Vector3(0, 256, 0)));
-        instance->addChild(light);
+        auto choice = templates.at(templateDist(rng));
+        auto instance = choice->deepCopy();
         // Pick a random point
-        auto point = spawnOn->getVertex(pointDist(rng));
+        auto& point = spawnOn->getVertex(pointDist(rng));
 
         instance->setTransform(
+            instance->getTransform() *
             Matrix4::Translation(point)
         );
+
+        auto light = new Light(512);
+        //instance->addChild(light);
 
         parent->addChild(instance);
     }

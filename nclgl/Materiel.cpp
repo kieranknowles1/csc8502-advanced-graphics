@@ -1,7 +1,13 @@
 #include "Materiel.h"
 
 #include "OGLRenderer.h"
+#include "MeshMaterial.h"
 #include "Texture.h"
+
+Materiel Materiel::fromFile(const std::string& filename) {
+    MeshMaterial mat(filename);
+    throw new std::runtime_error("Not implemented"); // TODO
+}
 
 void Materiel::bind(OGLRenderer& r, const Materiel& defaults) const {
     auto shader = this->shader ? this->shader : defaults.shader;
