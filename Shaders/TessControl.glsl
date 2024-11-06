@@ -19,7 +19,7 @@ out Vertex {
 // Level at MAX_LOD_DISTANCE
 #define MIN_TESS_LEVEL 1
 // Level at MIN_LOD_DISTANCE
-#define MAX_TESS_LEVEL 16
+#define MAX_TESS_LEVEL 4
 // Distance at which MAX_TESS_LEVEL is used
 #define MIN_LOD_DISTANCE 100.0
 // Distance at which MIN_TESS_LEVEL is used

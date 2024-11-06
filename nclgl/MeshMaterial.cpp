@@ -1,6 +1,7 @@
 #include "MeshMaterial.h"
 #include <fstream>
 #include <iostream>
+#include <limits>
 
 #include "common.h"
 

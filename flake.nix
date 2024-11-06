@@ -63,6 +63,7 @@
           libGL
           SDL2
           gdb
+          clang # I find clang error more readable than gcc
         ];
       in {
         # Per system type
@@ -72,11 +73,7 @@
           default = cfgLib.shell.mkShellEx pkgs.mkShellNoCC {
             name = "dev";
             # Install all dependencies for the duration of the shell
-            packages = deps ++ [
-              # I find clang error messages to be better quality
-              # Anything is an improvement over MSVC
-              pkgs.clang
-            ];
+            packages = deps;
 
             # Bash snippet that runs when entering the shell
             # mkShelllEx execs into $SHELL after this, so
