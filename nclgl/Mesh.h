@@ -71,6 +71,9 @@ public:
 	unsigned int getVertexCount() const {
 		return vertices.size();
 	}
+	Vector4& getColor(int i) {
+		return colours[i];
+	}
 	const Vector3& getVertex(int i) const {
 		return vertices[i];
 	}

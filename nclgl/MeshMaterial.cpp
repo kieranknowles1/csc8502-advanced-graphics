@@ -7,19 +7,21 @@
 using std::ifstream;
 
 MeshMaterial::MeshMaterial(const std::string& filename) {
-	ifstream file(MESHDIR+filename);
+	ifstream file(MESHDIR + filename);
 
 	string dataType;
 	file >> dataType;
 
 	if (dataType != "MeshMat") {
-		throw std::runtime_error("File " + filename + " is not a MeshMaterial!");
+		std::cout << "File " << filename << " is not a MeshMaterial!\n";
+		return;
 	}
 	int version;
 	file >> version;
 
 	if (version != 1) {
-		throw std::runtime_error("File " + filename + " has incompatible version " + std::to_string(version) + "!");
+		std::cout << "File " << filename << " has incompatible version " << version << "!\n";
+		return;
 	}
 
 	int matCount;
@@ -29,16 +31,19 @@ MeshMaterial::MeshMaterial(const std::string& filename) {
 
 	materialLayers.resize(matCount);
 
+	file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
 	for (int i = 0; i < matCount; ++i) {
 		string name;
 		int count;
 
-		file >> name;
+		std::getline(file, name);
 		file >> count;
+		file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
 		for (int j = 0; j < count; ++j) {
 			string entryData;
-			file >> entryData;
+			std::getline(file, entryData);
 			string channel;
 			string file;
 			size_t split = entryData.find_first_of(':');

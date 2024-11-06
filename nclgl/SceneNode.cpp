@@ -10,6 +10,7 @@ SceneNode::SceneNode(std::shared_ptr<Mesh> mesh, Vector4 color)
     , scale(Vector3(1, 1, 1))
     , distanceFromCamera(0)
     , boundingRadius(1)
+    , isTransparent(false)
 {}
 
 SceneNode::~SceneNode()
@@ -78,14 +79,26 @@ void SceneNode::drawSelf(OGLRenderer& r)
     if (!mesh)
         return;
 
-    materiel.bind(r, r.getDefaultMateriel());
-
-
     Matrix4 model = getWorldTransform();
-    model.bind(r.getCurrentShader()->getUniform("modelMatrix"));
-    color.bind(r.getCurrentShader()->getUniform("nodeColor"));
 
-    mesh->Draw();
+    if (mesh->GetSubMeshCount() == 0) {
+        auto mat = getMatrerial(0) ? getMatrerial(0) : &r.getDefaultMateriel();
+        mat->bind(r, r.getDefaultMateriel());
+        model.bind(r.getCurrentShader()->getUniform("modelMatrix"));
+        color.bind(r.getCurrentShader()->getUniform("nodeColor"));
+
+        mesh->Draw();
+    }
+    else {
+        for (int i = 0; i < mesh->GetSubMeshCount(); i++) {
+            auto mat = getMatrerial(i) ? getMatrerial(i) : &r.getDefaultMateriel();
+            mat->bind(r, r.getDefaultMateriel());
+            model.bind(r.getCurrentShader()->getUniform("modelMatrix"));
+            color.bind(r.getCurrentShader()->getUniform("nodeColor"));
+            mesh->DrawSubMesh(i);
+        }
+    }
+
     drawDebug(r);
 }
 
@@ -107,7 +120,7 @@ void SceneNode::drawDebug(OGLRenderer& r) {
 
 SceneNode::SceneNode(const SceneNode& s)
     : parent(nullptr)
-    , materiel(s.materiel)
+    , materials(s.materials)
     , mesh(s.mesh)
     , color(s.color)
     , scale(s.scale)

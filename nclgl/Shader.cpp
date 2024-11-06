@@ -96,7 +96,7 @@ bool	Shader::LoadShaderFile(const string& filename, string &into)	{
 	while(!file.eof()){
 		getline(file,textLine);
 		textLine += "\n";
-		std::cout << lineNum << ":\t" << textLine;
+		//std::cout << lineNum << ":\t" << textLine;
 		into += textLine;
 		++lineNum;
 	}

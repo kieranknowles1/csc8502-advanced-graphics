@@ -70,7 +70,13 @@ public:
 	bool isEnabled() const { return enabled; }
 	void setEnabled(bool e) { enabled = e; }
 
-	void setMateriel(const Materiel& m) { materiel = m; }
+	void setMateriel(const Materiel& m) {
+		materials.clear();
+		materials.push_back(m);
+	}
+	void setMateriels(const std::vector<Materiel>& m) {
+		materials = m;
+	}
 
 	using SceneNodeIterator = std::vector<SceneNode*>::iterator;
 	SceneNodeIterator childrenBegin() { return children.begin(); }
@@ -91,7 +97,12 @@ protected:
 	bool isTransparent;
 	bool enabled = true;
 
-	Materiel materiel;
+	std::vector<Materiel> materials;
+	Materiel* getMatrerial(int i) {
+		if (i < 0 || i >= materials.size())
+			return nullptr;
+		return &materials[i];
+	}
 
 	std::vector<SceneNode*> children;
 

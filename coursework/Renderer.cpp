@@ -84,23 +84,21 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
 
     auto templates = std::vector<SceneNode*>();
     auto loadTree = [&](const std::string& name, Vector3 scale, float yOff) {
-		auto tree = new SceneNode(
-			resourceManager->getMeshes().get(name + ".msh")
-		);
+        auto mesh = resourceManager->getMeshes().get(name + ".msh");
+		auto tree = new SceneNode(mesh);
         tree->setScale(scale);
         tree->setTransform(
 			tree->getTransform() *
 			Matrix4::Translation(Vector3(0, yOff, 0))
 		);
-        // TODO: Load the material from a file
-		tree->setMateriel(defaultMateriel);
+        tree->setMateriels(Materiel::fromFile(resourceManager.get(), name + ".mat"));
 		templates.push_back(tree);
 	};
-    loadTree("quaternius/Pine_1", Vector3(10, 10, 10), -32);
-    loadTree("quaternius/Pine_2", Vector3(10, 10, 10), -32);
-    loadTree("quaternius/Pine_3", Vector3(10, 10, 10), -32);
-    loadTree("quaternius/Pine_4", Vector3(10, 10, 10), -32);
-    loadTree("quaternius/Pine_5", Vector3(10, 10, 10), -32);
+    loadTree("quaternius/Pine_1", Vector3(10, 10, 10), -40);
+    loadTree("quaternius/Pine_2", Vector3(10, 10, 10), -40);
+    loadTree("quaternius/Pine_3", Vector3(10, 10, 10), -40);
+    loadTree("quaternius/Pine_4", Vector3(10, 10, 10), -40);
+    loadTree("quaternius/Pine_5", Vector3(10, 10, 10), -40);
 
     spawnTrees(treeParent, heightMap.get(), 500, templates);
     for (auto& tree : templates) {
