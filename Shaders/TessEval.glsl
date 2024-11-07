@@ -76,6 +76,8 @@ void main() {
     // but is close enough for my purposes
     // The CPP side only supports triangles, so we have to do this
     // manually
+    // Unfortunately, this means that normals are not interpolated
+    // TODO: Caclulate the normal properly
     vec3 p0 = gl_in[0].gl_Position.xyz;
     vec3 p1 = gl_in[1].gl_Position.xyz;
     vec3 p2 = gl_in[2].gl_Position.xyz;

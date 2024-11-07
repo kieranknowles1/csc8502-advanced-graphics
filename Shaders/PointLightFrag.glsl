@@ -13,6 +13,7 @@ uniform vec3 lightPos;
 uniform float lightFOV;
 // Forward vector of the light
 uniform vec3 lightForward;
+// const vec3 lightForward = normalize(vec3(1, 1, -1));
 
 // The type of light
 // Must match the enum in Light.h
@@ -88,4 +89,7 @@ void main() {
 
     diffuseOutput = vec4(attenuated * lambert, 1.0);
     specularOutput = vec4(attenuated * specFactor * SPECULAR_INTENSITY, 1.0);
+
+    // diffuseOutput.rgb = (lightForward / 2.0) + vec3(0.5);
+    // diffuseOutput.rgb = lightForward;
 }

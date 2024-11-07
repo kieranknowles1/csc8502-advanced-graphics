@@ -146,7 +146,7 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
 
     Light* sun = new Light(1024); // Radius doesn't matter for sun lights
     sun->setFacing(
-        Vector3(-1, 1, 0).Normalised()
+        Vector3(1, 1, -1).Normalised()
     );
     sun->setType(Light::Type::Sun);
     root->addChild(sun);
@@ -163,7 +163,7 @@ std::unique_ptr<SceneNode> Renderer::createFutureScene()
 
     Light* sun = new Light(1024); // Radius doesn't matter for sun lights
     sun->setFacing(
-        Vector3(-1, 1, 1).Normalised()
+        Vector3(1, 1, 0).Normalised()
     );
     sun->setType(Light::Type::Sun);
     node->addChild(sun);
