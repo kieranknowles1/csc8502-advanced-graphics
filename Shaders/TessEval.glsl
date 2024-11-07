@@ -10,8 +10,13 @@ uniform mat4 projMatrix;
 uniform mat4 textureMatrix;
 uniform vec4 nodeColor;
 
-#define NOISE_POWER 16.0f
-#define NOISE_SCALE vec2(0.125f)
+#define NOISE_POWER 32.0f
+#define NOISE_SCALE vec2(1.0f / 32.0f)
+// Layer the noise texture over itself to create a more complex pattern
+// Later layers have higher frequency and less effect on the position
+// NOTE: This is expensive on memory bandwidth, as it requres N samples
+// per vertex
+#define NOISE_LAYERS 8
 
 // From TessVertex.glsl
 in Vertex {
@@ -42,6 +47,23 @@ DECLARE_MIXER(vec2, quadMix2)
 DECLARE_MIXER(vec3, quadMix3)
 DECLARE_MIXER(vec4, quadMix4)
 
+float sampleNoise(vec2 coord) {
+    float noise = 0.0;
+    vec2 scale = NOISE_SCALE;
+    float power = NOISE_POWER;
+
+    for (int i = 0; i < NOISE_LAYERS; i++) {
+        noise += (texture(noiseTex, coord * scale).r - 0.5) * 2 * power;
+        // Lower amplitude, higher frequency
+        scale *= 2.0;
+        power *= 0.5;
+        // scale *= 0.5;
+        // power *= 2;
+    }
+    return noise;
+// texture(noiseTex, OUT.texCoord * NOISE_SCALE).r;
+}
+
 void main() {
     vec3 combinedPos = quadMix3(
         gl_in[0].gl_Position.xyz,
@@ -59,8 +81,7 @@ void main() {
     OUT.texCoord = (vec4(texCoord, 0.0, 1.0)).xy;
 
     vec4 worldPos = modelMatrix * vec4(combinedPos, 1.0);
-    float noise = texture(noiseTex, OUT.texCoord * NOISE_SCALE).r;
-    worldPos.y += noise * NOISE_POWER;
+    worldPos.y += sampleNoise(texCoord);
 
     gl_Position = projMatrix * viewMatrix * worldPos;
 

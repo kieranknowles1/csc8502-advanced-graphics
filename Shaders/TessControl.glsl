@@ -23,11 +23,11 @@ out Vertex {
 // Level at MAX_LOD_DISTANCE
 #define MIN_TESS_LEVEL 1
 // Level at MIN_LOD_DISTANCE
-#define MAX_TESS_LEVEL 16
+#define MAX_TESS_LEVEL 32
 // Distance at which MAX_TESS_LEVEL is used
-#define MIN_LOD_DISTANCE 100.0
+#define MIN_LOD_DISTANCE 50.0
 // Distance at which MIN_TESS_LEVEL is used
-#define MAX_LOD_DISTANCE 2000.0
+#define MAX_LOD_DISTANCE 1000.0
 
 // Normalised distance from camera, 0.0 is at MIN_LOD_DISTANCE, 1.0 is at MAX_LOD_DISTANCE
 float normalisedCameraDistance(vec3 pos) {
