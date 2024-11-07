@@ -66,6 +66,8 @@ struct RenderContext {
 
 class OGLRenderer	{
 public:
+	const static int StencilMaskObject = 0x01;
+
 	friend class Window;
 	OGLRenderer(Window &parent);
 	virtual ~OGLRenderer(void);
@@ -117,6 +119,8 @@ protected:
 
 	DebugSettings debugSettings;
 
+	// Render a tree to a FBO or the screen
+	// If a skybox is present, the FBO's stencil buffer will be replaced with a mask
 	void drawTree(SceneNode* root, GLuint destFbo = 0);
 
 	void setDefaultMateriel(const Materiel& materiel) {
@@ -138,12 +142,17 @@ protected:
 	void setCombineShader(std::shared_ptr<Shader> shader) {
 		combineShader = shader;
 	}
+	std::shared_ptr<Texture> skyTexture;
+	std::shared_ptr<Shader> skyShader;
 
 	GLuint generateScreenTexture(bool depth = false, GLenum clampMode = GL_CLAMP_TO_EDGE);
 private:
 	void buildNodeLists(SceneNode* from);
 	void sortNodeLists();
 	void drawNodes(const std::vector<SceneNode*>& nodes);
+
+	void drawSky(GLuint destFbo);
+
 	// TODO: Frustum culling
 	RenderContext context;
 

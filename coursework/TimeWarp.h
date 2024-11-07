@@ -7,7 +7,7 @@
 
 class TimeWarp : public PostProcess::Stage {
 public:
-	TimeWarp(ResourceManager* rm, GLuint oldTex, GLuint newTex);
+	TimeWarp(ResourceManager* rm, GLuint oldTex, GLuint newTe);
 	~TimeWarp() override {}
 
 	void setRatio(float ratio) {

@@ -17,6 +17,9 @@ Renderer::Renderer(Window& parent)
     setPointLightShader(resourceManager->getShaders().get({"PointLightVertex.glsl", "PointLightFrag.glsl"}));
     setCombineShader(resourceManager->getShaders().get({"CombineVert.glsl", "CombineFrag.glsl"}));
 
+    skyTexture = resourceManager->getCubeMaps().get("rusted"); // TODO: Use a different texture for the future scene
+    skyShader = resourceManager->getShaders().get({"SkyboxVertex.glsl", "SkyboxFragment.glsl"});
+
     heightMap = std::make_shared<HeightMap>(TEXTUREDIR "heightmap.png", Vector3(8, 2, 8));
     auto tesselateShader = resourceManager->getShaders().get({
         "TessVertex.glsl",
@@ -160,7 +163,7 @@ std::unique_ptr<SceneNode> Renderer::createFutureScene()
 
     Light* sun = new Light(1024); // Radius doesn't matter for sun lights
     sun->setFacing(
-        Vector3(1, 1, 0).Normalised()
+        Vector3(-1, 1, 1).Normalised()
     );
     sun->setType(Light::Type::Sun);
     node->addChild(sun);

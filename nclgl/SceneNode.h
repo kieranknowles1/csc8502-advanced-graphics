@@ -94,7 +94,7 @@ protected:
 	float boundingRadius;
 	float distanceFromCamera;
 
-	bool isTransparent;
+	bool isTransparent = false;
 	bool enabled = true;
 
 	std::vector<Materiel> materials;

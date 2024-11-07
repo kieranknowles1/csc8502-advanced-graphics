@@ -53,6 +53,7 @@ OGLRenderer::OGLRenderer(Window &window)
 
 	glDebugMessageCallbackARB(&OGLRenderer::DebugCallback, NULL);
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
+	glEnable(GL_STENCIL_TEST);
 
 	glClearColor(0.2f,0.2f,0.2f,1.0f);			//When we clear the screen, we want it to be dark grey
 
@@ -76,7 +77,7 @@ OGLRenderer::OGLRenderer(Window &window)
 	glBindFramebuffer(GL_FRAMEBUFFER, gBufferFbo);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gBufferColor, 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gBufferNormal, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, gBufferDepth, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, gBufferDepth, 0);
 	glDrawBuffers(2, buffers);
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
@@ -125,10 +126,11 @@ GLuint OGLRenderer::generateScreenTexture(bool depth, GLenum clampMode) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-	auto format = depth ? GL_DEPTH_COMPONENT24 : GL_RGBA8;
-	auto type = depth ? GL_DEPTH_COMPONENT : GL_RGBA;
+	auto internalFormat = depth ? GL_DEPTH_STENCIL : GL_RGBA;
+	auto format = depth ? GL_DEPTH_STENCIL : GL_RGBA;
+	auto type = depth ? GL_UNSIGNED_INT_24_8 : GL_UNSIGNED_BYTE;
 
-	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, type, GL_UNSIGNED_BYTE, nullptr);
+	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, type, nullptr);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	return tex;
@@ -228,8 +230,13 @@ void OGLRenderer::drawTree(SceneNode* root, GLuint destFbo) {
 
 	// Pass 1 - Draw scene into g-buffer
 	glBindFramebuffer(GL_FRAMEBUFFER, gBufferFbo);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+	glStencilFunc(GL_ALWAYS, StencilMaskObject, 0xFF);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 	drawNodes(context.opaqueNodes);
+
+	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 	drawNodes(context.transparentNodes);
 
 	// Pass 2 - Draw point lights
@@ -238,6 +245,29 @@ void OGLRenderer::drawTree(SceneNode* root, GLuint destFbo) {
 	// Pass 3 - Combine
 	// TODO: Also do post-processing here
 	combineBuffers(destFbo);
+
+	// Pass 4 - Draw sky
+	if (skyTexture != nullptr) {
+		drawSky(destFbo);
+	}
+}
+
+void OGLRenderer::drawSky(GLuint destFbo) {
+	// Attach the mask to the FBO
+	glBindFramebuffer(GL_FRAMEBUFFER, destFbo);
+	if (destFbo != 0) {
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, gBufferDepth, 0);
+	}
+	glStencilFunc(GL_NOTEQUAL, StencilMaskObject, 0xFF);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+	BindShader(skyShader.get());
+	UpdateShaderMatrices();
+
+	glActiveTexture(GL_TEXTURE0);
+	skyTexture->bind();
+	glUniform1i(skyShader->getUniform("cubeTex"), 0);
+	quad->Draw();
 }
 
 void OGLRenderer::drawPointLights() {
