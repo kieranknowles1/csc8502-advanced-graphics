@@ -115,13 +115,13 @@ OGLRenderer::~OGLRenderer(void)	{
 	glDeleteTextures(1, &deferredLightSpecular);
 }
 
-GLuint OGLRenderer::generateScreenTexture(bool depth) {
+GLuint OGLRenderer::generateScreenTexture(bool depth, GLenum clampMode) {
 	GLuint tex;
 	glGenTextures(1, &tex);
 	glBindTexture(GL_TEXTURE_2D, tex);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clampMode);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clampMode);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 

@@ -139,7 +139,7 @@ protected:
 		combineShader = shader;
 	}
 
-	GLuint generateScreenTexture(bool depth = false);
+	GLuint generateScreenTexture(bool depth = false, GLenum clampMode = GL_CLAMP_TO_EDGE);
 private:
 	void buildNodeLists(SceneNode* from);
 	void sortNodeLists();

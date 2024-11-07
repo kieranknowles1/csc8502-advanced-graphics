@@ -44,12 +44,12 @@ Renderer::Renderer(Window& parent)
     futureRoot = createFutureScene();
 
     glGenFramebuffers(1, &oldFbo);
-    oldTex = generateScreenTexture();
+    oldTex = generateScreenTexture(false, GL_MIRRORED_REPEAT);
     glBindFramebuffer(GL_FRAMEBUFFER, oldFbo);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, oldTex, 0);
 
     glGenFramebuffers(1, &newFbo);
-    newTex = generateScreenTexture();
+    newTex = generateScreenTexture(false, GL_MIRRORED_REPEAT);
     glBindFramebuffer(GL_FRAMEBUFFER, newFbo);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, newTex, 0);
 
