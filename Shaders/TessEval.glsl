@@ -17,6 +17,8 @@ uniform vec4 nodeColor;
 in Vertex {
     vec4 color;
     vec2 texCoord;
+    vec3 normal;
+    vec4 tangent;
 } IN[];
 
 // To BufferFragment.glsl
@@ -70,22 +72,26 @@ void main() {
     );
     OUT.worldPos = worldPos.xyz;
 
-    // TES shaders have access to all patch vertices, so
-    // we can use them to calculate the normal
-    // NOTE: This doesn't account for the tessellated vertices,
-    // but is close enough for my purposes
-    // The CPP side only supports triangles, so we have to do this
-    // manually
-    // Unfortunately, this means that normals are not interpolated
-    // TODO: Caclulate the normal properly
-    vec3 p0 = gl_in[0].gl_Position.xyz;
-    vec3 p1 = gl_in[1].gl_Position.xyz;
-    vec3 p2 = gl_in[2].gl_Position.xyz;
-    vec3 p3 = gl_in[3].gl_Position.xyz;
+    vec3 thisNormal = quadMix3(
+        IN[0].normal,
+        IN[1].normal,
+        IN[2].normal,
+        IN[3].normal
+    );
+    vec4 thisTangent = quadMix4(
+        IN[0].tangent,
+        IN[1].tangent,
+        IN[2].tangent,
+        IN[3].tangent
+    );
 
-    OUT.normal = normalize(cross(p1 - p0, p3 - p0));
-    OUT.tangent = normalize(p1 - p0);
-    OUT.binormal = normalize(p3 - p0);
+    mat3 normalMatrix = transpose(inverse(mat3(modelMatrix)));
+    OUT.normal = normalize(normalMatrix * thisNormal);
+
+    vec3 worldNormal = normalize(normalMatrix * normalize(thisNormal));
+    vec3 worldTangent = normalize(normalMatrix * normalize(thisTangent.xyz));
+    OUT.tangent = worldTangent;
+    OUT.binormal = cross(worldNormal, worldTangent) * thisTangent.w;
 
 #ifdef DEBUG
     OUT.color.rgb = vec3(gl_TessLevelOuter[0] / 16.0, 0, 0);

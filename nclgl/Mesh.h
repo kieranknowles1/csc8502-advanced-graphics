@@ -68,6 +68,11 @@ public:
 		return primCount / 3;
 	}
 
+	unsigned int getQuadCount() const {
+		int primCount = indices.size() ? indices.size() : vertices.size();
+		return primCount / 4;
+	}
+
 	unsigned int getVertexCount() const {
 		return vertices.size();
 	}
@@ -104,17 +109,21 @@ public:
 
 	// Fill vertex normals based on triangles
 	void generateNormals();
+	void generatePatchNormals();
 
 	// Fill vertex tangents based on triangles
 	void generateTangents();
+	void generatePatchTangents();
 
 protected:
 	// Fill a, b, and c with the vertex indices for the i-th triangle
 	// Returns false if i is out of bounds
 	bool getVertexIndeciesForTri(unsigned int i, unsigned int* a, unsigned int* b, unsigned int* c) const;
+	bool getVertexIndeciesForQuad(unsigned int i, unsigned int* a, unsigned int* b, unsigned int* c, unsigned int* d) const;
 
 	// Generate the tangent for the triangle with vertices a, b, and c
 	Vector4 generateTangent(int a, int b, int c);
+	Vector4 generateTangent(int a, int b, int c, int d);
 
 	void	BufferData();
 

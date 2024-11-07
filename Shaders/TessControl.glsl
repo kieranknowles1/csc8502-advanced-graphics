@@ -8,18 +8,22 @@ uniform mat4 viewMatrix;
 in Vertex {
     vec4 color;
     vec2 texCoord;
+    vec3 normal;
+    vec4 tangent;
 } IN[];
 
 // To TessEval.glsl
 out Vertex {
     vec4 color;
     vec2 texCoord;
+    vec3 normal;
+    vec4 tangent;
 } OUT[];
 
 // Level at MAX_LOD_DISTANCE
 #define MIN_TESS_LEVEL 1
 // Level at MIN_LOD_DISTANCE
-#define MAX_TESS_LEVEL 4
+#define MAX_TESS_LEVEL 16
 // Distance at which MAX_TESS_LEVEL is used
 #define MIN_LOD_DISTANCE 100.0
 // Distance at which MIN_TESS_LEVEL is used
@@ -66,6 +70,8 @@ void main() {
     // Pass through the input values
     OUT[gl_InvocationID].color = IN[gl_InvocationID].color;
     OUT[gl_InvocationID].texCoord = IN[gl_InvocationID].texCoord;
+    OUT[gl_InvocationID].normal = IN[gl_InvocationID].normal;
+    OUT[gl_InvocationID].tangent = IN[gl_InvocationID].tangent;
 
     gl_out[gl_InvocationID].gl_Position =
         gl_in[gl_InvocationID].gl_Position;
