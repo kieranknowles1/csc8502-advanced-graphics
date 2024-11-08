@@ -102,8 +102,6 @@ void Renderer::RenderScene()	{
     }
 
     combineBuffers();
-
-    //drawTree(presentRoot.get());
 }
 
 void Renderer::combineBuffers() {
