@@ -392,8 +392,8 @@ void RenderContext::clear() {
 	lights.clear();
 }
 
-void OGLRenderer::drawNodes(const std::vector<SceneNode*>& nodes) {
+void OGLRenderer::drawNodes(const std::vector<SceneNode*>& nodes, bool shadowPass) {
 	for (auto& node : nodes) {
-		node->drawSelf(*this);
+		node->drawSelf(*this, shadowPass);
 	}
 }

@@ -44,6 +44,20 @@ protected:
     std::shared_ptr<Texture> newSkybox;
 
     std::shared_ptr<Shader> combineShader;
+
+    // TODO: Support multiple shadow casters
+    const static int ShadowSize = 2048;
+    GLuint shadowTex;
+    GLuint shadowFbo;
+    // TODO: Can we use the deferred shader for this?
+    std::shared_ptr<Shader> shadowShader;
+    // TODO: This should be the deferred combine
+    std::shared_ptr<Shader> sceneShader;
+    Vector3 shadowLightPos;
+
+    void drawShadowScene();
+    void drawMainScene();
+
     void combineBuffers();
     float time = 0;
 };

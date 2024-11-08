@@ -74,7 +74,7 @@ void SceneNode::update(float dt)
     }
 }
 
-void SceneNode::drawSelf(OGLRenderer& r)
+void SceneNode::drawSelf(OGLRenderer& r, bool shadowPass)
 {
     if (!mesh)
         return;
@@ -82,19 +82,23 @@ void SceneNode::drawSelf(OGLRenderer& r)
     Matrix4 model = getWorldTransform();
 
     if (mesh->GetSubMeshCount() == 0) {
-        auto mat = getMatrerial(0) ? getMatrerial(0) : &r.getDefaultMateriel();
-        mat->bind(r, r.getDefaultMateriel());
+        if (!shadowPass) {
+            auto mat = getMatrerial(0) ? getMatrerial(0) : &r.getDefaultMateriel();
+            mat->bind(r, r.getDefaultMateriel());
+            color.bind(r.getCurrentShader()->getUniform("nodeColor"));
+        }
         model.bind(r.getCurrentShader()->getUniform("modelMatrix"));
-        color.bind(r.getCurrentShader()->getUniform("nodeColor"));
 
         mesh->Draw();
     }
     else {
         for (int i = 0; i < mesh->GetSubMeshCount(); i++) {
-            auto mat = getMatrerial(i) ? getMatrerial(i) : &r.getDefaultMateriel();
-            mat->bind(r, r.getDefaultMateriel());
+            if (!shadowPass) {
+                auto mat = getMatrerial(i) ? getMatrerial(i) : &r.getDefaultMateriel();
+                mat->bind(r, r.getDefaultMateriel());
+                color.bind(r.getCurrentShader()->getUniform("nodeColor"));
+            }
             model.bind(r.getCurrentShader()->getUniform("modelMatrix"));
-            color.bind(r.getCurrentShader()->getUniform("nodeColor"));
             mesh->DrawSubMesh(i);
         }
     }

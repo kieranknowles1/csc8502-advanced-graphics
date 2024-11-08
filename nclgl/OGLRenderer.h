@@ -146,15 +146,16 @@ protected:
 	std::shared_ptr<Shader> skyShader;
 
 	GLuint generateScreenTexture(bool depth = false, GLenum clampMode = GL_CLAMP_TO_EDGE);
-private:
-	void buildNodeLists(SceneNode* from);
-	void sortNodeLists();
-	void drawNodes(const std::vector<SceneNode*>& nodes);
 
-	void drawSky(GLuint destFbo);
+	void drawNodes(const std::vector<SceneNode*>& nodes, bool shadowPass = false);
+	void buildNodeLists(SceneNode* from);
 
 	// TODO: Frustum culling
 	RenderContext context;
+private:
+	void sortNodeLists();
+
+	void drawSky(GLuint destFbo);
 
 	GLuint gBufferFbo;
 	GLuint gBufferDepth;

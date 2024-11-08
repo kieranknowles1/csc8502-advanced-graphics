@@ -64,7 +64,7 @@ public:
 	virtual const std::string getName() const { return "SceneNode"; }
 
 	// Parents are drawn BEFORE their children
-	virtual void drawSelf(OGLRenderer& r);
+	virtual void drawSelf(OGLRenderer& r, bool shadowPass);
 	void drawDebug(OGLRenderer& r);
 
 	bool getIsTransparent() const { return isTransparent; }
