@@ -128,6 +128,7 @@ SceneNode::SceneNode(const SceneNode& s)
     , worldTransform(s.worldTransform)
     , boundingRadius(s.boundingRadius)
     , distanceFromCamera(s.distanceFromCamera)
+    , tag(s.tag)
     {}
 
 void SceneNode::copyChildrenFrom(const SceneNode& other)
@@ -139,10 +140,23 @@ void SceneNode::copyChildrenFrom(const SceneNode& other)
 
 SceneNode* SceneNode::deepCopy() const
 {
+    if (typeid(*this) != typeid(SceneNode))
+		throw std::runtime_error("deepCopy not implemented for derived classes");
+
     SceneNode* copy = new SceneNode(*this);
     // Don't do this in the constructor, as derived classes
     // may need to know which child is which
     // Expose deepCopyChildren in case derived classes want to use it
     copy->copyChildrenFrom(*this);
     return copy;
+}
+
+SceneNode* SceneNode::getTaggedChild(const std::string& t)
+{
+	for (auto& child : children) {
+		if (child->tag == t) {
+			return child;
+		}
+	}
+	return nullptr;
 }

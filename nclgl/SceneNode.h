@@ -37,6 +37,8 @@ public:
 	std::shared_ptr<Mesh> getMesh() const { return mesh; }
 	void setMesh(std::shared_ptr<Mesh> mesh) { this->mesh = mesh; }
 
+	// Add a child to this node. This node will take ownership of the child
+	// If the child already has a parent, it will be moved to this node
 	void addChild(SceneNode* s);
 	void update(float dt);
 
@@ -46,6 +48,7 @@ public:
 	// If the node already has a parent, it will be moved to the new parent
 	// Setting the parent to nullptr will remove the node from the scene graph,
 	// but not delete it
+	// DOES NOT add the node to the parent's children, use addChild for that
 	void setParent(SceneNode* newParent);
 
 	float getBoundingRadius() const {
@@ -81,6 +84,14 @@ public:
 	using SceneNodeIterator = std::vector<SceneNode*>::iterator;
 	SceneNodeIterator childrenBegin() { return children.begin(); }
 	SceneNodeIterator childrenEnd() { return children.end(); }
+
+	void setTag(const std::string& t) { tag = t; }
+	const std::string& getTag() const { return tag; }
+
+	// Returns the child with the given tag, or nullptr if not found
+	// Undefined behaviour if multiple children have the same tag
+	// Does not recurse into children
+	SceneNode* getTaggedChild(const std::string& t);
 protected:
 	// Called every frame BEFORE children are updated
 	virtual void onUpdate(float dt) {}
@@ -115,6 +126,8 @@ protected:
 	void copyChildrenFrom(const SceneNode& from);
 
 	SceneNode* parent;
+
+	std::string tag = "";
 
 private:
 	// Detach this node from its parent,

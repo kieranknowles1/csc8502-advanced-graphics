@@ -117,6 +117,10 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
     heightMapNode->setMateriel(heightMapMateriel);
     root->addChild(heightMapNode);
 
+    auto presentOnly = new SceneNode();
+    presentOnly->setTag("PresentOnly");
+    root->addChild(presentOnly);
+
     auto treeParent = new SceneNode();
 
     auto templates = std::vector<SceneNode*>();
@@ -142,9 +146,10 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
         delete tree;
     }
 
-    root->addChild(treeParent);
+    presentOnly->addChild(treeParent);
 
     Light* sun = new Light(1024); // Radius doesn't matter for sun lights
+    sun->setTag("Sun");
     sun->setFacing(
         Vector3(1, 1, -1).Normalised()
     );
@@ -156,19 +161,18 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
 
 std::unique_ptr<SceneNode> Renderer::createFutureScene()
 {
+    // Clone the present scene, then use it as a base for the future scene
+    auto node = presentRoot->deepCopy();
+
+    // Deleting a node detaches it from its parent and deletes all children
+    delete node->getTaggedChild("PresentOnly");
+
 	// TODO: Implement
-    auto node = std::make_unique<SceneNode>(heightMap);
-    node->setColor(Vector4(0.5f, 0.5f, 1.0f, 1.0f));
-    node->setMateriel(heightMapMateriel);
 
-    Light* sun = new Light(1024); // Radius doesn't matter for sun lights
-    sun->setFacing(
-        Vector3(1, 1, 0).Normalised()
-    );
-    sun->setType(Light::Type::Sun);
-    node->addChild(sun);
+    auto sun = dynamic_cast<Light*>(node->getTaggedChild("Sun"));
+    sun->setFacing(Vector3(1, 1, 0).Normalised());
 
-    return node;
+    return std::unique_ptr<SceneNode>(node);
 }
 
 void Renderer::spawnTrees(SceneNode* parent, Mesh* spawnOn, int count, const std::vector<SceneNode*>& templates)
