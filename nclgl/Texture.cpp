@@ -7,13 +7,6 @@
 #include "Shader.h"
 #include "common.h"
 
-const std::string Texture::CubeWestExt = "_west.jpg";
-const std::string Texture::CubeEastExt = "_east.jpg";
-const std::string Texture::CubeUpExt = "_up.jpg";
-const std::string Texture::CubeDownExt = "_down.jpg";
-const std::string Texture::CubeNorthExt = "_north.jpg";
-const std::string Texture::CubeSouthExt = "_south.jpg";
-
 Texture::Texture(const TextureKey& key)
     : name(key.name), type(GL_TEXTURE_2D)
 {
@@ -37,9 +30,9 @@ Texture::Texture(const std::string& name)
 {
 	std::string base(std::string(TEXTUREDIR) + name);
 	texture = SOIL_load_OGL_cubemap(
-		(base + CubeWestExt).c_str(), (base + CubeEastExt).c_str(),
-		(base + CubeUpExt).c_str(), (base + CubeDownExt).c_str(),
-		(base + CubeSouthExt).c_str(), (base + CubeNorthExt).c_str(),
+		(base + "_px.png").c_str(), (base + "_nx.png").c_str(),
+		(base + "_py.png").c_str(), (base + "_ny.png").c_str(),
+		(base + "_pz.png").c_str(), (base + "_nz.png").c_str(),
 		SOIL_LOAD_RGB, SOIL_CREATE_NEW_ID, 0
 	);
 

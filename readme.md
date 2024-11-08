@@ -42,4 +42,5 @@ The project makes heavy use of `std` containers, which are very slow in MSVC deb
 
 The following directories contain assets from external sources:
 
-- `Meshes/Quaternius`, `Textures/quaternius`: [Quaternius](https://quaternius.itch.io/stylized-nature-megakit) Stylized Nature Megakit. Used under the [CC0 License](https://creativecommons.org/publicdomain/zero/1.0/) for educational purposes.
+- `Meshes/quaternius`, `Textures/quaternius`: [Stylized Natrue Megakit by Quaternius](https://quaternius.itch.io/stylized-nature-megakit). Used under the [CC0 License](https://creativecommons.org/publicdomain/zero/1.0/) for educational purposes.
+- `Textures/crystallotus`: [Skybox Textures by Crystallotus](https://crystallotus.itch.io/skybox-textures). Converted into cubemaps using [Panorama to Cubemap](https://jaxry.github.io/panorama-to-cubemap/).

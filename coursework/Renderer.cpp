@@ -17,7 +17,10 @@ Renderer::Renderer(Window& parent)
     setPointLightShader(resourceManager->getShaders().get({"PointLightVertex.glsl", "PointLightFrag.glsl"}));
     setCombineShader(resourceManager->getShaders().get({"CombineVert.glsl", "CombineFrag.glsl"}));
 
-    skyTexture = resourceManager->getCubeMaps().get("rusted"); // TODO: Use a different texture for the future scene
+    //skyTexture = resourceManager->getCubeMaps().get("crystallotus/sunset");
+    oldSkybox = resourceManager->getCubeMaps().get("crystallotus/blue");
+    newSkybox = resourceManager->getCubeMaps().get("crystallotus/sunset");
+
     skyShader = resourceManager->getShaders().get({"SkyboxVertex.glsl", "SkyboxFragment.glsl"});
 
     heightMap = std::make_shared<HeightMap>(TEXTUREDIR "heightmap.png", Vector3(8, 2, 8));
@@ -88,9 +91,15 @@ void Renderer::RenderScene()	{
     // If we're fully in the past or future, the other scene is not visible
     // Don't bother rendering it
     if (timeWarp->getRatio() != 1)
+    {
+        skyTexture = oldSkybox;
         drawTree(presentRoot.get(), oldFbo);
+    }
     if (timeWarp->getRatio() != 0)
+    {
+        skyTexture = newSkybox;
         drawTree(futureRoot.get(), newFbo);
+    }
 
     combineBuffers();
 
@@ -195,6 +204,9 @@ std::unique_ptr<SceneNode> Renderer::createFutureScene()
 	// TODO: Implement
 
     auto sun = dynamic_cast<Light*>(node->getTaggedChild("Sun"));
+    sun->setColor(Vector4(
+        255.0 / 255.0, 200.0 / 255.0, 150.0 / 255.0, 1.0
+    ));
     sun->setFacing(Vector3(1, 1, 0).Normalised());
 
     return std::unique_ptr<SceneNode>(node);

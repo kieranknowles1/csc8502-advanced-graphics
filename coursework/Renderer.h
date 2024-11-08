@@ -37,9 +37,11 @@ protected:
 
     GLuint oldFbo;
     GLuint oldTex;
+    std::shared_ptr<Texture> oldSkybox;
 
     GLuint newFbo;
     GLuint newTex;
+    std::shared_ptr<Texture> newSkybox;
 
     std::shared_ptr<Shader> combineShader;
     void combineBuffers();

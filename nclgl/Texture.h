@@ -58,13 +58,6 @@ struct TextureKey
 class Texture
 {
 public:
-    const static std::string CubeWestExt;
-    const static std::string CubeEastExt;
-    const static std::string CubeUpExt;
-    const static std::string CubeDownExt;
-    const static std::string CubeNorthExt;
-    const static std::string CubeSouthExt;
-
     Texture(const std::string& name, GLenum type, GLuint id) : name(name), type(type), texture(id) {};
 
     // 2D texture + flags
