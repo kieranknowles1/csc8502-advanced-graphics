@@ -64,6 +64,8 @@ Renderer::Renderer(Window& parent)
     glEnable(GL_CULL_FACE);
     glEnable(GL_BLEND);
     glCullFace(GL_BACK);
+
+    // The base class initialises RNG with a fixed seed, so we get consistent results
 }
 
 Renderer::~Renderer(void) {
@@ -83,12 +85,6 @@ void Renderer::UpdateScene(float dt) {
 }
 
 void Renderer::RenderScene()	{
-    //glClearColor(0.2f,0.2f,0.2f,1.0f);
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    //BindShader(getDefaultMateriel().shader.get());
-    //UpdateShaderMatrices();
-
     // If we're fully in the past or future, the other scene is not visible
     // Don't bother rendering it
     if (timeWarp->getRatio() != 1)
@@ -138,6 +134,7 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
     root->addChild(presentOnly);
 
     auto treeParent = new SceneNode();
+    treeParent->setTag("Trees");
     auto trees = loadTemplates({
         "quaternius/Pine_1",
         "quaternius/Pine_2",
@@ -146,7 +143,7 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
         "quaternius/Pine_5"
     }, Vector3(10, 10, 10), -4);
     spawnTrees(treeParent, heightMap.get(), 500, trees);
-    presentOnly->addChild(treeParent);
+    root->addChild(treeParent);
 
     auto rockParent = new SceneNode();
     auto rocks = loadTemplates({
@@ -176,6 +173,24 @@ std::unique_ptr<SceneNode> Renderer::createFutureScene()
 
     // Deleting a node detaches it from its parent and deletes all children
     delete node->getTaggedChild("PresentOnly");
+
+    // Replace trees with dead versions
+    auto treeParent = node->getTaggedChild("Trees");
+    // Technically, we only need the mesh and materiel, but creating a node doesn't have too much overhead
+    auto deadTrees = loadTemplates({
+		"quaternius/DeadTree_1",
+		"quaternius/DeadTree_2",
+        "quaternius/DeadTree_3",
+        "quaternius/DeadTree_4",
+        "quaternius/DeadTree_5"
+	}, Vector3(7, 7, 7), -4);
+    std::uniform_int_distribution<int> dist(0, deadTrees.size() - 1);
+    for (auto child = treeParent->childrenBegin(); child != treeParent->childrenEnd(); child++) {
+        auto& dead = deadTrees.at(dist(rng));
+        (*child)->setMesh(dead->getMesh());
+        (*child)->setMateriels(dead->getMateriels());
+        (*child)->setScale(dead->getScale());
+    }
 
 	// TODO: Implement
 

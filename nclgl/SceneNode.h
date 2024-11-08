@@ -80,6 +80,7 @@ public:
 	void setMateriels(const std::vector<Materiel>& m) {
 		materials = m;
 	}
+	const std::vector<Materiel>& getMateriels() const { return materials; }
 
 	using SceneNodeIterator = std::vector<SceneNode*>::iterator;
 	SceneNodeIterator childrenBegin() { return children.begin(); }
