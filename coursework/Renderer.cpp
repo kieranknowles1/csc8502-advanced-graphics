@@ -107,6 +107,22 @@ void Renderer::combineBuffers() {
     timeWarp->apply(*this);
 }
 
+std::vector<std::unique_ptr<SceneNode>> Renderer::loadTemplates(std::initializer_list<std::string> names, Vector3 scale, float yOff) {
+	std::vector<std::unique_ptr<SceneNode>> templates;
+	for (auto& name : names) {
+		auto mesh = resourceManager->getMeshes().get(name + ".msh");
+		auto tree = std::make_unique<SceneNode>(mesh);
+		tree->setScale(scale);
+		tree->setTransform(
+			tree->getTransform() *
+			Matrix4::Translation(Vector3(0, yOff, 0))
+		);
+		tree->setMateriels(Materiel::fromFile(resourceManager.get(), name + ".mat"));
+		templates.push_back(std::move(tree));
+	}
+    return std::move(templates);
+}
+
 std::unique_ptr<SceneNode> Renderer::createPresentScene()
 {
     auto root = std::make_unique<SceneNode>();
@@ -122,31 +138,25 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
     root->addChild(presentOnly);
 
     auto treeParent = new SceneNode();
-
-    auto templates = std::vector<SceneNode*>();
-    auto loadTree = [&](const std::string& name, Vector3 scale, float yOff) {
-        auto mesh = resourceManager->getMeshes().get(name + ".msh");
-        auto tree = new SceneNode(mesh);
-        tree->setScale(scale);
-        tree->setTransform(
-            tree->getTransform() *
-            Matrix4::Translation(Vector3(0, yOff, 0))
-        );
-        tree->setMateriels(Materiel::fromFile(resourceManager.get(), name + ".mat"));
-        templates.push_back(tree);
-        };
-    loadTree("quaternius/Pine_1", Vector3(10, 10, 10), -40);
-    loadTree("quaternius/Pine_2", Vector3(10, 10, 10), -40);
-    loadTree("quaternius/Pine_3", Vector3(10, 10, 10), -40);
-    loadTree("quaternius/Pine_4", Vector3(10, 10, 10), -40);
-    loadTree("quaternius/Pine_5", Vector3(10, 10, 10), -40);
-
-    spawnTrees(treeParent, heightMap.get(), 500, templates);
-    for (auto& tree : templates) {
-        delete tree;
-    }
-
+    auto trees = loadTemplates({
+        "quaternius/Pine_1",
+        "quaternius/Pine_2",
+        "quaternius/Pine_3",
+        "quaternius/Pine_4",
+        "quaternius/Pine_5"
+    }, Vector3(10, 10, 10), -4);
+    spawnTrees(treeParent, heightMap.get(), 500, trees);
     presentOnly->addChild(treeParent);
+
+    auto rockParent = new SceneNode();
+    auto rocks = loadTemplates({
+		"quaternius/Rock_Medium_1",
+        "quaternius/Rock_Medium_2",
+        "quaternius/Rock_Medium_3",
+	}, Vector3(10, 10, 10), -4);
+    spawnTrees(rockParent, heightMap.get(), 1000, rocks);
+    root->addChild(rockParent);
+
 
     Light* sun = new Light(1024); // Radius doesn't matter for sun lights
     sun->setTag("Sun");
@@ -175,20 +185,24 @@ std::unique_ptr<SceneNode> Renderer::createFutureScene()
     return std::unique_ptr<SceneNode>(node);
 }
 
-void Renderer::spawnTrees(SceneNode* parent, Mesh* spawnOn, int count, const std::vector<SceneNode*>& templates)
+void Renderer::spawnTrees(SceneNode* parent, Mesh* spawnOn, int count, const std::vector<std::unique_ptr<SceneNode>>& templates)
 {
     std::uniform_int_distribution<int> pointDist(0, spawnOn->getVertexCount());
     std::uniform_int_distribution<int> templateDist(0, templates.size() - 1);
+    std::uniform_real_distribution<float> angleDist(0, 360);
+    std::uniform_real_distribution<float> scaleDist(0.8, 1.2);
     for (int i = 0; i < count; i++) {
-        auto choice = templates.at(templateDist(rng));
+        auto& choice = templates.at(templateDist(rng));
         auto instance = choice->deepCopy();
         // Pick a random point
         auto& point = spawnOn->getVertex(pointDist(rng));
 
         instance->setTransform(
             instance->getTransform() *
-            Matrix4::Translation(point)
+            Matrix4::Translation(point) *
+            Matrix4::Rotation(angleDist(rng), Vector3(0, 1, 0)) // Don't rotate the translation, keep us on the same point
         );
+        instance->setScale(instance->getScale() * scaleDist(rng));
 
         parent->addChild(instance);
     }

@@ -10,7 +10,7 @@ uniform mat4 projMatrix;
 uniform mat4 textureMatrix;
 uniform vec4 nodeColor;
 
-#define NOISE_POWER 32.0f
+#define NOISE_POWER 16.0f
 #define NOISE_SCALE vec2(1.0f / 32.0f)
 // Layer the noise texture over itself to create a more complex pattern
 // Later layers have higher frequency and less effect on the position

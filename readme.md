@@ -12,6 +12,9 @@ In demos with a camera:
 - `Mouse` to look around
 - `P` to print the current camera position
 
+In the `coursework` demo:
+- `1`, `2` hold to shift between past/future scenes
+
 ## Building the project
 
 The project is built using CMake and supports Windows and Linux. MacOS may work, but is completely untested.
@@ -34,3 +37,9 @@ in `flake.lock`.
 ### Building on Windows
 
 The project makes heavy use of `std` containers, which are very slow in MSVC debug builds. Because of this, using `RelWithDebInfo` is recommended for development.
+
+## Third-Party Assets
+
+The following directories contain assets from external sources:
+
+- `Meshes/Quaternius`, `Textures/quaternius`: [Quaternius](https://quaternius.itch.io/stylized-nature-megakit) Stylized Nature Megakit. Used under the [CC0 License](https://creativecommons.org/publicdomain/zero/1.0/) for educational purposes.

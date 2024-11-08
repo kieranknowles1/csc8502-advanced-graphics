@@ -21,8 +21,10 @@ protected:
     std::unique_ptr<SceneNode> createPresentScene();
     std::unique_ptr<SceneNode> createFutureScene();
 
+    std::vector<std::unique_ptr<SceneNode>> loadTemplates(std::initializer_list<std::string> names, Vector3 scale, float yOff);
+
     // Spawn `count` trees at random locations on `spawnOn` mesh as copies of `tree`
-    void spawnTrees(SceneNode* parent, Mesh* spawnOn, int count, const std::vector<SceneNode*>& templates);
+    void spawnTrees(SceneNode* parent, Mesh* spawnOn, int count, const std::vector<std::unique_ptr<SceneNode>>& templates);
 
     std::shared_ptr<HeightMap> heightMap;
     Materiel heightMapMateriel;
