@@ -70,7 +70,7 @@ Renderer::Renderer(Window& parent)
 
     sceneShader = resourceManager->getShaders().get({
         "ShadowSceneVert.glsl",
-        "ShadowSceneFrag.glsl"
+        "ShadowSceneFrag.frag"
     });
 
     // TODO: We need a version that works with tessellation
@@ -203,6 +203,7 @@ void Renderer::drawShadowScene() {
 	);
     projMatrix = Matrix4::Perspective(1, 10000, 1.0f, 45.0f);
     shadowMatrix = projMatrix * viewMatrix;
+    UpdateShaderMatrices();
 
     drawNodes(context.opaqueNodes, /*shadowPass*/true);
 

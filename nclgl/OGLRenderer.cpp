@@ -36,6 +36,10 @@ OGLRenderer::OGLRenderer(Window &window)
 	, height(window.GetScreenSize().y)
 	, rng(0) // Use the same seed for consistency
 {
+	// Request a context of at least version 4, needed for tessellation
+	// Renderdoc needs us to be explicit or it won't capture
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 	glContext = SDL_GL_CreateContext(window.getSdlWindow());
 	if (!glContext) {
 		auto error = SDL_GetError();

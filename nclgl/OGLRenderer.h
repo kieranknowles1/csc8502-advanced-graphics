@@ -21,7 +21,7 @@ _-_-_-_-_-_-_-""  ""
 #include <memory>
 #include <random>
 
-#include "glad/glad.h"
+#include <glad/glad.h>
 
 #include "GL/gl.h"
 

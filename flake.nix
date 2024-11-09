@@ -73,7 +73,9 @@
           default = cfgLib.shell.mkShellEx pkgs.mkShellNoCC {
             name = "dev";
             # Install all dependencies for the duration of the shell
-            packages = deps;
+            packages = deps ++ [
+              pkgs.renderdoc
+            ];
 
             # Bash snippet that runs when entering the shell
             # mkShelllEx execs into $SHELL after this, so
