@@ -46,6 +46,13 @@ public:
 	void setType(Type t) { type = t; }
 	Type getType() const { return type; }
 
+	void setCastShadows(bool c) { castShadows = c; }
+	bool getCastsShadows() const { return castShadows; }
+	void setShadowViewMatrix(const Matrix4& m) { shadowViewMatrix = m; }
+	const Matrix4& getShadowViewMatrix() const { return shadowViewMatrix; }
+	void setShadowProjMatrix(const Matrix4& m) { shadowProjMatrix = m; }
+	const Matrix4& getShadowProjMatrix() const { return shadowProjMatrix; }
+
 protected:
 	float radius;
 	// How quickly the light fades with distance. 2.0 is a good default
@@ -63,6 +70,12 @@ protected:
 
 	Type type = Type::Point;
 
+	// Whether this light casts shadows
+	// Expensive, so use sparingly
+	bool castShadows = false;
+	Matrix4 shadowViewMatrix;
+	Matrix4 shadowProjMatrix;
+
 	const std::string getName() const override { return "Light"; }
 
 	Light(const Light& l)
@@ -71,7 +84,10 @@ protected:
 		, attenuation(l.attenuation)
 		, fov(l.fov)
 		, facing(l.facing)
-		, type(l.type) {}
+		, type(l.type)
+		, castShadows(l.castShadows)
+		, shadowViewMatrix(l.shadowViewMatrix)
+		, shadowProjMatrix(l.shadowProjMatrix) {}
 	SceneNode* deepCopy() const override {
 		auto copy = new Light(*this);
 		copy->copyChildrenFrom(*this);

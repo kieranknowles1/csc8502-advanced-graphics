@@ -57,7 +57,8 @@ struct DebugSettings {
 // Scratchpad for rendering a scene
 // Kept between frames to reduce memory allocation
 struct RenderContext {
-	std::vector<Light*> lights;
+	std::vector<Light*> pointLights;
+	std::vector<Light*> shadowLights;
 	std::vector<SceneNode*> transparentNodes;
 	std::vector<SceneNode*> opaqueNodes;
 
@@ -152,7 +153,7 @@ protected:
 
 	// TODO: Frustum culling
 	RenderContext context;
-private:
+// private:
 	void sortNodeLists();
 
 	void drawSky(GLuint destFbo);
@@ -166,7 +167,11 @@ private:
 	GLuint deferredLightFbo;
 	GLuint deferredLightDiffuse;
 	GLuint deferredLightSpecular;
+	virtual void drawShadowLights() = 0; // TODO: Implement
 	void drawPointLights();
+
+	void beginLightPass();
+	void endLightPass();
 
 	std::shared_ptr<Shader> combineShader;
 	std::unique_ptr<Mesh> quad;

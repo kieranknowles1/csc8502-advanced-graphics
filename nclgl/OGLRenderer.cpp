@@ -243,8 +243,9 @@ void OGLRenderer::drawTree(SceneNode* root, GLuint destFbo) {
 	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 	drawNodes(context.transparentNodes);
 
-	// Pass 2 - Draw point lights
+	// Pass 2 - Draw lights
 	drawPointLights();
+	drawShadowLights();
 
 	// Pass 3 - Combine
 	// TODO: Also do post-processing here
@@ -274,7 +275,7 @@ void OGLRenderer::drawSky(GLuint destFbo) {
 	quad->Draw();
 }
 
-void OGLRenderer::drawPointLights() {
+void OGLRenderer::beginLightPass() {
 	glBindFramebuffer(GL_FRAMEBUFFER, deferredLightFbo);
 	BindShader(pointLightShader.get());
 
@@ -314,11 +315,9 @@ void OGLRenderer::drawPointLights() {
 	invViewProj.bind(pointLightShader->getUniform("inverseProjView"));
 
 	UpdateShaderMatrices();
-	for (auto& light : context.lights) {
-		light->bind(*this);
-		sphere->Draw();
-	}
+}
 
+void OGLRenderer::endLightPass() {
 	// Restore the state
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glCullFace(GL_BACK);
@@ -326,6 +325,16 @@ void OGLRenderer::drawPointLights() {
 	glDepthMask(GL_TRUE);
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void OGLRenderer::drawPointLights() {
+	beginLightPass();
+	for (auto& light : context.pointLights) {
+		light->bind(*this);
+		sphere->Draw();
+	}
+	endLightPass();
+
 }
 
 void OGLRenderer::combineBuffers(GLuint destFbo) {
@@ -376,7 +385,8 @@ void OGLRenderer::buildNodeLists(SceneNode* from) {
 
 	auto asLight = dynamic_cast<Light*>(from);
 	if (asLight) {
-		context.lights.push_back(asLight);
+		auto& list = asLight->getCastsShadows() ? context.shadowLights : context.pointLights;
+		list.push_back(asLight);
 	}
 
 	for (auto child = from->childrenBegin(); child != from->childrenEnd(); child++) {
@@ -393,7 +403,8 @@ void RenderContext::clear() {
 	// which is desirable in this case
 	opaqueNodes.clear();
 	transparentNodes.clear();
-	lights.clear();
+	pointLights.clear();
+	shadowLights.clear();
 }
 
 void OGLRenderer::drawNodes(const std::vector<SceneNode*>& nodes, bool shadowPass) {
