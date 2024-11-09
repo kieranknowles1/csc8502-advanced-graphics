@@ -279,9 +279,6 @@ void OGLRenderer::beginLightPass() {
 	glBindFramebuffer(GL_FRAMEBUFFER, deferredLightFbo);
 	BindShader(pointLightShader.get());
 
-	glClearColor(0, 0, 0, 1);
-	glClear(GL_COLOR_BUFFER_BIT);
-
 	// Combine lights additively
 	glBlendFunc(GL_ONE, GL_ONE);
 	// Draw each sphere exactly once, even if the camera is inside it
@@ -329,6 +326,8 @@ void OGLRenderer::endLightPass() {
 
 void OGLRenderer::drawPointLights() {
 	beginLightPass();
+	glClearColor(0, 0, 0, 1);
+	glClear(GL_COLOR_BUFFER_BIT);
 	for (auto& light : context.pointLights) {
 		light->bind(*this);
 		sphere->Draw();

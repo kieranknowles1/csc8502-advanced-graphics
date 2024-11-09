@@ -4,6 +4,8 @@ uniform mat4 shadowMatrix;
 
 uniform sampler2D depthTex;
 uniform sampler2D normalTex;
+
+uniform bool useShadows;
 uniform sampler2D shadowTex;
 
 uniform vec2 pixelSize; // Reciprocal of the screen resolution
@@ -65,6 +67,10 @@ float getAttenuation(vec3 worldPos) {
 }
 
 float getShadow(vec4 shadowProj) {
+    if (!useShadows) {
+        return 1.0;
+    }
+
     vec3 shadowNDC = shadowProj.xyz / shadowProj.w;
 
     // Are we in the shadow mapped region?

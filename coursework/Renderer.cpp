@@ -14,7 +14,7 @@ Renderer::Renderer(Window& parent)
         resourceManager->getShaders().get({"BumpVertex.glsl", "BufferFragment.glsl"})
     });
 
-    setPointLightShader(resourceManager->getShaders().get({"PointLightVertex.glsl", "PointLightFrag.glsl"}));
+    setPointLightShader(resourceManager->getShaders().get({"DeferredLight.vert", "DeferredLight.frag"}));
     setCombineShader(resourceManager->getShaders().get({"CombineVert.glsl", "CombineFrag.glsl"}));
 
     //skyTexture = resourceManager->getCubeMaps().get("crystallotus/sunset");
@@ -243,6 +243,9 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
     sun->setFacing(
         Vector3(1, 1, -1).Normalised()
     );
+    sun->setColor(
+        Vector4(0.5, 0.5, 0.5, 1)
+    );
     sun->setType(Light::Type::Sun);
     root->addChild(sun);
 
@@ -260,7 +263,7 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
     );
     shadowCaster->setFacing(Vector3(0, 0, 1));
     shadowCaster->setTransform(Matrix4::Translation(shadowLightPos));
-    shadowCaster->setColor(Vector4(1, 1, 1, 1));
+    shadowCaster->setColor(Vector4(1, 0, 0, 1));
     shadowCaster->setCastShadows(true);
     root->addChild(shadowCaster);
 
