@@ -11,7 +11,8 @@ Renderer::Renderer(Window& parent)
     setDefaultMateriel({
         resourceManager->getTextures().get({"Barren Reds.JPG", SOIL_FLAG_MIPMAPS, true}),
         resourceManager->getTextures().get({"Barren RedsDOT3.JPG", SOIL_FLAG_MIPMAPS, true}),
-        resourceManager->getShaders().get({"BumpVertex.glsl", "BufferFragment.glsl"})
+        resourceManager->getShaders().get({"BumpVertex.glsl", "BufferFragment.glsl"}),
+        resourceManager->getShaders().get({"ShadowVert.glsl", "ShadowFrag.glsl"})
     });
 
     setPointLightShader(resourceManager->getShaders().get({"DeferredLight.vert", "DeferredLight.frag"}));
@@ -35,6 +36,7 @@ Renderer::Renderer(Window& parent)
         defaultMateriel.diffuse,
         defaultMateriel.normal,
         tesselateShader,
+        nullptr,
         resourceManager->getTextures().get({"noise.png", SOIL_FLAG_MIPMAPS, true})
     });
 
@@ -69,13 +71,6 @@ Renderer::Renderer(Window& parent)
     glCullFace(GL_BACK);
 
     // The base class initialises RNG with a fixed seed, so we get consistent results
-
-    // TODO: We need a version that works with tessellation
-    // Should force the factor to 1 as shadows don't need that much detail
-    shadowShader = resourceManager->getShaders().get({
-        "ShadowVert.glsl",
-        "ShadowFrag.glsl"
-    });
 
     glGenTextures(1, &shadowTex);
     glBindTexture(GL_TEXTURE_2D, shadowTex);
@@ -166,7 +161,6 @@ void Renderer::drawShadowScene(Light* light) {
     glClear(GL_DEPTH_BUFFER_BIT);
     glDepthFunc(GL_LEQUAL);
 
-    BindShader(shadowShader.get());
     viewMatrix = light->getShadowViewMatrix();
     projMatrix = light->getShadowProjMatrix();
     shadowMatrix = projMatrix * viewMatrix;
@@ -263,7 +257,7 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
         )
     );
     shadowCaster->setShadowProjMatrix(
-        Matrix4::Perspective(1, 5000, 1.0f, 45.0f)
+        Matrix4::Perspective(10, 5000, 1.0f, 45.0f)
     );
     shadowCaster->setFacing(Vector3(0, 0, 1));
     shadowCaster->setTransform(Matrix4::Translation(shadowLightPos));

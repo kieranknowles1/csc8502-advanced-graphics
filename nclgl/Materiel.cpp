@@ -50,8 +50,16 @@ std::vector<Materiel> Materiel::fromFile(ResourceManager* rm, const std::string&
     return result;
 }
 
-void Materiel::bind(OGLRenderer& r, const Materiel& defaults) const {
-    auto shader = this->shader ? this->shader : defaults.shader;
+void Materiel::bind(OGLRenderer& r, const Materiel& defaults, bool shadowPass) const {
+    // If we're doing a shadow pass then we don't anything other than the shader
+    if (shadowPass) {
+        auto& shader = this->shadowShader ? this->shadowShader : defaults.shadowShader;
+        r.BindShader(shader.get());
+        r.UpdateShaderMatrices();
+        return;
+    }
+
+    auto& shader = this->shader ? this->shader : defaults.shader;
     r.BindShader(shader.get());
     r.UpdateShaderMatrices();
 

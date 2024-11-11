@@ -82,22 +82,18 @@ void SceneNode::drawSelf(OGLRenderer& r, bool shadowPass)
     Matrix4 model = getWorldTransform();
 
     if (mesh->GetSubMeshCount() == 0) {
-        if (!shadowPass) {
-            auto mat = getMatrerial(0) ? getMatrerial(0) : &r.getDefaultMateriel();
-            mat->bind(r, r.getDefaultMateriel());
-            color.bind(r.getCurrentShader()->getUniform("nodeColor"));
-        }
+        auto mat = getMatrerial(0) ? getMatrerial(0) : &r.getDefaultMateriel();
+        mat->bind(r, r.getDefaultMateriel(), shadowPass);
+        color.bind(r.getCurrentShader()->getUniform("nodeColor"));
         model.bind(r.getCurrentShader()->getUniform("modelMatrix"));
 
         mesh->Draw();
     }
     else {
         for (int i = 0; i < mesh->GetSubMeshCount(); i++) {
-            if (!shadowPass) {
-                auto mat = getMatrerial(i) ? getMatrerial(i) : &r.getDefaultMateriel();
-                mat->bind(r, r.getDefaultMateriel());
-                color.bind(r.getCurrentShader()->getUniform("nodeColor"));
-            }
+            auto mat = getMatrerial(i) ? getMatrerial(i) : &r.getDefaultMateriel();
+            mat->bind(r, r.getDefaultMateriel(), shadowPass);
+            color.bind(r.getCurrentShader()->getUniform("nodeColor"));
             model.bind(r.getCurrentShader()->getUniform("modelMatrix"));
             mesh->DrawSubMesh(i);
         }

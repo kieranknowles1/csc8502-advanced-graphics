@@ -11,8 +11,10 @@ SkeletonAnim::SkeletonAnim(ResourceManager* rm, std::string mesh, std::string an
 	this->anim = rm->getAnimations().get(anim);
 	this->setMateriels(Materiel::fromFile(rm, mat));
 	auto shader = rm->getShaders().get({ "SkinningVertex.glsl", "BufferFragment.glsl" });
+	auto shadowShader = rm->getShaders().get({"SkinningVertexShadow.vert", "ShadowFrag.glsl"});
 	for (auto& mat : materials) {
 		mat.shader = shader;
+		mat.shadowShader = shadowShader;
 	}
 }
 
@@ -23,9 +25,6 @@ SkeletonAnim::~SkeletonAnim()
 
 void SkeletonAnim::drawSelf(OGLRenderer& r, bool shadowPass)
 {
-	// TODO: Support shadow pass
-	if (shadowPass) return;
-
 	std::vector<Matrix4> frameMatrices;
 	frameMatrices.reserve(mesh->GetJointCount());
 	auto currentFrameData = anim->GetJointData(currentFrame);
@@ -45,7 +44,7 @@ void SkeletonAnim::drawSelf(OGLRenderer& r, bool shadowPass)
 	Matrix4 model = getWorldTransform();
 
 	for (int i = 0; i < mesh->GetSubMeshCount(); i++) {
-		materials[i].bind(r, r.getDefaultMateriel());
+		materials[i].bind(r, r.getDefaultMateriel(), shadowPass);
 		r.UpdateShaderMatrices();
 		model.bind(r.getCurrentShader()->getUniform("modelMatrix"));
 		auto shader = materials[i].shader;
