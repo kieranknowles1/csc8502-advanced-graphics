@@ -185,6 +185,26 @@ void Renderer::drawShadowScene(Light* light) {
     projMatrix = oldProj;
 }
 
+void Renderer::summonLight() {
+    std::cout << "Spawning light\n";
+    auto& parent = timeWarp->getRatio() == 0 ? presentRoot : futureRoot;
+
+    Light* light = new Light(2000, 0.01);
+    std::uniform_real_distribution<float> colorDist(0, 1);
+    light->setColor(Vector4(colorDist(rng), colorDist(rng), colorDist(rng), 1));
+    light->setCastShadows(true);
+    light->setShadowProjMatrix(
+        Matrix4::Perspective(10, 2000, 1, 45)
+    );
+    light->setShadowViewMatrix(camera->buildViewMatrix());
+
+    light->setTransform(
+        Matrix4::Translation(camera->getPosition())
+    );
+    
+    parent->addChild(light);
+}
+
 void Renderer::combineBuffers() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

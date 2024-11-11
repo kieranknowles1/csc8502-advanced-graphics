@@ -18,7 +18,6 @@ uniform vec3 lightPos;
 uniform float lightFOV;
 // Forward vector of the light
 uniform vec3 lightForward;
-// const vec3 lightForward = normalize(vec3(1, 1, -1));
 
 // The type of light
 // Must match the enum in Light.h

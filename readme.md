@@ -15,6 +15,7 @@ In demos with a camera:
 In the `coursework` demo:
 - `1`, `2` hold to shift between past/future scenes
 - `3` to lock/unlock frustum culling
+- `4` to summon a shadow-casting light
 
 ## Building the project
 

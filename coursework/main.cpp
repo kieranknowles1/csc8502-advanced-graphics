@@ -26,6 +26,9 @@ int main()	{
         if (w.GetKeyboard()->KeyTriggered(SDL_SCANCODE_3)) {
             renderer.setLockFrustum(!renderer.isFrustumLocked());
         }
+        if (w.GetKeyboard()->KeyTriggered(SDL_SCANCODE_4)) {
+            renderer.summonLight();
+		}
     }
     return 0;
 }

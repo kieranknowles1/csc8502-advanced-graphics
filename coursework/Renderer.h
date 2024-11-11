@@ -17,6 +17,8 @@ public:
 
     void setTimeWarpFactor(float factor) { timeWarp->setRatio(factor); }
     float getTimeWarpFactor() const { return timeWarp->getRatio(); }
+
+    void summonLight();
 protected:
     std::unique_ptr<SceneNode> createPresentScene();
     std::unique_ptr<SceneNode> createFutureScene();
