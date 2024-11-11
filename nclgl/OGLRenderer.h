@@ -35,6 +35,7 @@ _-_-_-_-_-_-_-""  ""
 #include "Window.h"
 #include "Shader.h"
 #include "Mesh.h"
+#include "Frustum.h"
 #include "Materiel.h"
 
 using std::vector;
@@ -94,6 +95,13 @@ public:
 		return defaultMateriel;
 	}
 
+	void setLockFrustum(bool lock) {
+		lockFrustum = lock;
+	}
+	bool isFrustumLocked() const {
+		return lockFrustum;
+	}
+
 protected:
 	virtual void	Resize(int x, int y);
 
@@ -132,6 +140,8 @@ protected:
 	std::mt19937 rng;
 
 	std::unique_ptr<Camera> camera;
+	bool lockFrustum = false;
+	Frustum viewFrustum;
 
 	// Used to draw deferred lighting
 	// Directional lights are implemented with fragment discards

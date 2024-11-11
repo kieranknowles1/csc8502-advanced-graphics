@@ -13,7 +13,7 @@ int main()	{
         renderer.UpdateScene(dt);
         renderer.RenderScene();
         w.swapBuffers();
-        if (w.GetKeyboard()->KeyDown(SDL_SCANCODE_F5)) {
+        if (w.GetKeyboard()->KeyTriggered(SDL_SCANCODE_F5)) {
             Shader::ReloadAllShaders();
         }
 
@@ -22,6 +22,10 @@ int main()	{
         } else if (w.GetKeyboard()->KeyDown(SDL_SCANCODE_2)) {
 			renderer.setTimeWarpFactor(renderer.getTimeWarpFactor() + dt);
 		}
+
+        if (w.GetKeyboard()->KeyTriggered(SDL_SCANCODE_3)) {
+            renderer.setLockFrustum(!renderer.isFrustumLocked());
+        }
     }
     return 0;
 }

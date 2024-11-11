@@ -376,17 +376,19 @@ void OGLRenderer::buildNodeLists(SceneNode* from) {
 		return;
 	}
 
-	if (from->getMesh()) {
-		auto& list = from->getIsTransparent() ? context.transparentNodes : context.opaqueNodes;
-		list.push_back(from);
+	if (viewFrustum.inFrustum(*from) || from->ignoreBounds()) {
+		if (from->getMesh()) {
+			auto& list = from->getIsTransparent() ? context.transparentNodes : context.opaqueNodes;
+			list.push_back(from);
+		}
 
+		auto asLight = dynamic_cast<Light*>(from);
+		if (asLight) {
+			auto& list = asLight->getCastsShadows() ? context.shadowLights : context.pointLights;
+			list.push_back(asLight);
+		}
 	}
-
-	auto asLight = dynamic_cast<Light*>(from);
-	if (asLight) {
-		auto& list = asLight->getCastsShadows() ? context.shadowLights : context.pointLights;
-		list.push_back(asLight);
-	}
+	// Don't return, as the bounding sphere doesn't cover children
 
 	for (auto child = from->childrenBegin(); child != from->childrenEnd(); child++) {
 		buildNodeLists(*child);

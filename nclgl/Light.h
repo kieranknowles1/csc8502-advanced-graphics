@@ -23,14 +23,19 @@ public:
 	static const std::string typeUniform;
 
 	Light(float radius, float attenuation = 3.0f)
-		: radius(radius), attenuation(attenuation) {}
+		: attenuation(attenuation) {
+		setRadius(radius);
+	}
 
-	~Light(void) {}
+	~Light(void) override {}
 
 	// Bind this light's uniforms to the active shader
 	void bind(const OGLRenderer& renderer) const;
 
-	void setRadius(float r) { radius = r; }
+	void setRadius(float r) {
+		radius = r;
+		boundingRadius = r;
+	}
 	float getRadius() const { return radius; }
 
 	void setFov(float f) {
@@ -53,6 +58,7 @@ public:
 	void setShadowProjMatrix(const Matrix4& m) { shadowProjMatrix = m; }
 	const Matrix4& getShadowProjMatrix() const { return shadowProjMatrix; }
 
+	bool ignoreBounds() const override { return type == Type::Sun; }
 protected:
 	float radius;
 	// How quickly the light fades with distance. 2.0 is a good default

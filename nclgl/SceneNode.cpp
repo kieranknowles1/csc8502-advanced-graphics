@@ -105,8 +105,7 @@ void SceneNode::drawSelf(OGLRenderer& r, bool shadowPass)
 void SceneNode::drawDebug(OGLRenderer& r) {
     const Shader* shader = r.getCurrentShader();
     if (r.getDebugSettings().drawBoundingBoxes) {
-        // TODO: Use axis-aligned bounding box
-        // This is currently not very accurate, but good enough for now
+        // TODO: This is currently not very accurate, but good enough for now
         float sqrt2 = sqrt(2);
         float radius = getBoundingRadius();
         Matrix4 transform = getWorldTransform()

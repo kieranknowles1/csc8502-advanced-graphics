@@ -58,6 +58,8 @@ public:
 	}
 	void setBoundingRadius(float r) { boundingRadius = r; }
 
+	virtual bool ignoreBounds() const { return false; }
+
 	float getCameraDistance() const { return distanceFromCamera; }
 	void setCameraDistance(float d) { distanceFromCamera = d; }
 

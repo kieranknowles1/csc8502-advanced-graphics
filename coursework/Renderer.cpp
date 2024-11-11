@@ -18,7 +18,6 @@ Renderer::Renderer(Window& parent)
     setPointLightShader(resourceManager->getShaders().get({"DeferredLight.vert", "DeferredLight.frag"}));
     setCombineShader(resourceManager->getShaders().get({"CombineVert.glsl", "CombineFrag.glsl"}));
 
-    //skyTexture = resourceManager->getCubeMaps().get("crystallotus/sunset");
     oldSkybox = resourceManager->getCubeMaps().get("crystallotus/blue");
     newSkybox = resourceManager->getCubeMaps().get("crystallotus/sunset");
 
@@ -107,6 +106,9 @@ Renderer::~Renderer(void) {
 void Renderer::UpdateScene(float dt) {
     time += dt;
     camera->update(dt);
+    if (!lockFrustum) {
+        viewFrustum.fillFromMatrix(projMatrix * camera->buildViewMatrix());
+    }
 
     presentRoot->update(dt);
     futureRoot->update(dt);
@@ -212,6 +214,7 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
     auto heightMapNode = new SceneNode(
         this->heightMap
     );
+    heightMapNode->setBoundingRadius(3 * heightMap->getSize().Length());
     heightMapNode->setMateriel(heightMapMateriel);
     // TODO: Shadows don't currently support tessellation
     root->addChild(heightMapNode);
