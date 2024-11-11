@@ -245,7 +245,7 @@ void OGLRenderer::drawTree(SceneNode* root, GLuint destFbo) {
 
 	// Pass 2 - Draw lights
 	drawPointLights();
-	drawShadowLights();
+	drawShadowLights(root);
 
 	// Pass 3 - Combine
 	// TODO: Also do post-processing here

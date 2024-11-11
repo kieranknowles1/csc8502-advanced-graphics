@@ -177,7 +177,7 @@ protected:
 	GLuint deferredLightFbo;
 	GLuint deferredLightDiffuse;
 	GLuint deferredLightSpecular;
-	virtual void drawShadowLights() = 0; // TODO: Implement
+	virtual void drawShadowLights(SceneNode* root) = 0; // TODO: Implement
 	void drawPointLights();
 
 	void beginLightPass();

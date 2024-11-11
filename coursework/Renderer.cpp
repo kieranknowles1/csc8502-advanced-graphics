@@ -51,7 +51,6 @@ Renderer::Renderer(Window& parent)
         parent.GetKeyboard(), parent.GetMouse(),
         0, 0, 0, (heightMapSize * 0.5f) + Vector3(0, 500, 0)
     );
-    shadowLightPos = camera->getPosition();
     presentRoot = createPresentScene();
     futureRoot = createFutureScene();
 
@@ -133,7 +132,7 @@ void Renderer::RenderScene() {
     combineBuffers();
 }
 
-void Renderer::drawShadowLights() {
+void Renderer::drawShadowLights(SceneNode* root) {
     beginLightPass();
     glUniform1i(pointLightShader->getUniform("useShadows"), 1);
     glActiveTexture(GL_TEXTURE2);
@@ -141,7 +140,7 @@ void Renderer::drawShadowLights() {
     glUniform1i(pointLightShader->getUniform("shadowTex"), 2);
 
     for (auto& shadowCaster : context.shadowLights) {
-        drawShadowScene(shadowCaster);
+        drawShadowScene(root, shadowCaster);
         glBindFramebuffer(GL_FRAMEBUFFER, deferredLightFbo);
         BindShader(pointLightShader.get());
         shadowCaster->bind(*this);
@@ -152,7 +151,33 @@ void Renderer::drawShadowLights() {
     endLightPass();
 }
 
-void Renderer::drawShadowScene(Light* light) {
+//#define LAZY_SHADOWS
+
+void Renderer::fillShadowVisible(SceneNode* from, Light* visibleFrom, std::vector<SceneNode*>& out) const {
+    Frustum lightFrustum(
+        visibleFrom->getShadowProjMatrix() * visibleFrom->getShadowViewMatrix()
+    );
+    // Using only camera visible nodes isn't strictly correct,
+    // and clips some objects that should cast shadows
+    // but is good enought and less CPU intensive (according to a very unscientific test)
+    // The test was 50% science, in that I can do it again but I didn't write anything down
+#ifdef LAZY_SHADOWS
+    for (auto& cameraVisible : context.opaqueNodes) {
+        if (lightFrustum.inFrustum(*cameraVisible)) {
+			out.push_back(cameraVisible);
+		}
+    }
+#else
+    if (lightFrustum.inFrustum(*from)) {
+		out.push_back(from);
+	}
+    for (auto child = from->childrenBegin(); child != from->childrenEnd(); child++) {
+		fillShadowVisible(*child, visibleFrom, out);
+	}
+#endif // LAZY_SHADOWS
+}
+
+void Renderer::drawShadowScene(SceneNode* root, Light* light) {
     auto oldView = viewMatrix;
     auto oldProj = projMatrix;
     glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo);
@@ -174,7 +199,11 @@ void Renderer::drawShadowScene(Light* light) {
     shadowMatrix = projMatrix * viewMatrix;
     UpdateShaderMatrices();
 
-    drawNodes(context.opaqueNodes, /*shadowPass*/true);
+    // As with filtering nodes for the main camera, we want to reuse memory
+    // when possible, clear() doesn't free anything without shrink_to_fit
+    shadowVisible.clear();
+    fillShadowVisible(root, light, shadowVisible);
+    drawNodes(shadowVisible, /*shadowPass*/true);
 
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glEnable(GL_CULL_FACE);
@@ -276,24 +305,6 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
     );
     sun->setType(Light::Type::Sun);
     root->addChild(sun);
-
-    Light* shadowCaster = new Light(5000, 0.01);
-    shadowCaster->setTag("ShadowCaster");
-    shadowCaster->setShadowViewMatrix(
-        Matrix4::BuildViewMatrix(
-            shadowLightPos,
-            Vector3(0, 0, 0),
-            Vector3(0, 1, 0)
-        )
-    );
-    shadowCaster->setShadowProjMatrix(
-        Matrix4::Perspective(10, 5000, 1.0f, 45.0f)
-    );
-    shadowCaster->setFacing(Vector3(0, 0, 1));
-    shadowCaster->setTransform(Matrix4::Translation(shadowLightPos));
-    shadowCaster->setColor(Vector4(1, 0, 0, 1));
-    shadowCaster->setCastShadows(true);
-    root->addChild(shadowCaster);
 
     return root;
 }

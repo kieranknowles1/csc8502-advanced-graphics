@@ -47,15 +47,16 @@ protected:
 
     std::shared_ptr<Shader> combineShader;
 
-    // TODO: Support multiple shadow casters
     const static int ShadowSize = 2048;
     GLuint shadowTex;
     GLuint shadowFbo;
-    Vector3 shadowLightPos;
+    // Subset of nodes that are visible to both the camera and the shadow light
+    void fillShadowVisible(SceneNode* from, Light* visibleFrom, std::vector<SceneNode*>& out) const;
+    std::vector<SceneNode*> shadowVisible;
 
-    void drawShadowScene(Light* light);
+    void drawShadowScene(SceneNode* root, Light* light);
 
-    void drawShadowLights() override;
+    void drawShadowLights(SceneNode* root) override;
 
     void combineBuffers();
     float time = 0;

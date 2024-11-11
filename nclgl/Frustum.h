@@ -10,6 +10,7 @@ class Frustum
 {
 public:
 	Frustum() {}
+	Frustum(const Matrix4& viewProj) { fillFromMatrix(viewProj); }
 	~Frustum() {}
 
 	// Fill the frustum with planes extracted from the view-projection matrix
