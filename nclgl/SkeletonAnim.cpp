@@ -10,7 +10,7 @@ SkeletonAnim::SkeletonAnim(ResourceManager* rm, std::string mesh, std::string an
 	// TODO: All of these could be managed resources
 	this->anim = new MeshAnimation(anim);
 	this->setMateriels(Materiel::fromFile(rm, mat));
-	auto shader = rm->getShaders().get({ "SkinningVertex.glsl", "TexturedFragment.glsl" });
+	auto shader = rm->getShaders().get({ "SkinningVertex.glsl", "BufferFragment.glsl" });
 	for (auto& mat : materials) {
 		mat.shader = shader;
 	}
@@ -53,6 +53,7 @@ void SkeletonAnim::drawSelf(OGLRenderer& r, bool shadowPass)
 			shader->getUniform("joints"), frameMatrices.size(),
 			false, (float*)frameMatrices.data()
 		);
+		color.bind(r.getCurrentShader()->getUniform("nodeColor"));
 		mesh->DrawSubMesh(i);
 	}
 }

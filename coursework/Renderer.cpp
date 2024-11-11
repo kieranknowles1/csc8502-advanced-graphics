@@ -317,7 +317,7 @@ std::unique_ptr<SceneNode> Renderer::createFutureScene()
     animatedNode->setTransform(
         Matrix4::Translation(camera->getPosition())
     );
-    animatedNode->setScale(Vector3(10, 10, 10));
+    animatedNode->setScale(Vector3(20, 20, 20));
     node->addChild(animatedNode);
 
     return std::unique_ptr<SceneNode>(node);
