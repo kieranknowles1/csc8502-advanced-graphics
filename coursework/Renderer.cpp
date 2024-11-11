@@ -197,6 +197,7 @@ std::vector<std::unique_ptr<SceneNode>> Renderer::loadTemplates(std::initializer
 		auto mesh = resourceManager->getMeshes().get(name + ".msh");
 		auto tree = std::make_unique<SceneNode>(mesh);
 		tree->setScale(scale);
+        tree->setBoundingRadius(mesh->getBoundingRadius());
 		tree->setTransform(
 			tree->getTransform() *
 			Matrix4::Translation(Vector3(0, yOff, 0))

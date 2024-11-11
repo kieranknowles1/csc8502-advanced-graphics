@@ -115,6 +115,10 @@ public:
 	void generateTangents();
 	void generatePatchTangents();
 
+	// Generate a bounding radius for the mesh
+	// Fairly expensive (O(N) on the number of vertices), so cache the result if you need it often
+	float getBoundingRadius() const;
+
 protected:
 	// Fill a, b, and c with the vertex indices for the i-th triangle
 	// Returns false if i is out of bounds

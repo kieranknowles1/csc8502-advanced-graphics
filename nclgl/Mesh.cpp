@@ -148,6 +148,17 @@ bool Mesh::getVertexIndeciesForQuad(unsigned int i, unsigned int* a, unsigned in
 	return true;
 }
 
+float Mesh::getBoundingRadius() const {
+	float max = 0;
+	for (auto& vertex : vertices) {
+		float length = vertex.Length();
+		if (length > max) {
+			max = length;
+		}
+	}
+	return max;
+}
+
 void	Mesh::BufferData()	{
 	glBindVertexArray(arrayObject);
 
