@@ -55,17 +55,12 @@ void Materiel::bind(OGLRenderer& r, const Materiel& defaults) const {
     r.BindShader(shader.get());
     r.UpdateShaderMatrices();
 
-    auto& diffuse = this->diffuse ? this->diffuse : defaults.diffuse;
     if (diffuse != nullptr)
-        TextureUnit::Diffuse.bind(*shader, *diffuse);
-
-    auto& normal = this->normal ? this->normal : defaults.normal;
+		TextureUnit::Diffuse.bind(*shader, *diffuse);
     if (normal != nullptr)
         TextureUnit::Normal.bind(*shader, *normal);
-
-    auto& noise = this->noise ? this->noise : defaults.noise;
     if (noise != nullptr)
-		TextureUnit::Noise.bind(*shader, *noise);
+        TextureUnit::Noise.bind(*shader, *noise);
 
     if (cullMode == GL_NONE) {
 		glDisable(GL_CULL_FACE);
