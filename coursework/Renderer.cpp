@@ -152,7 +152,6 @@ void Renderer::drawShadowScene(Light* light) {
     auto oldView = viewMatrix;
     auto oldProj = projMatrix;
     glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo);
-    glClear(GL_DEPTH_BUFFER_BIT);
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     glViewport(0, 0, ShadowSize, ShadowSize);
     // Need to disable some light-specific settings
@@ -160,6 +159,9 @@ void Renderer::drawShadowScene(Light* light) {
     glDisable(GL_CULL_FACE);
     // Write to the depth buffer only
     glDepthMask(GL_TRUE);
+    // This has to be after enabling depth writing on Windows, but not on Linux
+    // Seems like a driver bug
+    glClear(GL_DEPTH_BUFFER_BIT);
     glDepthFunc(GL_LEQUAL);
 
     BindShader(shadowShader.get());
