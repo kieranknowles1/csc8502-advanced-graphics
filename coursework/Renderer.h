@@ -44,6 +44,18 @@ protected:
     std::shared_ptr<Texture> newSkybox;
 
     std::shared_ptr<Shader> combineShader;
+
+    // TODO: Support multiple shadow casters
+    const static int ShadowSize = 2048;
+    GLuint shadowTex;
+    GLuint shadowFbo;
+    std::shared_ptr<Shader> shadowShader;
+    Vector3 shadowLightPos;
+
+    void drawShadowScene(Light* light);
+
+    void drawShadowLights() override;
+
     void combineBuffers();
     float time = 0;
 };

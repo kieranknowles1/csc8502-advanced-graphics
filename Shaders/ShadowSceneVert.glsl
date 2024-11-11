@@ -9,13 +9,13 @@ uniform mat4 shadowMatrix;
 uniform vec3 lightPos;
 
 in vec3 position;
-in vec4 color;
+in vec3 color;
 in vec3 normal;
 in vec2 texCoord;
 in vec4 tangent;
 
 out Vertex {
-    vec4 color;
+    vec3 color;
     vec2 texCoord;
     vec3 normal;
     vec3 worldPos;

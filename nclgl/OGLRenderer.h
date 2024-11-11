@@ -21,7 +21,7 @@ _-_-_-_-_-_-_-""  ""
 #include <memory>
 #include <random>
 
-#include "glad/glad.h"
+#include <glad/glad.h>
 
 #include "GL/gl.h"
 
@@ -57,7 +57,8 @@ struct DebugSettings {
 // Scratchpad for rendering a scene
 // Kept between frames to reduce memory allocation
 struct RenderContext {
-	std::vector<Light*> lights;
+	std::vector<Light*> pointLights;
+	std::vector<Light*> shadowLights;
 	std::vector<SceneNode*> transparentNodes;
 	std::vector<SceneNode*> opaqueNodes;
 
@@ -146,15 +147,16 @@ protected:
 	std::shared_ptr<Shader> skyShader;
 
 	GLuint generateScreenTexture(bool depth = false, GLenum clampMode = GL_CLAMP_TO_EDGE);
-private:
-	void buildNodeLists(SceneNode* from);
-	void sortNodeLists();
-	void drawNodes(const std::vector<SceneNode*>& nodes);
 
-	void drawSky(GLuint destFbo);
+	void drawNodes(const std::vector<SceneNode*>& nodes, bool shadowPass = false);
+	void buildNodeLists(SceneNode* from);
 
 	// TODO: Frustum culling
 	RenderContext context;
+// private:
+	void sortNodeLists();
+
+	void drawSky(GLuint destFbo);
 
 	GLuint gBufferFbo;
 	GLuint gBufferDepth;
@@ -165,7 +167,11 @@ private:
 	GLuint deferredLightFbo;
 	GLuint deferredLightDiffuse;
 	GLuint deferredLightSpecular;
+	virtual void drawShadowLights() = 0; // TODO: Implement
 	void drawPointLights();
+
+	void beginLightPass();
+	void endLightPass();
 
 	std::shared_ptr<Shader> combineShader;
 	std::unique_ptr<Mesh> quad;

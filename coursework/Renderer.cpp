@@ -14,7 +14,7 @@ Renderer::Renderer(Window& parent)
         resourceManager->getShaders().get({"BumpVertex.glsl", "BufferFragment.glsl"})
     });
 
-    setPointLightShader(resourceManager->getShaders().get({"PointLightVertex.glsl", "PointLightFrag.glsl"}));
+    setPointLightShader(resourceManager->getShaders().get({"DeferredLight.vert", "DeferredLight.frag"}));
     setCombineShader(resourceManager->getShaders().get({"CombineVert.glsl", "CombineFrag.glsl"}));
 
     //skyTexture = resourceManager->getCubeMaps().get("crystallotus/sunset");
@@ -41,11 +41,9 @@ Renderer::Renderer(Window& parent)
     auto heightMapSize = heightMap->getSize();
     camera = std::make_unique<Camera>(
         parent.GetKeyboard(), parent.GetMouse(),
-        -45, 0, 0, (heightMapSize * 0.5f) + Vector3(0, 500, 0)
+        0, 0, 0, (heightMapSize * 0.5f) + Vector3(0, 500, 0)
     );
-
-    projMatrix = Matrix4::Perspective(1.0f, 10000.0f, (float)width / (float)height, 45.0f);
-
+    shadowLightPos = camera->getPosition();
     presentRoot = createPresentScene();
     futureRoot = createFutureScene();
 
@@ -69,6 +67,29 @@ Renderer::Renderer(Window& parent)
     glCullFace(GL_BACK);
 
     // The base class initialises RNG with a fixed seed, so we get consistent results
+
+    // TODO: We need a version that works with tessellation
+    // Should force the factor to 1 as shadows don't need that much detail
+    shadowShader = resourceManager->getShaders().get({
+        "ShadowVert.glsl",
+        "ShadowFrag.glsl"
+    });
+
+    glGenTextures(1, &shadowTex);
+    glBindTexture(GL_TEXTURE_2D, shadowTex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, ShadowSize, ShadowSize, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+
+    glGenFramebuffers(1, &shadowFbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowTex, 0);
+    glDrawBuffer(GL_NONE);
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		throw std::runtime_error("Failed to create shadow framebuffer");
+	}
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 Renderer::~Renderer(void) {
@@ -76,32 +97,86 @@ Renderer::~Renderer(void) {
     glDeleteFramebuffers(1, &newFbo);
     glDeleteTextures(1, &oldTex);
     glDeleteTextures(1, &newTex);
+
+    glDeleteTextures(1, &shadowTex);
+    glDeleteFramebuffers(1, &shadowFbo);
 }
 
 void Renderer::UpdateScene(float dt) {
     time += dt;
     camera->update(dt);
-    viewMatrix = camera->buildViewMatrix();
 
     presentRoot->update(dt);
     futureRoot->update(dt);
 }
 
-void Renderer::RenderScene()	{
+void Renderer::RenderScene() {
+    viewMatrix = camera->buildViewMatrix();
+    projMatrix = Matrix4::Perspective(1.0f, 10000.0f, (float)width / (float)height, 45.0f);
     // If we're fully in the past or future, the other scene is not visible
     // Don't bother rendering it
     if (timeWarp->getRatio() != 1)
     {
-        skyTexture = oldSkybox;
-        drawTree(presentRoot.get(), oldFbo);
+       skyTexture = oldSkybox;
+       drawTree(presentRoot.get(), oldFbo);
     }
     if (timeWarp->getRatio() != 0)
     {
-        skyTexture = newSkybox;
-        drawTree(futureRoot.get(), newFbo);
+       skyTexture = newSkybox;
+       drawTree(futureRoot.get(), newFbo);
     }
 
     combineBuffers();
+}
+
+void Renderer::drawShadowLights() {
+    beginLightPass();
+    glUniform1i(pointLightShader->getUniform("useShadows"), 1);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, shadowTex);
+    glUniform1i(pointLightShader->getUniform("shadowTex"), 2);
+
+    for (auto& shadowCaster : context.shadowLights) {
+        drawShadowScene(shadowCaster);
+        glBindFramebuffer(GL_FRAMEBUFFER, deferredLightFbo);
+        BindShader(pointLightShader.get());
+        shadowCaster->bind(*this);
+        sphere->Draw();
+    }
+
+    glUniform1i(pointLightShader->getUniform("useShadows"), 0);
+    endLightPass();
+}
+
+void Renderer::drawShadowScene(Light* light) {
+    auto oldView = viewMatrix;
+    auto oldProj = projMatrix;
+    glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    glViewport(0, 0, ShadowSize, ShadowSize);
+    // Need to disable some light-specific settings
+    // Don't cull anything, should reduce artifacts
+    glDisable(GL_CULL_FACE);
+    // Write to the depth buffer only
+    glDepthMask(GL_TRUE);
+    glDepthFunc(GL_LEQUAL);
+
+    BindShader(shadowShader.get());
+    viewMatrix = light->getShadowViewMatrix();
+    projMatrix = light->getShadowProjMatrix();
+    shadowMatrix = projMatrix * viewMatrix;
+    UpdateShaderMatrices();
+
+    drawNodes(context.opaqueNodes, /*shadowPass*/true);
+
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glEnable(GL_CULL_FACE);
+    glDepthFunc(GL_ALWAYS);
+    glDepthMask(GL_FALSE);
+    glViewport(0, 0, width, height);
+    viewMatrix = oldView;
+    projMatrix = oldProj;
 }
 
 void Renderer::combineBuffers() {
@@ -123,7 +198,7 @@ std::vector<std::unique_ptr<SceneNode>> Renderer::loadTemplates(std::initializer
 		tree->setMateriels(Materiel::fromFile(resourceManager.get(), name + ".mat"));
 		templates.push_back(std::move(tree));
 	}
-    return std::move(templates);
+    return templates;
 }
 
 std::unique_ptr<SceneNode> Renderer::createPresentScene()
@@ -133,7 +208,8 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
     auto heightMapNode = new SceneNode(
         this->heightMap
     );
-    heightMapNode->setMateriel(heightMapMateriel);
+    // heightMapNode->setMateriel(heightMapMateriel);
+    // TODO: Shadows don't currently support tessellation
     root->addChild(heightMapNode);
 
     auto presentOnly = new SceneNode();
@@ -167,8 +243,29 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
     sun->setFacing(
         Vector3(1, 1, -1).Normalised()
     );
+    sun->setColor(
+        Vector4(0.5, 0.5, 0.5, 1)
+    );
     sun->setType(Light::Type::Sun);
     root->addChild(sun);
+
+    Light* shadowCaster = new Light(5000);
+    shadowCaster->setTag("ShadowCaster");
+    shadowCaster->setShadowViewMatrix(
+        Matrix4::BuildViewMatrix(
+            shadowLightPos,
+            Vector3(0, 0, 0),
+            Vector3(0, 1, 0)
+        )
+    );
+    shadowCaster->setShadowProjMatrix(
+        Matrix4::Perspective(1, 5000, 1.0f, 45.0f)
+    );
+    shadowCaster->setFacing(Vector3(0, 0, 1));
+    shadowCaster->setTransform(Matrix4::Translation(shadowLightPos));
+    shadowCaster->setColor(Vector4(1, 0, 0, 1));
+    shadowCaster->setCastShadows(true);
+    root->addChild(shadowCaster);
 
     return root;
 }

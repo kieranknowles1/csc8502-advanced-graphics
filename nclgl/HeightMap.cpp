@@ -6,9 +6,12 @@ int vertex(int x, int y, int width) {
 	return x + (y * width);
 }
 
-HeightMap::HeightMap(const std::string& file, Vector3 vertexScale, Vector2 textureScale)
+HeightMap::HeightMap(const std::string& file, Vector3 vertexScale, Vector2 textureScale, bool useTessellation)
 {
-	type = GL_PATCHES; // We're going to tesselate this based on a noise map
+	// TODO: Temp
+	useTessellation = false;
+
+	type = useTessellation ? GL_PATCHES : GL_TRIANGLES;
 
 	int width = 0;
 	int height = 0;
@@ -22,9 +25,9 @@ HeightMap::HeightMap(const std::string& file, Vector3 vertexScale, Vector2 textu
 	}
 
 	int numVertices = width * height;
+	int indicesPerFace = useTessellation ? 4 : 6; // 4 vertices per patch, or 2 triangles with 3 vertices each
 	// -1 as we can't get a position from the last row/column
-	//int numIndices = (width - 1) * (height - 1) * 6;
-	int numIndices = (width - 1) * (height - 1) * 4; // 4 vertices per patch
+	int numIndices = (width - 1) * (height - 1) * indicesPerFace;
 
 	vertices.resize(numVertices);
 	textureCoords.resize(numVertices);
@@ -49,15 +52,33 @@ HeightMap::HeightMap(const std::string& file, Vector3 vertexScale, Vector2 textu
 	int i = 0;
 	for (int z = 0; z < height - 1; z++) {
 		for (int x = 0; x < width - 1; x++) {
-			indices[i++] = vertex(x, z, width); // Top left
-			indices[i++] = vertex(x, z + 1, width); // Bottom left
-			indices[i++] = vertex(x + 1, z, width); // Top right
-			indices[i++] = vertex(x + 1, z + 1, width); // Bottom right
+			auto tl = vertex(x, z, width); // Top left
+			auto bl = vertex(x, z + 1, width); // Bottom left
+			auto tr = vertex(x + 1, z, width); // Top right
+			auto br = vertex(x + 1, z + 1, width); // Bottom right
+			if (useTessellation) {
+				indices[i++] = tl;
+				indices[i++] = bl;
+				indices[i++] = tr;
+				indices[i++] = br;
+			} else {
+				indices[i++] = tl;
+				indices[i++] = bl;
+				indices[i++] = tr;
+
+				indices[i++] = tr;
+				indices[i++] = bl;
+				indices[i++] = br;
+			}
 		}
 	}
-
-	generatePatchNormals();
-	generatePatchTangents();
+	if (useTessellation) {
+		generatePatchNormals();
+		generatePatchTangents();
+	} else {
+		generateNormals();
+		generateTangents();
+	}
 	BufferData();
 	size.x = width * vertexScale.x;
 	size.y = 256 * vertexScale.y; // Height is 8-bit

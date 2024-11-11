@@ -8,7 +8,7 @@
 class HeightMap : public Mesh
 {
 public:
-	HeightMap(const std::string& file, Vector3 vertexScale = Vector3(16, 1, 16), Vector2 textureScale = Vector2(1.0f / 16.0f, 1.0f / 16.0f));
+	HeightMap(const std::string& file, Vector3 vertexScale = Vector3(16, 1, 16), Vector2 textureScale = Vector2(1.0f / 16.0f, 1.0f / 16.0f), bool useTessellation = true);
 	~HeightMap(void) {};
 
 	Vector3 getSize() const { return size; }

@@ -36,6 +36,10 @@ OGLRenderer::OGLRenderer(Window &window)
 	, height(window.GetScreenSize().y)
 	, rng(0) // Use the same seed for consistency
 {
+	// Request a context of at least version 4, needed for tessellation
+	// Renderdoc needs us to be explicit or it won't capture
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 	glContext = SDL_GL_CreateContext(window.getSdlWindow());
 	if (!glContext) {
 		auto error = SDL_GetError();
@@ -239,8 +243,9 @@ void OGLRenderer::drawTree(SceneNode* root, GLuint destFbo) {
 	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 	drawNodes(context.transparentNodes);
 
-	// Pass 2 - Draw point lights
+	// Pass 2 - Draw lights
 	drawPointLights();
+	drawShadowLights();
 
 	// Pass 3 - Combine
 	// TODO: Also do post-processing here
@@ -270,12 +275,9 @@ void OGLRenderer::drawSky(GLuint destFbo) {
 	quad->Draw();
 }
 
-void OGLRenderer::drawPointLights() {
+void OGLRenderer::beginLightPass() {
 	glBindFramebuffer(GL_FRAMEBUFFER, deferredLightFbo);
 	BindShader(pointLightShader.get());
-
-	glClearColor(0, 0, 0, 1);
-	glClear(GL_COLOR_BUFFER_BIT);
 
 	// Combine lights additively
 	glBlendFunc(GL_ONE, GL_ONE);
@@ -310,11 +312,9 @@ void OGLRenderer::drawPointLights() {
 	invViewProj.bind(pointLightShader->getUniform("inverseProjView"));
 
 	UpdateShaderMatrices();
-	for (auto& light : context.lights) {
-		light->bind(*this);
-		sphere->Draw();
-	}
+}
 
+void OGLRenderer::endLightPass() {
 	// Restore the state
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glCullFace(GL_BACK);
@@ -322,6 +322,18 @@ void OGLRenderer::drawPointLights() {
 	glDepthMask(GL_TRUE);
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void OGLRenderer::drawPointLights() {
+	beginLightPass();
+	glClearColor(0, 0, 0, 1);
+	glClear(GL_COLOR_BUFFER_BIT);
+	for (auto& light : context.pointLights) {
+		light->bind(*this);
+		sphere->Draw();
+	}
+	endLightPass();
+
 }
 
 void OGLRenderer::combineBuffers(GLuint destFbo) {
@@ -372,7 +384,8 @@ void OGLRenderer::buildNodeLists(SceneNode* from) {
 
 	auto asLight = dynamic_cast<Light*>(from);
 	if (asLight) {
-		context.lights.push_back(asLight);
+		auto& list = asLight->getCastsShadows() ? context.shadowLights : context.pointLights;
+		list.push_back(asLight);
 	}
 
 	for (auto child = from->childrenBegin(); child != from->childrenEnd(); child++) {
@@ -389,11 +402,12 @@ void RenderContext::clear() {
 	// which is desirable in this case
 	opaqueNodes.clear();
 	transparentNodes.clear();
-	lights.clear();
+	pointLights.clear();
+	shadowLights.clear();
 }
 
-void OGLRenderer::drawNodes(const std::vector<SceneNode*>& nodes) {
+void OGLRenderer::drawNodes(const std::vector<SceneNode*>& nodes, bool shadowPass) {
 	for (auto& node : nodes) {
-		node->drawSelf(*this);
+		node->drawSelf(*this, shadowPass);
 	}
 }
