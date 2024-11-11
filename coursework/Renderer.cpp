@@ -1,7 +1,7 @@
 #include "Renderer.h"
 
 #include "../nclgl/HeightMap.h"
-#include "../nclgl/CubeBot.h"
+#include "../nclgl/SkeletonAnim.h"
 #include "../nclgl/Light.h"
 
 Renderer::Renderer(Window& parent)
@@ -60,6 +60,8 @@ Renderer::Renderer(Window& parent)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     timeWarp = std::make_unique<TimeWarp>(resourceManager.get(), oldTex, newTex);
+    // TODO: Temp
+    timeWarp->setRatio(1.0);
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -305,6 +307,18 @@ std::unique_ptr<SceneNode> Renderer::createFutureScene()
         255.0 / 255.0, 200.0 / 255.0, 150.0 / 255.0, 1.0
     ));
     sun->setFacing(Vector3(1, 1, 0).Normalised());
+
+    auto animatedNode = new SkeletonAnim(
+        resourceManager.get(),
+        "Role_T.msh",
+        "Role_T.anm",
+        "Role_T.mat"
+    );
+    animatedNode->setTransform(
+        Matrix4::Translation(camera->getPosition())
+    );
+    animatedNode->setScale(Vector3(10, 10, 10));
+    node->addChild(animatedNode);
 
     return std::unique_ptr<SceneNode>(node);
 }

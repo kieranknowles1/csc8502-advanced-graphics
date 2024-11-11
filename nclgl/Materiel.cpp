@@ -15,13 +15,19 @@ std::vector<Materiel> Materiel::fromFile(ResourceManager* rm, const std::string&
         std::shared_ptr<Texture> diffuse = nullptr;
         std::shared_ptr<Texture> normal = nullptr;
         GLenum cullMode = Materiel::DefaultCullMode;
-        //std::shared_ptr<Texture> noise = nullptr;
+
+        int flags = SOIL_FLAG_MIPMAPS;
+        if (layer->GetEntry("InvertY", out)) {
+            if (out == "true") {
+                flags |= SOIL_FLAG_INVERT_Y;
+            }
+        }
 
         if (layer->GetEntry("Diffuse", out)) {
-            diffuse = rm->getTextures().get({ out, SOIL_FLAG_MIPMAPS, true });
+            diffuse = rm->getTextures().get({ out, flags, true });
         }
         if (layer->GetEntry("Bump", out)) {
-			normal = rm->getTextures().get({ out, SOIL_FLAG_MIPMAPS, true });
+			normal = rm->getTextures().get({ out, flags, true });
 		}
         if (layer->GetEntry("Cull", out)) {
             if (out == "GL_FRONT") {
