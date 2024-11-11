@@ -22,9 +22,22 @@ public:
 	void drawSelf(OGLRenderer& r, bool shadowPass) override;
 protected:
 	void onUpdate(float dt) override;
-	SceneNode* deepCopy() const override { throw std::runtime_error("Not implemented"); }
 
-	MeshAnimation* anim;
+	SkeletonAnim(const SkeletonAnim& o)
+		: SceneNode(o)
+		, anim(o.anim)
+		, currentFrame(o.currentFrame)
+		, nextFrameTime(o.nextFrameTime)
+	{
+
+	}
+	SceneNode* deepCopy() const override {
+		auto n = new SkeletonAnim(*this);
+		n->copyChildrenFrom(*this);
+		return n;
+	}
+
+	std::shared_ptr<MeshAnimation> anim;
 
 	int currentFrame = 0;
 	float nextFrameTime = 0.0f;

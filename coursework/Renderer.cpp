@@ -314,11 +314,13 @@ std::unique_ptr<SceneNode> Renderer::createFutureScene()
         "Role_T.anm",
         "Role_T.mat"
     );
-    animatedNode->setTransform(
-        Matrix4::Translation(camera->getPosition())
-    );
     animatedNode->setScale(Vector3(20, 20, 20));
-    node->addChild(animatedNode);
+    std::vector<std::unique_ptr<SceneNode>> templates;
+    templates.push_back(std::unique_ptr<SceneNode>(animatedNode));
+    
+    auto animParent = new SceneNode();
+    spawnTrees(animParent, heightMap.get(), 50, templates);
+    node->addChild(animParent);
 
     return std::unique_ptr<SceneNode>(node);
 }

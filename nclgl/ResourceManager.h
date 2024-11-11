@@ -6,6 +6,7 @@
 #include <iostream>
 
 // Forward declarations won't work here, as we need the full declaration to generate templates
+#include "MeshAnimation.h"
 #include "Texture.h"
 #include "Shader.h"
 
@@ -63,11 +64,13 @@ class ResourceManager
 public:
     ResourceManager();
 
+    ResourceMap<std::string, MeshAnimation>& getAnimations() { return animations; }
     ResourceMap<TextureKey, Texture>& getTextures() { return textures; }
     ResourceMap<std::string, Texture>& getCubeMaps() { return cubeMaps; }
     ResourceMap<ShaderKey, Shader>& getShaders() { return shaders; }
     ResourceMap<std::string, Mesh>& getMeshes() { return meshes; }
 protected:
+    ResourceMap<std::string, MeshAnimation> animations;
     ResourceMap<std::string, Texture> cubeMaps;
     ResourceMap<TextureKey, Texture> textures;
     ResourceMap<ShaderKey, Shader> shaders;

@@ -8,7 +8,7 @@ SkeletonAnim::SkeletonAnim(ResourceManager* rm, std::string mesh, std::string an
 {
 	this->mesh = rm->getMeshes().get(mesh);
 	// TODO: All of these could be managed resources
-	this->anim = new MeshAnimation(anim);
+	this->anim = rm->getAnimations().get(anim);
 	this->setMateriels(Materiel::fromFile(rm, mat));
 	auto shader = rm->getShaders().get({ "SkinningVertex.glsl", "BufferFragment.glsl" });
 	for (auto& mat : materials) {
@@ -18,7 +18,7 @@ SkeletonAnim::SkeletonAnim(ResourceManager* rm, std::string mesh, std::string an
 
 SkeletonAnim::~SkeletonAnim()
 {
-	delete anim;
+	
 }
 
 void SkeletonAnim::drawSelf(OGLRenderer& r, bool shadowPass)

@@ -11,6 +11,7 @@ MeshAnimation::MeshAnimation() {
 }
 
 MeshAnimation::MeshAnimation(const std::string& filename) : MeshAnimation() {
+	name = filename;
 	std::ifstream file(MESHDIR + filename);
 
 	std::string filetype;

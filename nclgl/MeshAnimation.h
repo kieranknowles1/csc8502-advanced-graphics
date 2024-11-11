@@ -25,7 +25,11 @@ public:
 
 	const Matrix4* GetJointData(unsigned int frame) const;
 
+	std::string describe() const {
+		return "Animation: " + name;
+	}
 protected:
+	std::string name;
 	unsigned int	jointCount;
 	unsigned int	frameCount;
 	float			frameRate;
