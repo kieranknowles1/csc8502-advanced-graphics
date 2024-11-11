@@ -8,9 +8,6 @@ int vertex(int x, int y, int width) {
 
 HeightMap::HeightMap(const std::string& file, Vector3 vertexScale, Vector2 textureScale, bool useTessellation)
 {
-	// TODO: Temp
-	useTessellation = false;
-
 	type = useTessellation ? GL_PATCHES : GL_TRIANGLES;
 
 	int width = 0;

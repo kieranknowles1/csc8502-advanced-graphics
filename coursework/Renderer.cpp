@@ -32,11 +32,18 @@ Renderer::Renderer(Window& parent)
         "TessControl.glsl",
         "TessEval.glsl"
     });
+    auto tesselateShadowShader = resourceManager->getShaders().get({
+        "TessVertex.glsl",
+        "ShadowFrag.glsl",
+        "",
+        "TessControlShadow.glsl",
+        "TessEvalShadow.glsl"
+    });
     heightMapMateriel = Materiel({
         defaultMateriel.diffuse,
         defaultMateriel.normal,
         tesselateShader,
-        nullptr,
+        tesselateShadowShader,
         resourceManager->getTextures().get({"noise.png", SOIL_FLAG_MIPMAPS, true})
     });
 
@@ -62,8 +69,6 @@ Renderer::Renderer(Window& parent)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     timeWarp = std::make_unique<TimeWarp>(resourceManager.get(), oldTex, newTex);
-    // TODO: Temp
-    timeWarp->setRatio(1.0);
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -152,8 +157,9 @@ void Renderer::drawShadowScene(Light* light) {
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
     glViewport(0, 0, ShadowSize, ShadowSize);
     // Need to disable some light-specific settings
-    // Don't cull anything, should reduce artifacts
-    glDisable(GL_CULL_FACE);
+    // Cull front faces, so that the depth buffer is filled with back faces
+    // The back face won't show light due to its incident angle
+    glCullFace(GL_FRONT);
     // Write to the depth buffer only
     glDepthMask(GL_TRUE);
     // This has to be after enabling depth writing on Windows, but not on Linux
@@ -206,7 +212,7 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
     auto heightMapNode = new SceneNode(
         this->heightMap
     );
-    // heightMapNode->setMateriel(heightMapMateriel);
+    heightMapNode->setMateriel(heightMapMateriel);
     // TODO: Shadows don't currently support tessellation
     root->addChild(heightMapNode);
 
@@ -247,7 +253,7 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
     sun->setType(Light::Type::Sun);
     root->addChild(sun);
 
-    Light* shadowCaster = new Light(5000);
+    Light* shadowCaster = new Light(5000, 0.01);
     shadowCaster->setTag("ShadowCaster");
     shadowCaster->setShadowViewMatrix(
         Matrix4::BuildViewMatrix(
