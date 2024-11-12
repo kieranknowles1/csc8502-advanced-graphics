@@ -6,7 +6,6 @@
 
 Renderer::Renderer(Window& parent)
     : OGLRenderer(parent)
-    , cube(resourceManager->getMeshes().get({"OffsetCubeY.msh"}))
 {
     setDefaultMateriel({
         resourceManager->getTextures().get({"Barren Reds.JPG", SOIL_FLAG_MIPMAPS, true}),
@@ -56,6 +55,7 @@ Renderer::Renderer(Window& parent)
     );
     presentRoot = createPresentScene();
     futureRoot = createFutureScene();
+    cameraPath = createCameraPath();
 
     glGenFramebuffers(1, &oldFbo);
     oldTex = generateScreenTexture(false, GL_MIRRORED_REPEAT);
@@ -107,6 +107,7 @@ Renderer::~Renderer(void) {
 
 void Renderer::UpdateScene(float dt) {
     time += dt;
+    cameraPath->update(dt);
     camera->update(dt);
     if (!lockFrustum) {
         viewFrustum.fillFromMatrix(projMatrix * camera->buildViewMatrix());
@@ -398,6 +399,8 @@ std::unique_ptr<SceneNode> Renderer::createFutureScene()
     spawnTrees(animParent, heightMap.get(), 50, templates);
     node->addChild(animParent);
 
+    node->addChild(createLight(Vector3(4854.47, 330.783, 5982.45), -7.07001, 165.76));
+
     return std::unique_ptr<SceneNode>(node);
 }
 
@@ -422,4 +425,21 @@ void Renderer::spawnTrees(SceneNode* parent, Mesh* spawnOn, int count, const std
 
         parent->addChild(instance);
     }
+}
+
+std::unique_ptr<CameraPath> Renderer::createCameraPath() {
+    auto path = std::make_unique<CameraPath>(camera.get());
+
+    path->addKeyFrame({ Vector3(6030.22,298.524,2585.42), 3.08001, 129.15, 0, 5 });
+    path->addKeyFrame({ Vector3(5198.45,386.286,3269.52), 6.65001, 129.78, 0, 5 });
+    path->addKeyFrame({ Vector3(4841.54,934.313,3338.91), -48.02, 176.61, 0, 3 });
+    path->addKeyFrame({ Vector3(4841.54,934.313,3338.91), -48.02, 176.61, 0, 5 });
+
+    // TODO: Trigger time warp when we get here
+    path->addKeyFrame({ Vector3(4855.94,492.667,4096.5), -3.85001, 184.8, 0, 5 });
+    path->addKeyFrame({ Vector3(4942.43,423.109,5126.47), -3.85001, 184.8, 0, 4 });
+    path->addKeyFrame({ Vector3(4854.47,330.783,5982.45), -7.07001, 165.76, 0, 1 });
+
+    path->setActive(true);
+    return path;
 }

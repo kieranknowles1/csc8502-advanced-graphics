@@ -6,6 +6,7 @@
 #include "../nclgl/Camera.h"
 #include "../nclgl/HeightMap.h"
 
+#include "CameraPath.h"
 #include "TimeWarp.h"
 
 class Renderer : public OGLRenderer	{
@@ -21,9 +22,12 @@ public:
     void summonLight();
 
     void toggleSun();
+
+    CameraPath* getCameraPath() { return cameraPath.get(); }
 protected:
     std::unique_ptr<SceneNode> createPresentScene();
     std::unique_ptr<SceneNode> createFutureScene();
+    std::unique_ptr<CameraPath> createCameraPath();
 
     std::vector<std::unique_ptr<SceneNode>> loadTemplates(std::initializer_list<std::string> names, Vector3 scale, float yOff);
 
@@ -32,12 +36,12 @@ protected:
 
     std::shared_ptr<HeightMap> heightMap;
     Materiel heightMapMateriel;
-    std::shared_ptr<Mesh> cube;
 
     std::unique_ptr<SceneNode> presentRoot;
     std::unique_ptr<SceneNode> futureRoot;
 
     std::unique_ptr<TimeWarp> timeWarp;
+    std::unique_ptr<CameraPath> cameraPath;
 
     GLuint oldFbo;
     GLuint oldTex;

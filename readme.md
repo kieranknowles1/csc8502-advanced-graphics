@@ -17,6 +17,9 @@ In the `coursework` demo:
 - `3` to lock/unlock frustum culling
 - `4` to summon a shadow-casting light
 - `5` to toggle sun light
+- `O` to skip the camera animation to the end
+- `L` to toggle the camera animation
+- `N` to skip to the next keyframe in the camera animation
 
 All controls use scancodes, so will be in the same place regardless of keyboard layout.
 

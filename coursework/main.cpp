@@ -8,6 +8,7 @@ int main()	{
     w.LockMouseToWindow(true);
     w.ShowOSPointer(false);
 
+    w.GetTimer()->Tick(); // Clear delta time to exclude loading time
     while(w.UpdateWindow()  && !w.GetKeyboard()->KeyDown(SDL_SCANCODE_ESCAPE)){
         float dt = w.GetTimer()->GetTimeDeltaSeconds();
         renderer.UpdateScene(dt);
@@ -31,6 +32,18 @@ int main()	{
 		}
         if (w.GetKeyboard()->KeyTriggered(SDL_SCANCODE_5)) {
             renderer.toggleSun();
+        }
+
+        if (w.GetKeyboard()->KeyTriggered(SDL_SCANCODE_O)) {
+            renderer.getCameraPath()->skipToEnd();
+        }
+        if (w.GetKeyboard()->KeyTriggered(SDL_SCANCODE_L)) {
+			auto path = renderer.getCameraPath();
+            path->setActive(!path->getActive());
+		}
+        if (w.GetKeyboard()->KeyTriggered(SDL_SCANCODE_N)) {
+            auto path = renderer.getCameraPath();
+            path->setActiveFrame(path->getActiveFrame() + 1);
         }
     }
     return 0;
