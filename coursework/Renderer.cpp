@@ -435,7 +435,7 @@ std::unique_ptr<SceneNode> Renderer::createFutureScene()
     node->addChild(animParent);
 
     // TODO: Chaning the scene has changed RNG, move this to show an animation once everything is stable
-    node->addChild(createLight(Vector3(4854.47, 330.783, 5982.45), -7.07001, 165.76));
+    node->addChild(createLight(Vector3(5011.5, 335.581, 6005.84), -1.12001, 43.1199));
 
     return std::unique_ptr<SceneNode>(node);
 }
@@ -479,14 +479,14 @@ std::unique_ptr<CameraPath> Renderer::createCameraPath() {
     path->addKeyFrame({ Vector3(4841.54,934.313,3338.91), -48.02, 176.61, 0, 3 });
     path->addKeyFrame({ Vector3(4841.54,934.313,3338.91), -48.02, 176.61, 0, 5 });
 
-    // TODO: Trigger time warp when we get here
+    // We could rotate here, but that makes me feel a bit sick
     path->addKeyFrame({
         Vector3(4855.94,492.667,4096.5), -3.85001, 184.8, 0, 5,
         std::bind(beginWarp, this)
     });
     path->addKeyFrame({ Vector3(4942.43,423.109,5126.47), -3.85001, 184.8, 0, 4 });
-    // TODO: Chaning the scene has changed RNG, move this to show an animation once everything is stable
-    path->addKeyFrame({ Vector3(4854.47,330.783,5982.45), -7.07001, 165.76, 0, 1 });
+    path->addKeyFrame({ Vector3(5005.67,336.088,5934.84), -2.10001, 139.58, 0, 2 });
+    path->addKeyFrame({ Vector3(5011.5,335.581,6005.84), -1.12001, 43.1199, 0, 0.5 });
 
     path->setActive(true);
     return path;
