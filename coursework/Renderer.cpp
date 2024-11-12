@@ -304,7 +304,6 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
     );
     heightMapNode->setBoundingRadius(3 * heightMap->getSize().Length());
     heightMapNode->setMateriel(heightMapMateriel);
-    // TODO: Shadows don't currently support tessellation
     root->addChild(heightMapNode);
 
     auto presentOnly = new SceneNode();
@@ -349,6 +348,23 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
     root->addChild(createLight(Vector3(4713.58, 477.332, 3481.87), -8.4, 180.04));
     root->addChild(createLight(Vector3(5276.24, 545.851, 3881.6), -17.29, 114.17));
 
+    // TODO: Water shader
+    std::shared_ptr<Mesh> water(Mesh::GenerateQuad());
+    Materiel waterMat{
+        resourceManager->getTextures().get({"water.tga", SOIL_FLAG_MIPMAPS, true}),
+        resourceManager->getTextures().get({"waterbump.png", SOIL_FLAG_MIPMAPS, true}),
+    };
+    auto waterNode = new SceneNode(water);
+    waterNode->setMateriel(waterMat);
+    auto heightMapSize = heightMap->getSize();
+    waterNode->setTransform(
+        Matrix4::Translation(Vector3(heightMapSize.x * 0.5, waterLevel, heightMapSize.z * 0.5))
+        * Matrix4::Scale(Vector3(heightMapSize.x, 1, heightMapSize.z))
+        * Matrix4::Rotation(-90, Vector3(1, 0, 0))
+    );
+    waterNode->setBoundingRadius(heightMapNode->getBoundingRadius());
+    root->addChild(waterNode);
+
     return root;
 }
 
@@ -384,8 +400,6 @@ std::unique_ptr<SceneNode> Renderer::createFutureScene()
         (*child)->addChild(light);
     }
 
-	// TODO: Implement
-
     auto sun = dynamic_cast<Light*>(node->getTaggedChild("Sun"));
     sun->setColor(Vector4(
         255.0 / 255.0, 200.0 / 255.0, 150.0 / 255.0, 1.0
@@ -406,6 +420,7 @@ std::unique_ptr<SceneNode> Renderer::createFutureScene()
     spawnTrees(animParent, heightMap.get(), 50, templates);
     node->addChild(animParent);
 
+    // TODO: Chaning the scene has changed RNG, move this to show an animation once everything is stable
     node->addChild(createLight(Vector3(4854.47, 330.783, 5982.45), -7.07001, 165.76));
 
     return std::unique_ptr<SceneNode>(node);
@@ -420,8 +435,12 @@ void Renderer::spawnTrees(SceneNode* parent, Mesh* spawnOn, int count, const std
     for (int i = 0; i < count; i++) {
         auto& choice = templates.at(templateDist(rng));
         auto instance = choice->deepCopy();
-        // Pick a random point
-        auto& point = spawnOn->getVertex(pointDist(rng));
+        // Pick a random point above water, don't care too much about performance for startup,
+        // so just reroll when below water
+        Vector3 point;
+        do {
+            point = spawnOn->getVertex(pointDist(rng));
+        } while (point.y < waterLevel);
 
         instance->setTransform(
             instance->getTransform() *
@@ -452,6 +471,7 @@ std::unique_ptr<CameraPath> Renderer::createCameraPath() {
         std::bind(beginWarp, this)
     });
     path->addKeyFrame({ Vector3(4942.43,423.109,5126.47), -3.85001, 184.8, 0, 4 });
+    // TODO: Chaning the scene has changed RNG, move this to show an animation once everything is stable
     path->addKeyFrame({ Vector3(4854.47,330.783,5982.45), -7.07001, 165.76, 0, 1 });
 
     path->setActive(true);

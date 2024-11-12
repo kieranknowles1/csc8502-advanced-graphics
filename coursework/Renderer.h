@@ -75,4 +75,5 @@ protected:
 
     void combineBuffers();
     float time = 0;
+    float waterLevel = 128;
 };
