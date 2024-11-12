@@ -35,6 +35,9 @@ Texture::Texture(const std::string& name)
 		(base + "_pz.png").c_str(), (base + "_nz.png").c_str(),
 		SOIL_LOAD_RGB, SOIL_CREATE_NEW_ID, 0
 	);
+	// This is needed to avoid a seam at texture edges
+	glTexParameteri(type, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(type, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	if (texture == 0)
 	{
