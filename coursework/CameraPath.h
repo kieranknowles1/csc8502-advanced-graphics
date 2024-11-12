@@ -19,6 +19,9 @@ struct KeyFrame {
     // Callback to trigger when this frame becomes active, either
     // from natural progression or setActiveFrame.
     // Use std::bind to pass arguments to the callback
+    // Will not be triggered if this frame is skipped by setActiveFrame
+    // This is the case when manually setting the frame, but not when
+    // there is lag.
     std::function<void()> onBegin;
 };
 
