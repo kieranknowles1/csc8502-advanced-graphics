@@ -312,6 +312,8 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
     auto heightMapNode = new SceneNode(
         this->heightMap
     );
+    // Our texture is greyscale, so give it a dirt-like colour
+    heightMapNode->setColor(Vector4(1, 0.6, 0.2, 1.0));
     heightMapNode->setBoundingRadius(3 * heightMap->getSize().Length());
     heightMapNode->setMateriel(heightMapMateriel);
     root->addChild(heightMapNode);
