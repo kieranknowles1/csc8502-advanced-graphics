@@ -19,6 +19,8 @@ public:
     float getTimeWarpFactor() const { return timeWarp->getRatio(); }
 
     void summonLight();
+
+    void toggleSun();
 protected:
     std::unique_ptr<SceneNode> createPresentScene();
     std::unique_ptr<SceneNode> createFutureScene();
@@ -50,6 +52,10 @@ protected:
     const static int ShadowSize = 2048;
     GLuint shadowTex;
     GLuint shadowFbo;
+    
+    Light* createLight(Vector3 position, float pitch, float yaw);
+    Vector4 generateColor();
+    
     // Subset of nodes that are visible to both the camera and the shadow light
     void fillShadowVisible(SceneNode* from, Light* visibleFrom, std::vector<SceneNode*>& out) const;
     std::vector<SceneNode*> shadowVisible;

@@ -70,6 +70,7 @@ Renderer::Renderer(Window& parent)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     timeWarp = std::make_unique<TimeWarp>(resourceManager.get(), oldTex, newTex);
+    timeWarp->setRatio(1.0);
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -217,24 +218,17 @@ void Renderer::drawShadowScene(SceneNode* root, Light* light) {
     projMatrix = oldProj;
 }
 
+void Renderer::toggleSun() {
+
+}
+
 void Renderer::summonLight() {
     std::cout << "Spawning light\n";
     auto& parent = timeWarp->getRatio() == 0 ? presentRoot : futureRoot;
-
-    Light* light = new Light(2000, 0.01);
-    std::uniform_real_distribution<float> colorDist(0, 1);
-    light->setColor(Vector4(colorDist(rng), colorDist(rng), colorDist(rng), 1));
-    light->setCastShadows(true);
-    light->setShadowProjMatrix(
-        Matrix4::Perspective(10, 2000, 1, 45)
-    );
-    light->setShadowViewMatrix(camera->buildViewMatrix());
-
-    light->setTransform(
-        Matrix4::Translation(camera->getPosition())
-    );
-    
-    parent->addChild(light);
+    parent->addChild(createLight(
+        camera->getPosition(),
+        camera->getPitch(), camera->getYaw()
+    ));
 }
 
 void Renderer::combineBuffers() {
@@ -258,6 +252,36 @@ std::vector<std::unique_ptr<SceneNode>> Renderer::loadTemplates(std::initializer
 		templates.push_back(std::move(tree));
 	}
     return templates;
+}
+
+Vector4 Renderer::generateColor() {
+    const float MIN_COMPONENT = 0.8; // Reroll if no component is above this
+    std::uniform_real_distribution<float> dist(0, 1);
+
+    Vector4 color;
+    do {
+        color = Vector4(dist(rng), dist(rng), dist(rng), 1);
+    } while (color.x < MIN_COMPONENT && color.y < MIN_COMPONENT && color.z < MIN_COMPONENT);
+    return color;
+}
+
+// Create a light at a specified position
+// Press `P` to print the current camera position which can be passed to this function
+Light* Renderer::createLight(Vector3 position, float pitch, float yaw) {
+    Light* light = new Light(2000, 1.5);
+    light->setCastShadows(true);
+    light->setShadowProjMatrix(
+		Matrix4::Perspective(10, 2000, 1, 45)
+	);
+    light->setShadowViewMatrix(Matrix4::view(
+        position,
+        pitch, yaw
+    ));
+    light->setTransform(
+		Matrix4::Translation(position)
+	);
+    light->setColor(generateColor());
+    return light;
 }
 
 std::unique_ptr<SceneNode> Renderer::createPresentScene()
@@ -309,6 +333,11 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
     sun->setType(Light::Type::Sun);
     root->addChild(sun);
 
+    root->addChild(createLight(Vector3(3978, 954.553, 5584.76), -31.01, 2.44999));
+    root->addChild(createLight(Vector3(4577.54, 571.35, 3835.36), -15.89, 287.62));
+    root->addChild(createLight(Vector3(4713.58, 477.332, 3481.87), -8.4, 180.04));
+    root->addChild(createLight(Vector3(5276.24, 545.851, 3881.6), -17.29, 114.17));
+
     return root;
 }
 
@@ -336,6 +365,11 @@ std::unique_ptr<SceneNode> Renderer::createFutureScene()
         (*child)->setMesh(dead->getMesh());
         (*child)->setMateriels(dead->getMateriels());
         (*child)->setScale(dead->getScale());
+
+        Light* light = new Light(256);
+        light->setColor(Vector4::rgba(255, 100, 23, 255));
+        light->setTransform(Matrix4::Translation(Vector3(0, 32, 0)));
+        (*child)->addChild(light);
     }
 
 	// TODO: Implement

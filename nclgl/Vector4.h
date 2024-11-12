@@ -28,6 +28,11 @@ public:
 		this->w = w;
 	}
 
+	// Create a Vector4 from 8-bit RGBA values
+	static Vector4 rgba(int r, int g, int b, int a) {
+		return Vector4(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
+	}
+
 	Vector3 ToVector3() {
 		return Vector3(x, y, z);
 	}
