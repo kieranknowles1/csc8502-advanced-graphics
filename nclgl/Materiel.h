@@ -27,6 +27,7 @@ struct Materiel {
 	// Stripped down shader for shadow mapping
 	std::shared_ptr<Shader> shadowShader;
 	std::shared_ptr<Texture> noise = nullptr;
+	float reflectivity = 0;
 	GLenum cullMode = DefaultCullMode;
 
 	void bind(OGLRenderer& r, const Materiel& defaults, bool shadowPass) const;

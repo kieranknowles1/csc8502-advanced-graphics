@@ -67,12 +67,13 @@ OGLRenderer::OGLRenderer(Window &window)
 	gBufferColor = generateScreenTexture();
 	gBufferDepth = generateScreenTexture(/*depth=*/true);
 	gBufferNormal = generateScreenTexture();
+	gBufferReflectivity = generateScreenTexture();
 
 	deferredLightDiffuse = generateScreenTexture();
 	deferredLightSpecular = generateScreenTexture();
 
-	GLenum buffers[] = {
-		GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1
+	GLenum gBuffers[] = {
+		GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2
 	};
 
 	glGenFramebuffers(1, &gBufferFbo);
@@ -81,17 +82,21 @@ OGLRenderer::OGLRenderer(Window &window)
 	glBindFramebuffer(GL_FRAMEBUFFER, gBufferFbo);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gBufferColor, 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gBufferNormal, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gBufferReflectivity, 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, gBufferDepth, 0);
-	glDrawBuffers(2, buffers);
+	glDrawBuffers(3, gBuffers);
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
 		throw std::runtime_error("Framebuffer not complete");
 	}
 
+	GLenum lightBuffers[] = {
+		GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1
+	};
 	glBindFramebuffer(GL_FRAMEBUFFER, deferredLightFbo);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, deferredLightDiffuse, 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, deferredLightSpecular, 0);
-	glDrawBuffers(2, buffers);
+	glDrawBuffers(2, lightBuffers);
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
 		throw std::runtime_error("Framebuffer not complete");
 	}
@@ -118,6 +123,7 @@ OGLRenderer::~OGLRenderer(void)	{
 	glDeleteTextures(1, &gBufferNormal);
 	glDeleteTextures(1, &deferredLightDiffuse);
 	glDeleteTextures(1, &deferredLightSpecular);
+	glDeleteTextures(1, &gBufferReflectivity);
 }
 
 GLuint OGLRenderer::generateScreenTexture(bool depth, GLenum clampMode) {
@@ -336,6 +342,14 @@ void OGLRenderer::drawPointLights() {
 
 }
 
+// Bind a texture by ID, and increment nextUnit
+void bindTextureId(int& nextUnit, GLuint id, const std::string& name, std::shared_ptr<Shader> shader) {
+	glActiveTexture(GL_TEXTURE0 + nextUnit);
+	glBindTexture(GL_TEXTURE_2D, id);
+	glUniform1i(shader->getUniform(name.c_str()), nextUnit);
+	nextUnit++;
+}
+
 void OGLRenderer::combineBuffers(GLuint destFbo) {
 	glBindFramebuffer(GL_FRAMEBUFFER, destFbo);
 
@@ -350,17 +364,26 @@ void OGLRenderer::combineBuffers(GLuint destFbo) {
 	projMatrix.ToIdentity();
 	UpdateShaderMatrices();
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, gBufferColor);
-	glUniform1i(combineShader->getUniform("diffuseTex"), 0);
+	int nextUnit = 0;
+	bindTextureId(nextUnit, gBufferColor, "diffuseTex", combineShader);
+	bindTextureId(nextUnit, deferredLightDiffuse, "diffuseLight", combineShader);
+	bindTextureId(nextUnit, deferredLightSpecular, "specularLight", combineShader);
+	bindTextureId(nextUnit, gBufferNormal, "normalTex", combineShader);
+	bindTextureId(nextUnit, gBufferDepth, "depthTex", combineShader);
+	bindTextureId(nextUnit, gBufferReflectivity, "reflectivityTex", combineShader);
 
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, deferredLightDiffuse);
-	glUniform1i(combineShader->getUniform("diffuseLight"), 1);
+	glActiveTexture(GL_TEXTURE0 + nextUnit);
+	skyTexture->bind();
+	glUniform1i(combineShader->getUniform("cubeTex"), nextUnit);
+	nextUnit++;
 
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, deferredLightSpecular);
-	glUniform1i(combineShader->getUniform("specularLight"), 2);
+	Matrix4 inverseProjView = (oldProj * oldView).Inverse();
+	inverseProjView.bind(combineShader->getUniform("inverseProjView"));
+	glUniform3f(
+		combineShader->getUniform("cameraPos"),
+		camera->getPosition().x, camera->getPosition().y, camera->getPosition().z
+	);
+
 
 	quad->Draw();
 

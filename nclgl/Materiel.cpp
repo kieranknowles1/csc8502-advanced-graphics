@@ -77,4 +77,6 @@ void Materiel::bind(OGLRenderer& r, const Materiel& defaults, bool shadowPass) c
 		glEnable(GL_CULL_FACE);
 		glCullFace(cullMode);
 	}
+
+    glUniform1f(glGetUniformLocation(shader->GetProgram(), "reflectivity"), reflectivity);
 }

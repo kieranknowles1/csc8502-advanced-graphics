@@ -86,6 +86,7 @@ void SceneNode::drawSelf(OGLRenderer& r, bool shadowPass)
         mat->bind(r, r.getDefaultMateriel(), shadowPass);
         color.bind(r.getCurrentShader()->getUniform("nodeColor"));
         model.bind(r.getCurrentShader()->getUniform("modelMatrix"));
+        textureMatrix.bind(r.getCurrentShader()->getUniform("textureMatrix"));
 
         mesh->Draw();
     }

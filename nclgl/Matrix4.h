@@ -40,6 +40,12 @@ public:
 	//Sets matrix to identity matrix (1.0 down the diagonal)
 	void	ToIdentity();
 
+	static Matrix4 identity() {
+		Matrix4 m;
+		m.ToIdentity();
+		return m;
+	}
+
 	//Gets the OpenGL position vector (floats 12,13, and 14)
 	Vector3 GetPositionVector() const;
 	//Sets the OpenGL position vector (floats 12,13, and 14)

@@ -172,6 +172,7 @@ protected:
 	GLuint gBufferDepth;
 	GLuint gBufferColor;
 	GLuint gBufferNormal;
+	GLuint gBufferReflectivity;
 
 	std::shared_ptr<Shader> pointLightShader;
 	GLuint deferredLightFbo;

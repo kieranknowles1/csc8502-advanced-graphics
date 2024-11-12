@@ -86,7 +86,7 @@ bool	Shader::LoadShaderFile(const string& filename, string &into)	{
 	}
 	string		textLine;
 
-	cout << "Loading shader text from " << filename << "\n\n";
+	cout << "Loading shader text from " << filename << "\n";
 
 	if(!file.is_open()){
 		cout << "ERROR ERROR ERROR ERROR: File does not exist!\n";
@@ -100,12 +100,10 @@ bool	Shader::LoadShaderFile(const string& filename, string &into)	{
 		into += textLine;
 		++lineNum;
 	}
-	cout << "\nLoaded shader text!\n\n";
 	return true;
 }
 
 void	Shader::GenerateShaderObject(unsigned int i)	{
-	cout << "Compiling Shader...\n";
 
 	string shaderText;
 	if(!LoadShaderFile(shaderFiles[i],shaderText)) {

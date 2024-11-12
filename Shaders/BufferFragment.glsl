@@ -7,6 +7,8 @@ uniform sampler2D bumpTex;
 // Otherwise, render as opaque with alpha test
 uniform bool useBlending;
 
+uniform float reflectivity;
+
 #define ALPHA_TEST_THRESHOLD 0.5
 
 in Vertex {
@@ -18,7 +20,7 @@ in Vertex {
     vec3 worldPos;
 } IN;
 
-out vec4 fragColor[2];
+out vec4 fragColor[3];
 
 void main() {
     mat3 TBN = mat3(
@@ -39,4 +41,7 @@ void main() {
 
     fragColor[0] = diffuse;
     fragColor[1] = vec4(normal * 0.5 + 0.5, 1.0);
+
+    // Reflectivity
+    fragColor[2] = vec4(reflectivity, 0.0, 0.0, 1.0);
 }

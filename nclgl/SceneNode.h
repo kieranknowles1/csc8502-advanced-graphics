@@ -28,6 +28,8 @@ public:
 	const Matrix4& getTransform() const { return transform; }
 	Matrix4 getWorldTransform() const { return worldTransform; }
 
+	void setTextureMatrix(const Matrix4& matrix) { textureMatrix = matrix; }
+
 	Vector4 getColor() const { return color; }
 	void setColor(const Vector4& c) { color = c; }
 
@@ -104,6 +106,8 @@ protected:
 	Matrix4 transform;
 	Vector3 scale;
 	Vector4 color;
+
+	Matrix4 textureMatrix = Matrix4::identity();
 
 	float boundingRadius;
 	float distanceFromCamera;

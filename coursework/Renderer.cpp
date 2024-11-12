@@ -105,6 +105,13 @@ Renderer::~Renderer(void) {
     glDeleteFramebuffers(1, &shadowFbo);
 }
 
+void updateWater(float time, SceneNode* water) {
+    water->setTextureMatrix(
+        Matrix4::Translation(Vector3(time * 0.05, time * 0.05, time * 0.05))
+        * Matrix4::Scale(Vector3(20, 20, 20))
+    );
+}
+
 void Renderer::UpdateScene(float dt) {
     time += dt;
 
@@ -122,6 +129,9 @@ void Renderer::UpdateScene(float dt) {
 
     presentRoot->update(dt);
     futureRoot->update(dt);
+
+    updateWater(time, presentRoot->getTaggedChild("Water"));
+    updateWater(time, futureRoot->getTaggedChild("Water"));
 }
 
 void Renderer::RenderScene() {
@@ -354,6 +364,7 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
         resourceManager->getTextures().get({"water.tga", SOIL_FLAG_MIPMAPS, true}),
         resourceManager->getTextures().get({"waterbump.png", SOIL_FLAG_MIPMAPS, true}),
     };
+    waterMat.reflectivity = 0.75;
     auto waterNode = new SceneNode(water);
     waterNode->setMateriel(waterMat);
     auto heightMapSize = heightMap->getSize();
@@ -362,6 +373,7 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
         * Matrix4::Scale(Vector3(heightMapSize.x, 1, heightMapSize.z))
         * Matrix4::Rotation(-90, Vector3(1, 0, 0))
     );
+    waterNode->setTag("Water");
     waterNode->setBoundingRadius(heightMapNode->getBoundingRadius());
     root->addChild(waterNode);
 
