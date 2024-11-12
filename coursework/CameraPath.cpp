@@ -55,9 +55,11 @@ void CameraPath::update(float dt)
 	}
 
 	currentFrameTime += dt;
-	while (currentFrameTime > getFrame(currentFrameIndex).duration) {
-		currentFrameTime -= getFrame(currentFrameIndex).duration;
-		currentFrameIndex++;
+	auto& current = getFrame(currentFrameIndex);
+	while (currentFrameTime > current.duration) {
+		currentFrameTime -= current.duration;
+        // We need to use the setter in order to trigger any callbacks
+		setActiveFrame(currentFrameIndex + 1, currentFrameTime);
 	}
 
 	updateCameraPosition();

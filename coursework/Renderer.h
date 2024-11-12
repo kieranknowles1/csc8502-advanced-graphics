@@ -23,6 +23,10 @@ public:
 
     void toggleSun();
 
+    void setWarpActive(bool active) {
+        warpActive = active;
+    }
+
     CameraPath* getCameraPath() { return cameraPath.get(); }
 protected:
     std::unique_ptr<SceneNode> createPresentScene();
@@ -40,6 +44,7 @@ protected:
     std::unique_ptr<SceneNode> presentRoot;
     std::unique_ptr<SceneNode> futureRoot;
 
+    bool warpActive = false;
     std::unique_ptr<TimeWarp> timeWarp;
     std::unique_ptr<CameraPath> cameraPath;
 

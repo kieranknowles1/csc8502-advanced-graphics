@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <functional>
 
 #include "../nclgl/Camera.h"
 
@@ -14,6 +15,11 @@ struct KeyFrame {
     // For the last frame, stay at the end for this duration
     // To hold for a duration, use two points with the same position and orientation
     float duration;
+
+    // Callback to trigger when this frame becomes active, either
+    // from natural progression or setActiveFrame.
+    // Use std::bind to pass arguments to the callback
+    std::function<void()> onBegin;
 };
 
 class CameraPath {
@@ -34,9 +40,15 @@ public:
         return active;
     }
 
+    // Set the currently active frame, possibly triggering the onBegin callback
     void setActiveFrame(int index, float time = 0) {
         currentFrameIndex = index;
         currentFrameTime = time;
+
+        auto& frame = getFrame(currentFrameIndex);
+        if (frame.onBegin) {
+			frame.onBegin();
+		}
     }
     int getActiveFrame() const {
 		return currentFrameIndex;

@@ -107,6 +107,13 @@ Renderer::~Renderer(void) {
 
 void Renderer::UpdateScene(float dt) {
     time += dt;
+
+    if (warpActive) {
+        float factor = std::min(1.0f, timeWarp->getRatio() + dt);
+        timeWarp->setRatio(factor);
+        if (factor >= 1.0f) warpActive = false;
+    }
+
     cameraPath->update(dt);
     camera->update(dt);
     if (!lockFrustum) {
@@ -427,6 +434,10 @@ void Renderer::spawnTrees(SceneNode* parent, Mesh* spawnOn, int count, const std
     }
 }
 
+void beginWarp(Renderer* renderer) {
+    renderer->setWarpActive(true);
+}
+
 std::unique_ptr<CameraPath> Renderer::createCameraPath() {
     auto path = std::make_unique<CameraPath>(camera.get());
 
@@ -436,7 +447,10 @@ std::unique_ptr<CameraPath> Renderer::createCameraPath() {
     path->addKeyFrame({ Vector3(4841.54,934.313,3338.91), -48.02, 176.61, 0, 5 });
 
     // TODO: Trigger time warp when we get here
-    path->addKeyFrame({ Vector3(4855.94,492.667,4096.5), -3.85001, 184.8, 0, 5 });
+    path->addKeyFrame({
+        Vector3(4855.94,492.667,4096.5), -3.85001, 184.8, 0, 5,
+        std::bind(beginWarp, this)
+    });
     path->addKeyFrame({ Vector3(4942.43,423.109,5126.47), -3.85001, 184.8, 0, 4 });
     path->addKeyFrame({ Vector3(4854.47,330.783,5982.45), -7.07001, 165.76, 0, 1 });
 
