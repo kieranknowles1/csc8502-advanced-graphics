@@ -29,6 +29,9 @@ int main()	{
         if (w.GetKeyboard()->KeyTriggered(SDL_SCANCODE_4)) {
             renderer.summonLight();
 		}
+        if (w.GetKeyboard()->KeyTriggered(SDL_SCANCODE_5)) {
+            renderer.toggleSun();
+        }
     }
     return 0;
 }

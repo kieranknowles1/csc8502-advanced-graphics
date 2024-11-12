@@ -70,7 +70,6 @@ Renderer::Renderer(Window& parent)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     timeWarp = std::make_unique<TimeWarp>(resourceManager.get(), oldTex, newTex);
-    timeWarp->setRatio(1.0);
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -219,7 +218,11 @@ void Renderer::drawShadowScene(SceneNode* root, Light* light) {
 }
 
 void Renderer::toggleSun() {
-
+    auto sun = presentRoot->getTaggedChild("Sun");
+    sun->setEnabled(!sun->isEnabled());
+    
+    sun = futureRoot->getTaggedChild("Sun");
+    sun->setEnabled(!sun->isEnabled());
 }
 
 void Renderer::summonLight() {
@@ -368,7 +371,8 @@ std::unique_ptr<SceneNode> Renderer::createFutureScene()
 
         Light* light = new Light(256);
         light->setColor(Vector4::rgba(255, 100, 23, 255));
-        light->setTransform(Matrix4::Translation(Vector3(0, 32, 0)));
+        // Very small offset as this is multiplied by parent scale
+        light->setTransform(Matrix4::Translation(Vector3(0, 4, 0)));
         (*child)->addChild(light);
     }
 

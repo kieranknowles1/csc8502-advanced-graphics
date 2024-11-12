@@ -16,6 +16,9 @@ In the `coursework` demo:
 - `1`, `2` hold to shift between past/future scenes
 - `3` to lock/unlock frustum culling
 - `4` to summon a shadow-casting light
+- `5` to toggle sun light
+
+All controls use scancodes, so will be in the same place regardless of keyboard layout.
 
 ## Building the project
 
