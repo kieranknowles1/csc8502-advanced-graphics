@@ -117,6 +117,7 @@ public:
 
 	// Generate a bounding radius for the mesh
 	// Fairly expensive (O(N) on the number of vertices), so cache the result if you need it often
+	// Ignores animations, so will use the bind pose
 	float getBoundingRadius() const;
 
 protected:

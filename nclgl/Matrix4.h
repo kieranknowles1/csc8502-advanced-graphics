@@ -54,6 +54,11 @@ public:
 	//Analogous to glRotatef
 	static Matrix4 Rotation(float degrees, const Vector3 &axis);
 
+	// Create a rotation matrix for a given pitch, yaw and roll
+	// If `negate` is true, the rotation is negated for use in view matrices
+	static Matrix4 pitchYawRoll(bool negate, float pitch, float yaw, float roll = 0.0f);
+	static Matrix4 view(Vector3 position, float pitch, float yaw, float roll = 0.0f);
+
 	//Creates a scaling matrix (puts the 'scale' vector down the diagonal)
 	//Analogous to glScalef
 	static Matrix4 Scale(const Vector3 &scale);

@@ -148,6 +148,32 @@ Matrix4 Matrix4::Rotation(float degrees, const Vector3 &inaxis)	 {
 	return m;
 }
 
+Matrix4 Matrix4::pitchYawRoll(bool negate, float pitch, float yaw, float roll)
+{
+	// When building a view matrix, we also need to reverse order
+	// of operations, otherwise look directions will be funky
+	// with a rotated camera
+	if (negate) {
+		return Matrix4::Rotation(-pitch, Vector3(1, 0, 0)) *
+			Matrix4::Rotation(-roll, Vector3(0, 0, 1)) *
+			Matrix4::Rotation(-yaw, Vector3(0, 1, 0));
+	}
+	else {
+		return Matrix4::Rotation(yaw, Vector3(0, 1, 0)) *
+			Matrix4::Rotation(roll, Vector3(0, 0, 1)) *
+			Matrix4::Rotation(pitch, Vector3(1, 0, 0));
+	}
+}
+
+Matrix4 Matrix4::view(Vector3 position, float pitch, float yaw, float roll)
+{
+	// Negate everything to move the world opposite to the camera,
+	// giving the illusion of moving the camera in the world
+	return 
+		pitchYawRoll(true, pitch, yaw, roll)
+		* Translation(-position);
+}
+
 Matrix4 Matrix4::Scale( const Vector3 &scale )	{
 	Matrix4 m;
 

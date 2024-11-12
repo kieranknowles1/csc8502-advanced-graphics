@@ -10,7 +10,7 @@ In demos with a camera:
 - `C` to move down
 - Hold `Tab` to move faster
 - `Mouse` to look around
-- `P` to print the current camera position
+- `P` to print the current camera position and orientation
 
 In the `coursework` demo:
 - `1`, `2` hold to shift between past/future scenes
@@ -27,7 +27,6 @@ The following libraries must be available on `CMAKE_PREFIX_PATH`:
 - [SDL2](https://github.com/libsdl-org/SDL)
 - OpenGL (included with Visual Studio on Windows)
 
-By default, this path is set to `H:/cmake`, and will probably need to be changed to match your system.
 
 ### Building on Linux
 
@@ -37,6 +36,8 @@ work even if breaking changes are made to dependencies, as they are all pinned
 in `flake.lock`.
 
 ### Building on Windows
+
+By default, CMake will look in `H:/cmake` for libraries, you will probably need to change this to match your system.
 
 The project makes heavy use of `std` containers, which are very slow in MSVC debug builds. Because of this, using `RelWithDebInfo` is recommended for development.
 

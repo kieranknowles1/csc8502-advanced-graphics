@@ -31,8 +31,6 @@ public:
 
 	void setSpeed(float value) { speed = value; }
 private:
-	Matrix4 buildRotationMatrix(bool negate);
-
 	Keyboard* keyboard;
 	Mouse* mouse;
 

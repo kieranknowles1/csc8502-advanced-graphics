@@ -32,6 +32,9 @@ Renderer::Renderer(Window& parent)
         "TessEval.glsl"
     });
     auto tesselateShadowShader = resourceManager->getShaders().get({
+        // TessVertex has several unused attributes when used for shadows,
+        // assume the compiler will optimise them out making them the same
+        // speed as a specialised shadow shader
         "TessVertex.glsl",
         "ShadowFrag.glsl",
         "",
