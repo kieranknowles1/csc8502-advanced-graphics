@@ -475,13 +475,21 @@ void beginWarp(Renderer* renderer) {
     renderer->setWarpActive(true);
 }
 
+void addSpotlight(Renderer* renderer) {
+    renderer->summonLight();
+}
+
 std::unique_ptr<CameraPath> Renderer::createCameraPath() {
     auto path = std::make_unique<CameraPath>(camera.get());
 
     path->addKeyFrame({ Vector3(6030.22,298.524,2585.42), 3.08001, 129.15, 0, 5 });
     path->addKeyFrame({ Vector3(5198.45,386.286,3269.52), 6.65001, 129.78, 0, 5 });
+    // Hold for a bit
     path->addKeyFrame({ Vector3(4841.54,934.313,3338.91), -48.02, 176.61, 0, 3 });
-    path->addKeyFrame({ Vector3(4841.54,934.313,3338.91), -48.02, 176.61, 0, 5 });
+    path->addKeyFrame({
+        Vector3(4841.54,934.313,3338.91), -48.02, 176.61, 0, 5,
+        std::bind(addSpotlight, this)
+    });
 
     // We could rotate here, but that makes me feel a bit sick
     path->addKeyFrame({
