@@ -1,5 +1,6 @@
 #version 330 core
 
+// Used for shadow mapping and projected textures
 uniform mat4 shadowMatrix;
 
 uniform sampler2D depthTex;
@@ -7,6 +8,9 @@ uniform sampler2D normalTex;
 
 uniform bool useShadows;
 uniform sampler2D shadowTex;
+
+uniform bool useProjectedTexture;
+uniform sampler2D projectedTexture;
 
 uniform vec2 pixelSize; // Reciprocal of the screen resolution
 uniform vec3 cameraPos;
@@ -65,35 +69,51 @@ float getAttenuation(vec3 worldPos) {
     return clamp(attenuation, 0.0, 1.0);
 }
 
+struct ShadowData {
+    vec3 normalisedDeviceCoords;
+    // Are these coordinates within the bounds of the shadow map?
+    bool inBounds;
+};
+ShadowData getShadowData(vec4 shadowProj) {
+    vec3 ndc = shadowProj.xyz / shadowProj.w;
+    bool inBounds = abs(ndc.x) < 1.0f
+        && abs(ndc.y) < 1.0f
+        && abs(ndc.z) < 1.0f;
+
+    return ShadowData(ndc, inBounds);
+}
+
 float getShadow(vec4 shadowProj) {
     if (!useShadows) {
         return 1.0;
     }
 
-    vec3 shadowNDC = shadowProj.xyz / shadowProj.w;
-
-    // Are we in the shadow mapped region?
-    bool maybeShaded = abs(shadowNDC.x) < 1.0f
-        && abs(shadowNDC.y) < 1.0f
-        && abs(shadowNDC.z) < 1.0f;
-
-    if (maybeShaded) {
-        vec3 biasCoord = shadowNDC * 0.5 + 0.5;
-        // Texture always returns a vec4. This is a depth
-        // texture, so we only need the first component
-        float shadowDepth = texture(shadowTex, biasCoord.xy).x;
-        // diffuseOutput = vec4(biasCoord, 1.0);
-        // The light is further than what was recorded
-        // in the shadow map, so we're in shadow
-        if (shadowDepth < biasCoord.z) {
-            return 0.0;
-        }
-        return 1.0;
+    ShadowData shadowData = getShadowData(shadowProj);
+    if (!shadowData.inBounds) {
+        return 0.0; // We're outside the shadow map
     }
 
-    // return 1.0;
-    // We're outside the lit region
-    return 0.0;
+    vec3 biasCoord = shadowData.normalisedDeviceCoords * 0.5 + 0.5;
+    // Texture always returns a vec4. This is a depth
+    // texture, so we only need the first component
+    float shadowDepth = texture(shadowTex, biasCoord.xy).x;
+    // The light is further than what was recorded
+    // in the shadow map, so we're in shadow
+    // If the shadow depth is less than the bias, we must be behind an object
+    return shadowDepth < biasCoord.z ? 0.0 : 1.0;
+}
+
+vec4 getProjectedTexture(vec4 shadowProj) {
+    if (!useProjectedTexture) {
+        return vec4(1.0);
+    }
+
+    ShadowData data = getShadowData(shadowProj);
+    if (!data.inBounds) {
+        return vec4(0.0); // Clamp to edge
+    }
+
+    return texture(projectedTexture, data.normalisedDeviceCoords.xy * 0.5 + 0.5);
 }
 
 void main() {
@@ -123,7 +143,9 @@ void main() {
     vec4 shadowProj = shadowMatrix * (vec4(worldPos, 1.0) + pushVal);
     float shadow = getShadow(shadowProj);
 
-    vec3 attenuated = lightColor * attenuation;
+    vec4 projectedTex = getProjectedTexture(shadowProj);
+
+    vec3 attenuated = lightColor * attenuation * projectedTex.rgb;
     attenuated *= shadow;
 
     diffuseOutput = vec4(attenuated * lambert, 1.0);

@@ -21,6 +21,9 @@ public:
 	static const std::string FOVUniform;
 	static const std::string forwardUniform;
 	static const std::string typeUniform;
+	static const std::string shadowMatrixUniform;
+	static const std::string projectedTextureUniform;
+	static const std::string projectedTextureUseUniform;
 
 	Light(float radius, float attenuation = 3.0f)
 		: attenuation(attenuation) {
@@ -53,10 +56,17 @@ public:
 
 	void setCastShadows(bool c) { castShadows = c; }
 	bool getCastsShadows() const { return castShadows; }
-	void setShadowViewMatrix(const Matrix4& m) { shadowViewMatrix = m; }
-	const Matrix4& getShadowViewMatrix() const { return shadowViewMatrix; }
-	void setShadowProjMatrix(const Matrix4& m) { shadowProjMatrix = m; }
-	const Matrix4& getShadowProjMatrix() const { return shadowProjMatrix; }
+
+	// The view matrix used for shadows and projected textures
+	void setViewMatrix(const Matrix4& m) { viewMatrix = m; }
+	const Matrix4& getViewMatrix() const { return viewMatrix; }
+
+	// The projection matrix used for shadows and projected textures
+	void setProjectionMatrix(const Matrix4& m) { projectionMatrix = m; }
+	const Matrix4& getProjectionMatrix() const { return projectionMatrix; }
+
+	void setProjectedTexture(std::shared_ptr<Texture> t) { projectedTexture = t; }
+	std::shared_ptr<Texture> getProjectedTexture() const { return projectedTexture; }
 
 	bool ignoreBounds() const override { return type == Type::Sun; }
 protected:
@@ -79,8 +89,10 @@ protected:
 	// Whether this light casts shadows
 	// Expensive, so use sparingly
 	bool castShadows = false;
-	Matrix4 shadowViewMatrix;
-	Matrix4 shadowProjMatrix;
+	Matrix4 viewMatrix;
+	Matrix4 projectionMatrix;
+
+	std::shared_ptr<Texture> projectedTexture;
 
 	const std::string getName() const override { return "Light"; }
 
@@ -92,8 +104,9 @@ protected:
 		, facing(l.facing)
 		, type(l.type)
 		, castShadows(l.castShadows)
-		, shadowViewMatrix(l.shadowViewMatrix)
-		, shadowProjMatrix(l.shadowProjMatrix) {}
+		, viewMatrix(l.viewMatrix)
+		, projectionMatrix(l.projectionMatrix)
+		, projectedTexture(l.projectedTexture) {}
 	SceneNode* deepCopy() const override {
 		auto copy = new Light(*this);
 		copy->copyChildrenFrom(*this);

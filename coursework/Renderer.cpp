@@ -176,7 +176,7 @@ void Renderer::drawShadowLights(SceneNode* root) {
 
 void Renderer::fillShadowVisible(SceneNode* from, Light* visibleFrom, std::vector<SceneNode*>& out) const {
     Frustum lightFrustum(
-        visibleFrom->getShadowProjMatrix() * visibleFrom->getShadowViewMatrix()
+        visibleFrom->getProjectionMatrix() * visibleFrom->getViewMatrix()
     );
     // Using only camera visible nodes isn't strictly correct,
     // and clips some objects that should cast shadows
@@ -215,8 +215,8 @@ void Renderer::drawShadowScene(SceneNode* root, Light* light) {
     glClear(GL_DEPTH_BUFFER_BIT);
     glDepthFunc(GL_LEQUAL);
 
-    viewMatrix = light->getShadowViewMatrix();
-    projMatrix = light->getShadowProjMatrix();
+    viewMatrix = light->getViewMatrix();
+    projMatrix = light->getProjectionMatrix();
     shadowMatrix = projMatrix * viewMatrix;
     UpdateShaderMatrices();
 
@@ -286,15 +286,15 @@ Vector4 Renderer::generateColor() {
     return color;
 }
 
-// Create a light at a specified position
+// Create a spotlight at a specified position
 // Press `P` to print the current camera position which can be passed to this function
 Light* Renderer::createLight(Vector3 position, float pitch, float yaw) {
     Light* light = new Light(2000, 1.5);
     light->setCastShadows(true);
-    light->setShadowProjMatrix(
+    light->setProjectionMatrix(
 		Matrix4::Perspective(10, 2000, 1, 45)
 	);
-    light->setShadowViewMatrix(Matrix4::view(
+    light->setViewMatrix(Matrix4::view(
         position,
         pitch, yaw
     ));
@@ -302,6 +302,9 @@ Light* Renderer::createLight(Vector3 position, float pitch, float yaw) {
 		Matrix4::Translation(position)
 	);
     light->setColor(generateColor());
+    light->setProjectedTexture(
+        resourceManager->getTextures().get({ "stainedglass.tga", SOIL_FLAG_MIPMAPS, true })
+    );
     return light;
 }
 
