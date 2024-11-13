@@ -8,6 +8,9 @@ int main()	{
     w.LockMouseToWindow(true);
     w.ShowOSPointer(false);
 
+    int frame = 0;
+    float timeSinceLastLog = 0.0f;
+
     w.GetTimer()->Tick(); // Clear delta time to exclude loading time
     while(w.UpdateWindow()  && !w.GetKeyboard()->KeyDown(SDL_SCANCODE_ESCAPE)){
         float dt = w.GetTimer()->GetTimeDeltaSeconds();
@@ -45,6 +48,14 @@ int main()	{
             auto path = renderer.getCameraPath();
             path->setActiveFrame(path->getActiveFrame() + 1);
         }
+
+        frame++;
+        timeSinceLastLog += dt;
+        if (frame % 120 == 0) {
+			std::cout << "FPS: " << frame / timeSinceLastLog << std::endl;
+			timeSinceLastLog = 0.0f;
+			frame = 0;
+		}
     }
     return 0;
 }
