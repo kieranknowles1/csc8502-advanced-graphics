@@ -18,6 +18,9 @@ Camera::~Camera() {
 }
 
 void Camera::update(float dt) {
+	if (!controlsEnabled) {
+		return;
+	}
 	// Update our pitch and yaw from the mouse
 	// TODO: Rotation borks pitch/yaw controls, we need to turn
 	// relative to the rotated angle

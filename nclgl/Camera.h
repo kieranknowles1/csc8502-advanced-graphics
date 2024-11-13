@@ -30,9 +30,14 @@ public:
 	void setRoll(float roll) { this->roll = roll; }
 
 	void setSpeed(float value) { speed = value; }
+
+	bool getControlsEnabled() { return controlsEnabled; }
+	void setControlsEnabled(bool value) { controlsEnabled = value; }
 private:
 	Keyboard* keyboard;
 	Mouse* mouse;
+
+	bool controlsEnabled = true;
 
 	float speed = 300.0f;
 

@@ -38,6 +38,7 @@ public:
     
     void setActive(bool active) {
 		this->active = active;
+        camera->setControlsEnabled(!active);
 	}
     bool getActive() const {
         return active;

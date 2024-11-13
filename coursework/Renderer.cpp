@@ -434,8 +434,9 @@ std::unique_ptr<SceneNode> Renderer::createFutureScene()
     spawnTrees(animParent, heightMap.get(), 50, templates);
     node->addChild(animParent);
 
-    // TODO: Chaning the scene has changed RNG, move this to show an animation once everything is stable
-    node->addChild(createLight(Vector3(5011.5, 335.581, 6005.84), -1.12001, 43.1199));
+    Light* animShadowLight = createLight(Vector3(5011.5, 335.581, 6005.84), -1.12001, 43.1199);
+    animShadowLight->setColor(Vector4::rgba(255, 255, 255, 255));
+    node->addChild(animShadowLight);
 
     return std::unique_ptr<SceneNode>(node);
 }
