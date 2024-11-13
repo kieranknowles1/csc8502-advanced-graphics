@@ -25,6 +25,7 @@ set(SOURCES
     Texture.cpp
     Window.cpp
     "${PROJECT_SOURCE_DIR}/Third Party/glad/glad.c"
+    "${PROJECT_SOURCE_DIR}/Third Party/fpng/src/fpng.cpp"
 
     PostProcess/Blur.cpp
     PostProcess/Stage.cpp
