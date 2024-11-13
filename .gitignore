@@ -9,6 +9,9 @@
 # Nix
 /result/
 
+# Recording of output
+/recording/
+
 # Windows
 Thumbs.db
 

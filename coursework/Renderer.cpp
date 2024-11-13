@@ -1,11 +1,14 @@
 #include "Renderer.h"
 
+#include <fpng/src/fpng.h>
+
 #include "../nclgl/HeightMap.h"
 #include "../nclgl/SkeletonAnim.h"
 #include "../nclgl/Light.h"
 
-Renderer::Renderer(Window& parent)
+Renderer::Renderer(Window& parent, bool record)
     : OGLRenderer(parent)
+    , recording(record)
 {
     setDefaultMateriel({
         resourceManager->getTextures().get({"Barren Reds.JPG", SOIL_FLAG_MIPMAPS, true}),
@@ -70,6 +73,17 @@ Renderer::Renderer(Window& parent)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     timeWarp = std::make_unique<TimeWarp>(resourceManager.get(), oldTex, newTex);
+    if (record) {
+        recordTexture = generateScreenTexture(false, GL_CLAMP_TO_EDGE);
+        glGenFramebuffers(1, &finalFbo);
+        glBindFramebuffer(GL_FRAMEBUFFER, finalFbo);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, recordTexture, 0);
+        std::cout << "Renderer is recording. No output will be displayed\n";
+    }
+    else {
+        recordTexture = 0;
+        finalFbo = 0; // Draw to screen
+    }
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -103,6 +117,9 @@ Renderer::~Renderer(void) {
 
     glDeleteTextures(1, &shadowTex);
     glDeleteFramebuffers(1, &shadowFbo);
+
+    glDeleteTextures(1, &recordTexture);
+    glDeleteFramebuffers(1, &finalFbo);
 }
 
 void updateWater(float time, SceneNode* water) {
@@ -253,9 +270,38 @@ void Renderer::summonLight() {
 }
 
 void Renderer::combineBuffers() {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, finalFbo);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     timeWarp->apply(*this);
+}
+
+void Renderer::saveCurrentFrame(std::string filename)
+{
+    if (!recording) {
+        throw std::runtime_error("Renderer is not recording");
+    }
+
+    std::vector<char> buffer(width * height * 3);
+    glBindTexture(GL_TEXTURE_2D, recordTexture);
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, buffer.data());
+
+    // The raw image is upside down, so we need to flip it
+    std::vector<char> flipped(width * height * 3);
+    for (int y = 0; y < height; y++) {
+        int inputOffset = y * width * 3;
+        int outputOffset = (height - y - 1) * width * 3;
+        int size = width * 3;
+
+        std::copy(buffer.begin() + inputOffset, buffer.begin() + inputOffset + size, flipped.begin() + outputOffset);
+    }
+
+    fpng::fpng_encode_image_to_file(
+        filename.c_str(),
+        flipped.data(),
+        width, height,
+        3 // RGB
+    );
 }
 
 std::vector<std::unique_ptr<SceneNode>> Renderer::loadTemplates(std::initializer_list<std::string> names, Vector3 scale, float yOff) {

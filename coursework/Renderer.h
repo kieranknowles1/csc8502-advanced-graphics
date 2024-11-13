@@ -11,7 +11,7 @@
 
 class Renderer : public OGLRenderer	{
 public:
-    Renderer(Window &parent);
+    Renderer(Window &parent, bool record);
     ~Renderer() override;
     void RenderScene() override;
     void UpdateScene(float msec) override;
@@ -28,6 +28,8 @@ public:
     }
 
     CameraPath* getCameraPath() { return cameraPath.get(); }
+
+    void saveCurrentFrame(std::string filename);
 protected:
     std::unique_ptr<SceneNode> createPresentScene();
     std::unique_ptr<SceneNode> createFutureScene();
@@ -65,7 +67,8 @@ protected:
     Light* createLight(Vector3 position, float pitch, float yaw);
     Vector4 generateColor();
     
-    // Subset of nodes that are visible to both the camera and the shadow light
+    // Subset of nodes that are visible to the shadow light
+    // Kept between frames to reduce memory allocation
     void fillShadowVisible(SceneNode* from, Light* visibleFrom, std::vector<SceneNode*>& out) const;
     std::vector<SceneNode*> shadowVisible;
 
@@ -76,4 +79,8 @@ protected:
     void combineBuffers();
     float time = 0;
     float waterLevel = 128;
+
+    GLuint recordTexture;
+    GLuint finalFbo;
+    bool recording = false;
 };

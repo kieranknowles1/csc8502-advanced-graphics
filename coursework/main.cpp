@@ -1,9 +1,17 @@
 #include "../nclgl/Window.h"
 #include "Renderer.h"
 
+#include <fpng/src/fpng.h>
+
+// Easier than CLI arguments
+const bool Record = true;
+const float RecordFramerate = 60;
+
 int main()	{
+    // This detects SSE support for faster compression
+    fpng::fpng_init();
     Window w("Make your own project!", 1280, 720, false);
-    Renderer renderer(w);
+    Renderer renderer(w, Record);
 
     w.LockMouseToWindow(true);
     w.ShowOSPointer(false);
@@ -13,10 +21,17 @@ int main()	{
 
     w.GetTimer()->Tick(); // Clear delta time to exclude loading time
     while(w.UpdateWindow()  && !w.GetKeyboard()->KeyDown(SDL_SCANCODE_ESCAPE)){
-        float dt = w.GetTimer()->GetTimeDeltaSeconds();
+        float dt = Record ? (1.0 / RecordFramerate) : w.GetTimer()->GetTimeDeltaSeconds();
         renderer.UpdateScene(dt);
         renderer.RenderScene();
-        w.swapBuffers();
+        if (!Record) {
+            w.swapBuffers();
+        }
+        else {
+            std::ostringstream ss;
+            ss << "recording/frame_" << std::setfill('0') << std::setw(5) << frame << ".png";
+            renderer.saveCurrentFrame(ss.str());
+        }
         if (w.GetKeyboard()->KeyTriggered(SDL_SCANCODE_F5)) {
             Shader::ReloadAllShaders();
         }
@@ -50,12 +65,16 @@ int main()	{
         }
 
         frame++;
-        timeSinceLastLog += dt;
+        timeSinceLastLog += w.GetTimer()->GetTimeDeltaSeconds();
         if (frame % 120 == 0) {
-			std::cout << "FPS: " << frame / timeSinceLastLog << std::endl;
+			std::cout << "FPS: " << 120 / timeSinceLastLog << std::endl;
 			timeSinceLastLog = 0.0f;
-			frame = 0;
 		}
+
+        if (Record && !renderer.getCameraPath()->getActive()) {
+            std::cout << "Recording done!" << std::endl;
+            break;
+        }
     }
     return 0;
 }

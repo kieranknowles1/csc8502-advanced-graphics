@@ -32,7 +32,7 @@ The project is built using CMake and supports Windows and Linux. MacOS may work,
 The following libraries must be available on `CMAKE_PREFIX_PATH`:
 - [SDL2](https://github.com/libsdl-org/SDL)
 - OpenGL (included with Visual Studio on Windows)
-
+- [FPNG](https://github.com/richgel999/fpng) - Included in third-party
 
 ### Building on Linux
 
@@ -53,3 +53,11 @@ The following directories contain assets from external sources:
 
 - `Meshes/quaternius`, `Textures/quaternius`: [Stylized Natrue Megakit by Quaternius](https://quaternius.itch.io/stylized-nature-megakit). Used under the [CC0 License](https://creativecommons.org/publicdomain/zero/1.0/) for educational purposes.
 - `Textures/crystallotus`: [Skybox Textures by Crystallotus](https://crystallotus.itch.io/skybox-textures). Converted into cubemaps using [Panorama to Cubemap](https://jaxry.github.io/panorama-to-cubemap/).
+
+## Recording the Output
+
+The `coursework` demo can record to image files by seting `Record = true` in main.cpp. This will save images to the `recording` directory. These can be converted to a video
+similar to [Source Engine Demos](https://developer.valvesoftware.com/wiki/Demo_Video_Creation) with ffmpeg. The specific command here is:
+```sh
+ffmpeg -r 60 -i frame_%05d.png -pix_fmt yuv420p out.mp4
+```
