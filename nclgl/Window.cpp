@@ -19,7 +19,8 @@ Window::Window(std::string title, int sizeX, int sizeY, bool fullScreen)	{
 		title.c_str(),
 		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 		sizeX, sizeY,
-		SDL_WINDOW_OPENGL
+		// Use FULLSCREEN_DESKTOP over FULLSCREEN to create a borderless window
+		SDL_WINDOW_OPENGL | (fullScreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0)
 	);
 
 	// TODO: This is platform specific, we should use SDL to abstract windows stuff away

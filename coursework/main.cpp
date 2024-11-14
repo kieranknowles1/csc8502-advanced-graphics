@@ -10,7 +10,7 @@ const float RecordFramerate = 60;
 int main()	{
     // This detects SSE support for faster compression
     fpng::fpng_init();
-    Window w("Make your own project!", 1280, 720, false);
+    Window w("Make your own project!", 1920, 1200, true);
     Renderer renderer(w, Record);
 
     w.LockMouseToWindow(true);
@@ -24,10 +24,9 @@ int main()	{
         float dt = Record ? (1.0 / RecordFramerate) : w.GetTimer()->GetTimeDeltaSeconds();
         renderer.UpdateScene(dt);
         renderer.RenderScene();
-        if (!Record) {
-            w.swapBuffers();
-        }
-        else {
+        w.swapBuffers();
+
+        if (Record) {
             std::ostringstream ss;
             ss << "recording/frame_" << std::setfill('0') << std::setw(5) << frame << ".png";
             renderer.saveCurrentFrame(ss.str());
