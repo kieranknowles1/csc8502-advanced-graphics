@@ -81,6 +81,10 @@ protected:
     float waterLevel = 128;
 
     GLuint recordTexture;
+    // The FBO that the final scene is rendered to
+    // Either the screen or a render texture
     GLuint finalFbo;
+    std::shared_ptr<Shader> passThroughShader;
+    std::shared_ptr<Mesh> quad;
     bool recording = false;
 };

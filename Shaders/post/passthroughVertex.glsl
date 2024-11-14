@@ -1,5 +1,6 @@
 #version 330 core
-
+// Vertex shader that does nothing other than pass through position
+// and texture coordinates to the fragment shader
 in vec3 position;
 in vec2 texCoord;
 

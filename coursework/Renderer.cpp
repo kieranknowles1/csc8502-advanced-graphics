@@ -25,6 +25,8 @@ Renderer::Renderer(Window& parent, bool record)
 
     skyShader = resourceManager->getShaders().get({"SkyboxVertex.glsl", "SkyboxFragment.glsl"});
 
+    quad = std::shared_ptr<Mesh>(Mesh::GenerateQuad());
+
     heightMap = std::make_shared<HeightMap>(TEXTUREDIR "heightmap.png", Vector3(8, 2, 8));
     auto tesselateShader = resourceManager->getShaders().get({
         "TessVertex.glsl",
@@ -78,7 +80,7 @@ Renderer::Renderer(Window& parent, bool record)
         glGenFramebuffers(1, &finalFbo);
         glBindFramebuffer(GL_FRAMEBUFFER, finalFbo);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, recordTexture, 0);
-        std::cout << "Renderer is recording. No output will be displayed\n";
+        passThroughShader = resourceManager->getShaders().get({"post/passthroughVertex.glsl", "post/passthroughFragment.glsl"});
     }
     else {
         recordTexture = 0;
@@ -273,6 +275,18 @@ void Renderer::combineBuffers() {
     glBindFramebuffer(GL_FRAMEBUFFER, finalFbo);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     timeWarp->apply(*this);
+
+    // This isn't the most efficient way to do this, but we don't care about performance
+    // when we're recording
+    if (recording) {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        BindShader(passThroughShader.get());
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, recordTexture);
+        glUniform1i(passThroughShader->getUniform("sceneTex"), 0);
+        quad->Draw();
+    }
 }
 
 void Renderer::saveCurrentFrame(std::string filename)
@@ -409,14 +423,12 @@ std::unique_ptr<SceneNode> Renderer::createPresentScene()
     root->addChild(createLight(Vector3(4713.58, 477.332, 3481.87), -8.4, 180.04));
     root->addChild(createLight(Vector3(5276.24, 545.851, 3881.6), -17.29, 114.17));
 
-    // TODO: Water shader
-    std::shared_ptr<Mesh> water(Mesh::GenerateQuad());
     Materiel waterMat{
         resourceManager->getTextures().get({"water.tga", SOIL_FLAG_MIPMAPS, true}),
         resourceManager->getTextures().get({"waterbump.png", SOIL_FLAG_MIPMAPS, true}),
     };
     waterMat.reflectivity = 0.75;
-    auto waterNode = new SceneNode(water);
+    auto waterNode = new SceneNode(quad);
     waterNode->setMateriel(waterMat);
     auto heightMapSize = heightMap->getSize();
     waterNode->setTransform(
