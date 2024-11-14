@@ -1,5 +1,15 @@
 # CSC8502 - Advanced Graphics for Games
 
+- [CSC8502 - Advanced Graphics for Games](#csc8502---advanced-graphics-for-games)
+  - [Controls](#controls)
+  - [Building the project](#building-the-project)
+    - [Dependencies](#dependencies)
+    - [Building on Linux](#building-on-linux)
+    - [Building on Windows](#building-on-windows)
+  - [Third-Party Assets](#third-party-assets)
+  - [Recording the Output](#recording-the-output)
+  - [Screenshots](#screenshots)
+
 This repository contains the code for the Advanced Graphics for Games module at Newcastle University as part of the MSc Computer Game Engineering course.
 
 ## Controls
@@ -68,3 +78,30 @@ ffmpeg -r 60 -start_number 1 -i frame_%05d.png -pix_fmt yuv420p out.mp4
 Note that this requires ~5GB of disk space for a 30 second, 1080p60 video.
 
 [Demo Video](https://www.youtube.com/watch?v=GKlL0EY-yHE)
+
+## Screenshots
+
+![Present](.resources/panorama.png)
+![Future](.resources/panorama_future.png)
+
+The island before and after the apocalypse. The future scene is implemented
+as a clone of the past scene, with meshes swapped out and lights added. There
+are 500 point lights in the future scene, one for each tree, which are processed
+using deferred shading.
+
+Each scene is its own scene graph with its own root node, which allows for
+selective rendering of only a single scene or blending between the two.
+
+![Projected Textures and Shadows](.resources/projected_shadow.png)
+
+Projected textures and shadow maps can be applied to any light in the scene.
+There is no limit to the number of these as they are all handled in the deferred
+pass. Frustum culling is applied to shadow passes to reduce the number of draw
+calls.
+
+![Time Warp](.resources/time_warp.png)
+
+The time warp effect is implemented by rendering both scenes to separate
+framebuffers then blending and distorting them in a fragment shader. The
+distortion is based on sine and triangle waves, which are controlled by the
+warp factor.
