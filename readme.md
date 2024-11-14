@@ -56,8 +56,12 @@ The following directories contain assets from external sources:
 
 ## Recording the Output
 
-The `coursework` demo can record to image files by seting `Record = true` in main.cpp. This will save images to the `recording` directory. These can be converted to a video
-similar to [Source Engine Demos](https://developer.valvesoftware.com/wiki/Demo_Video_Creation) with ffmpeg. The specific command here is:
+The `coursework` demo can record to a series of PNG images by passing `-r` as a command line argument. This will save images to the `recording` directory which can be
+converted to a video similar to [Source Engine Demos](https://developer.valvesoftware.com/wiki/Demo_Video_Creation) with ffmpeg. The specific command here is:
 ```sh
-ffmpeg -r 60 -i frame_%05d.png -pix_fmt yuv420p out.mp4
+ffmpeg -r 60 -start_number 1 -i frame_%05d.png -pix_fmt yuv420p out.mp4
 ```
+
+Note that this requires ~5GB of disk space for a 30 second, 1080p60 video.
+
+[Demo Video](https://www.youtube.com/watch?v=GKlL0EY-yHE)

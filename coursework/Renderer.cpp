@@ -310,6 +310,7 @@ void Renderer::saveCurrentFrame(std::string filename)
         std::copy(buffer.begin() + inputOffset, buffer.begin() + inputOffset + size, flipped.begin() + outputOffset);
     }
 
+    // This could be done on a worker thread, but it's not worth the effort.
     fpng::fpng_encode_image_to_file(
         filename.c_str(),
         flipped.data(),

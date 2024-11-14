@@ -9,6 +9,8 @@
 #include "CameraPath.h"
 #include "TimeWarp.h"
 
+// Renderer for the coursework
+// Nothing here is thread safe
 class Renderer : public OGLRenderer	{
 public:
     Renderer(Window &parent, bool record);
@@ -29,6 +31,8 @@ public:
 
     CameraPath* getCameraPath() { return cameraPath.get(); }
 
+    // Write the current frame to a PNG file
+    // Only works if `record` was set to true in the constructor
     void saveCurrentFrame(std::string filename);
 protected:
     std::unique_ptr<SceneNode> createPresentScene();
