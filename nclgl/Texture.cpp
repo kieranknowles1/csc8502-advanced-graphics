@@ -16,7 +16,7 @@ Texture::Texture(const TextureKey& key)
 		SOIL_CREATE_NEW_ID, key.soilFlags
 	);
 	if (texture == 0) {
-		throw std::runtime_error("Failed to load texture: " + name);
+		throw std::runtime_error("Failed to load texture: " + name + ", " + SOIL_last_result());
 	}
 
 	auto repeat = key.repeat ? GL_REPEAT : GL_CLAMP;
