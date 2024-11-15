@@ -189,7 +189,8 @@ void	Mesh::BufferData()	{
 	if (weightIndices.size()) {
 		glGenBuffers(1, &bufferObject[WEIGHTINDEX_BUFFER]);
 		glBindBuffer(GL_ARRAY_BUFFER, bufferObject[WEIGHTINDEX_BUFFER]);
-		glBufferData(GL_ARRAY_BUFFER, weightIndices.size() * sizeof(int) * 4, weightIndices.data(), GL_STATIC_DRAW);
+		// WTF: We were overreading the buffer 4x, but that didn't cause any issues on Windows
+		glBufferData(GL_ARRAY_BUFFER, weightIndices.size() * sizeof(int), weightIndices.data(), GL_STATIC_DRAW);
 		glVertexAttribIPointer(WEIGHTINDEX_BUFFER, 4, GL_INT, 0, 0); //note the new function...
 		glEnableVertexAttribArray(WEIGHTINDEX_BUFFER);
 
