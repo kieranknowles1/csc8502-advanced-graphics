@@ -73,6 +73,13 @@ find_package(SDL2 REQUIRED)
 add_library(nclgl ${SOURCES} ${HEADERS})
 target_include_directories(nclgl PUBLIC "${PROJECT_SOURCE_DIR}/Third Party")
 
+# TODO: Are these needed on Windows?
+if (UNIX)
+    # fpng uses SSE4 instructions, and needs this flag for the
+    # compiler to use them
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4.1 -mpclmul")
+endif(UNIX)
+
 target_link_libraries(nclgl INTERFACE
     ${OPENGL_LIBRARIES}
     SDL2::SDL2
